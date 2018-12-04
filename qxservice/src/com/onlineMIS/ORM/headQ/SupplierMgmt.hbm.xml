@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="com.onlineMIS.ORM.entity.headQ.supplier.supplierMgmt">
+  <class name="HeadQSupplier" table="headq_supplier">
+        <cache usage="read-write" region="qxbabyConstant"/>
+        <id name="id" column="id">
+            <generator class="identity" />
+        </id>
+        <property name="name" column="name" type="string"/>
+        <property name="phone" column="phone" type="string"/>
+        <property name="address" column="address" type="string"/>
+        <property name="initialAcctBalance" column="initial_acct_balance" type="double"/>
+        <property name="currentAcctBalance" column="current_acct_balance" type="double"/>
+        <property name="comment" column="comment" type="string"/>
+        <property name="status" column="status" type="integer"/>
+        <property name="pinyin" column="pinyin" type="string"/>
+    </class>
+ 
+</hibernate-mapping>

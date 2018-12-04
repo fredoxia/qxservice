@@ -81,6 +81,11 @@ public class HeadQSalesService {
 			if (StringUtils.isNotEmpty(pinyin)){
 				custCriteria.add(Restrictions.like("pinyin", pinyin, MatchMode.ANYWHERE));
 			}
+			
+			String custName = StringUtils.trim(cust.getName());
+			if (StringUtils.isNotEmpty(custName)){
+				custCriteria.add(Restrictions.like("name", custName, MatchMode.ANYWHERE));
+			}
 		}
 
 		//2. 获取当页数据

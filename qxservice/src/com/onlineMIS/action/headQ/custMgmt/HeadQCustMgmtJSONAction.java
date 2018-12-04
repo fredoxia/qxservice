@@ -37,7 +37,7 @@ public class HeadQCustMgmtJSONAction extends HeadQCustMgmtAction {
 	 * @return
 	 */
 	public String listCustData(){
-		loggerLocal.info("HeadQSalesJSONAction.listCustData");
+		loggerLocal.info("HeadQCustMgmtJSONAction.listCustData");
 		
 		Response response = new Response();
 		try {
@@ -68,7 +68,7 @@ public class HeadQCustMgmtJSONAction extends HeadQCustMgmtAction {
 	 * @return
 	 */
 	public String createUpdateCust(){
-		loggerLocal.info("HeadQSalesJSONAction.createUpdateCust");
+		loggerLocal.info("HeadQCustMgmtJSONAction.createUpdateCust");
 		Response response = new Response();
 		
 		try {
@@ -88,7 +88,7 @@ public class HeadQCustMgmtJSONAction extends HeadQCustMgmtAction {
 	 * @return
 	 */
 	public String searchCustData(){
-		loggerLocal.info("HeadQSalesJSONAction.listCustData");
+		loggerLocal.info("HeadQCustMgmtJSONAction.searchCustData");
 		
 		Response response = new Response();
 		try {

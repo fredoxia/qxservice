@@ -405,6 +405,9 @@ public class FinanceService {
     		   bill.setPostAcctAmt(postAcctAmt);
     		   financeBillImpl.update(bill, true);
     		}
+    		
+    		cust.setCurrentAcctBalance(postAcctAmt);
+    		headQCustDaoImpl.update(cust, true);
 			
 			HeadQAcctFlow chainAcctFlow = new HeadQAcctFlow(clientId, netAmt, "F," + bill.getId() + "," + isCancel, bill.getCreateDate());
 			chainAcctFlowDaoImpl.save(chainAcctFlow, true);

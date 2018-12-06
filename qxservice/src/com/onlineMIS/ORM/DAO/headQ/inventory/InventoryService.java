@@ -741,17 +741,19 @@ public class InventoryService {
 		netAmt *= offset;
 		
 		//2.update the order's preAcctAmt and postAcctAmt
-		if (!isCancel){
-    		double initialAcctAmt = cust.getInitialAcctBalance();  		
-    		double acctAmtFlow = chainAcctFlowDaoImpl.getAccumulateAcctFlow(clientId);
-    		double preAcctAmt = Common_util.getDecimalDouble(initialAcctAmt + acctAmtFlow);
-    		double postAcctAmt = Common_util.getDecimalDouble(preAcctAmt + netAmt);
-    		    
+		double initialAcctAmt = cust.getInitialAcctBalance();  		
+		double acctAmtFlow = chainAcctFlowDaoImpl.getAccumulateAcctFlow(clientId);
+		double preAcctAmt = Common_util.getDecimalDouble(initialAcctAmt + acctAmtFlow);
+		double postAcctAmt = Common_util.getDecimalDouble(preAcctAmt + netAmt);
+		if (!isCancel){  
 			String hql = "update InventoryOrder set preAcctAmt =?, postAcctAmt=? where order_ID=?";
 			Object[] values = {preAcctAmt, postAcctAmt, orderId};
 			
 			inventoryOrderDAOImpl.executeHQLUpdateDelete(hql, values, false);
 		}
+		
+		cust.setCurrentAcctBalance(postAcctAmt);
+		headQCustDaoImpl.update(cust, true);
 		
 		HeadQAcctFlow chainAcctFlow = new HeadQAcctFlow(clientId, netAmt, "S," + orderId + "," + isCancel, date);
 		chainAcctFlowDaoImpl.save(chainAcctFlow, true);

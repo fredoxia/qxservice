@@ -22,7 +22,7 @@ import com.onlineMIS.ORM.entity.headQ.custMgmt.HeadQCust;
 import com.onlineMIS.common.Common_util;
 
 @Service
-public class HeadQSalesService {
+public class HeadQCustMgmtService {
 	@Autowired
 	private HeadQCustDaoImpl headQCustDaoImpl;
 	
@@ -45,6 +45,11 @@ public class HeadQSalesService {
 			if (StringUtils.isNotEmpty(custName)){
 				custTotalCriteria.add(Restrictions.like("name", custName, MatchMode.ANYWHERE));
 				custCriteria.add(Restrictions.like("name", custName, MatchMode.ANYWHERE));
+			}
+			
+			String pinyin = StringUtils.trim(cust.getPinyin());
+			if (StringUtils.isNotEmpty(pinyin)){
+				custCriteria.add(Restrictions.like("pinyin", pinyin, MatchMode.ANYWHERE));
 			}
 		}
 

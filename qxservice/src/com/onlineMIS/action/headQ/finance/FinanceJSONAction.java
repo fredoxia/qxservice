@@ -173,8 +173,8 @@ public class FinanceJSONAction extends FinanceAction {
 	 */
 	public String searchAcctFlow(){
   
-		Date startDate = formBean.getSearchStartTime();
-		Date endDate = formBean.getSearchEndTime();
+		Date startDate = Common_util.formStartDate(formBean.getSearchStartTime());
+		Date endDate = Common_util.formEndDate(formBean.getSearchEndTime());
 		int clientId = formBean.getOrder().getCust().getId();
 		
 		Response response = new Response();

@@ -48,6 +48,12 @@ public class HeadQSupplierService {
 				custTotalCriteria.add(Restrictions.like("name", custName, MatchMode.ANYWHERE));
 				custCriteria.add(Restrictions.like("name", custName, MatchMode.ANYWHERE));
 			}
+			
+			String pinyin = StringUtils.trim(supplier.getPinyin());
+			if (StringUtils.isNotEmpty(pinyin)){
+				custCriteria.add(Restrictions.like("pinyin", pinyin, MatchMode.ANYWHERE));
+				custTotalCriteria.add(Restrictions.like("name", custName, MatchMode.ANYWHERE));
+			}
 		}
 
 		//1. 获取总条数
@@ -84,6 +90,11 @@ public class HeadQSupplierService {
 			String pinyin = StringUtils.trim(supplier.getPinyin());
 			if (StringUtils.isNotEmpty(pinyin)){
 				custCriteria.add(Restrictions.like("pinyin", pinyin, MatchMode.ANYWHERE));
+			}
+			
+			String custName = StringUtils.trim(supplier.getName());
+			if (StringUtils.isNotEmpty(custName)){
+				custCriteria.add(Restrictions.like("name", custName, MatchMode.ANYWHERE));
 			}
 		}
 

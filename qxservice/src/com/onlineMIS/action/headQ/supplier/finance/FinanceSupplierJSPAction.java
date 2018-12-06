@@ -154,8 +154,8 @@ public class FinanceSupplierJSPAction extends FinanceSupplierAction {
 	 * @return
 	 */
 	public String preSearchAcctFlow(){
-//    	UserInfor userInfor = (UserInfor)ActionContext.getContext().getSession().get(Common_util.LOGIN_USER);
-//    	loggerLocal.info(userInfor.getUser_name() + "," + this.getClass().getName() + "." + "preSearchAcctFlow");
+    	UserInfor userInfor = (UserInfor)ActionContext.getContext().getSession().get(Common_util.LOGIN_USER);
+    	loggerLocal.info(userInfor.getUser_name() + "," + this.getClass().getName() + "." + "preSearchAcctFlow");
 //    	
 ////		financeService.prepareSearchAcctFlowUI(uiBean,formBean, userInfor);
 

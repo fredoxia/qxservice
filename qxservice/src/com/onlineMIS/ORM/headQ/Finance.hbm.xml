@@ -46,7 +46,7 @@
     
     <class name="HeadQFinanceTrace" table="headq_finance_trace">
         <composite-id>
-            <key-property name="clientId" column="client_id" type="integer"/>
+            <key-property name="clientId" column="customer_id" type="integer"/>
             <key-property name="categoryId" column="category_id" type="integer"/>  
             <key-property name="billId" column="bill_id" type="string"/>   
         </composite-id>

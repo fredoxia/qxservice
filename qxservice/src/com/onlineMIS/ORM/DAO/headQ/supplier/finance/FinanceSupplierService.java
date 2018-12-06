@@ -21,22 +21,28 @@ import com.onlineMIS.ORM.DAO.Response;
 import com.onlineMIS.ORM.DAO.headQ.supplier.supplierMgmt.HeadQSupplierDaoImpl;
 import com.onlineMIS.ORM.entity.base.Pager;
 import com.onlineMIS.ORM.entity.headQ.custMgmt.HeadQCust;
+import com.onlineMIS.ORM.entity.headQ.finance.ChainAcctFlowReportItem;
 import com.onlineMIS.ORM.entity.headQ.finance.FinanceBill;
 import com.onlineMIS.ORM.entity.headQ.finance.FinanceBillItem;
 import com.onlineMIS.ORM.entity.headQ.finance.FinanceCategory;
 import com.onlineMIS.ORM.entity.headQ.finance.HeadQAcctFlow;
 import com.onlineMIS.ORM.entity.headQ.finance.HeadQFinanceTrace;
+import com.onlineMIS.ORM.entity.headQ.inventory.InventoryOrder;
 import com.onlineMIS.ORM.entity.headQ.supplier.finance.FinanceBillSupplier;
 import com.onlineMIS.ORM.entity.headQ.supplier.finance.FinanceBillSupplierItem;
 import com.onlineMIS.ORM.entity.headQ.supplier.finance.FinanceCategorySupplier;
 import com.onlineMIS.ORM.entity.headQ.supplier.finance.SupplierAcctFlow;
+import com.onlineMIS.ORM.entity.headQ.supplier.finance.SupplierAcctFlowReportItem;
 import com.onlineMIS.ORM.entity.headQ.supplier.finance.SupplierFinanceTrace;
+import com.onlineMIS.ORM.entity.headQ.supplier.purchase.PurchaseOrder;
 import com.onlineMIS.ORM.entity.headQ.supplier.supplierMgmt.HeadQSupplier;
 import com.onlineMIS.ORM.entity.headQ.user.UserInfor;
 import com.onlineMIS.action.headQ.finance.FinanceActionFormBean;
 import com.onlineMIS.action.headQ.supplier.finance.FinanceSupplierActionFormBean;
 import com.onlineMIS.action.headQ.supplier.finance.FinanceSupplierActionUIBean;
 import com.onlineMIS.common.Common_util;
+import com.onlineMIS.sorter.ChainAcctFlowReportItemSort;
+import com.onlineMIS.sorter.SupplierAcctFlowReportItemSort;
 
 
 @Service
@@ -278,13 +284,18 @@ public class FinanceSupplierService {
 			double netAmt = offset * invoiceTotal;
 			double postAcctAmt = Common_util.getDecimalDouble(preAcctAmt + netAmt);
     		
-    		//4.update the finance bill's pre and post 
+    		//5.update the finance bill's pre and post 
     		if (!isCancel){
     		   bill.setPreAcctAmt(preAcctAmt);
     		   bill.setPostAcctAmt(postAcctAmt);
     		   financeBillSupplierDaoImpl.update(bill, true);
     		}
-			
+    		
+    		//6。更新supplier信息
+    		supplier.setCurrentAcctBalance(postAcctAmt);
+		    headQSupplierDaoImpl.update(supplier, true);
+    		
+    		//7. 更新acct folow
 			SupplierAcctFlow supplierAcctFlow = new SupplierAcctFlow(supplierId, netAmt, "F," + bill.getId() + "," + isCancel, bill.getCreateDate());
 			supplierAcctFlowDaoImpl.save(supplierAcctFlow, true);
 		}
@@ -424,5 +435,140 @@ public class FinanceSupplierService {
 		}
 		
 		return response;
+	}
+
+	public Response searchAcctFlow(Date startDate, Date endDate, int supplierId, boolean b) {
+		Response response = new Response();
+		List<SupplierAcctFlowReportItem> rptItems = new ArrayList<SupplierAcctFlowReportItem>();
+		
+		if (supplierId != Common_util.ALL_RECORD && supplierId != Common_util.ALL_RECORD_NEW){
+			/**
+			 * 1. 搜索所有采购单据
+			 */
+			List<PurchaseOrder> purchaseOrders = new ArrayList<PurchaseOrder>();
+//			DetachedCriteria criteria = DetachedCriteria.forClass(InventoryOrder.class,"order");
+//			criteria.add(Restrictions.eq("order.order_Status", InventoryOrder.STATUS_ACCOUNT_COMPLETE));
+//			
+//			criteria.add(Restrictions.eq("order.cust.id", supplierId));
+//	
+//			startDate  = Common_util.formStartDate(startDate);
+//			endDate = Common_util.formEndDate(endDate);
+//			criteria.add(Restrictions.between("order.order_EndTime",startDate,endDate));
+//			//criteria.addOrder(Order.asc("order.order_StartTime"));
+//			List<InventoryOrder> purchaseOrders = inventoryOrderDAOImpl.getByCritera(criteria, true);
+	
+			/**
+			 * 2. 搜索所有财物单据
+			 */
+	        DetachedCriteria criteria2 = DetachedCriteria.forClass(FinanceBillSupplier.class);
+			criteria2.add(Restrictions.eq("status", FinanceBill.STATUS_COMPLETE));
+			criteria2.add(Restrictions.eq("supplier.id", supplierId));
+
+			criteria2.add(Restrictions.between("createDate", startDate, endDate));
+			List<FinanceBillSupplier> financeBills = financeBillSupplierDaoImpl.getByCritera(criteria2, true);
+			
+	
+			constructSupplierAcctFlowRptItems(purchaseOrders, financeBills, rptItems, supplierId, startDate);
+		}
+		
+		Map data = new HashMap<String, List>();
+		data.put("rows", rptItems);
+		response.setReturnValue(data);
+		response.setReturnCode(Response.SUCCESS);
+		
+		return response;
+	}
+
+	private void constructSupplierAcctFlowRptItems(List<PurchaseOrder> purchaseOrders,
+			List<FinanceBillSupplier> financeBills, List<SupplierAcctFlowReportItem> rptItems, int supplierId,
+			Date startDate) {
+		//1. 货品采购单
+		if (purchaseOrders != null && purchaseOrders.size() >0){
+			for (PurchaseOrder order : purchaseOrders){
+//				HeadQCust cust = headQCustDaoImpl.get(clientId, true);
+//				String orderType = "";
+//				if (isChain)
+//					orderType = order.getOrder_type_chain();
+//				else 
+//					orderType = order.getOrder_type_ws();
+//				
+//				String acctFlowType ="";
+//				if (order.getOrder_type() == InventoryOrder.TYPE_SALES_ORDER_W)
+//					acctFlowType = ChainAcctFlowReportItem.ACCT_FLOW_TYPE_INCREASE;
+//				else if (order.getOrder_type() == InventoryOrder.TYPE_SALES_RETURN_ORDER_W)
+//					acctFlowType = ChainAcctFlowReportItem.ACCT_FLOW_TYPE_DECREASE;
+//				
+//				ChainAcctFlowReportItem acctFlowItem = new ChainAcctFlowReportItem(cust, order.getOrder_EndTime(), orderType, ChainAcctFlowReportItem.ITEM_TYPE_PURCHASE,acctFlowType, order.getTotalQuantity(), order.getTotalWholePrice() - order.getTotalDiscount(), order.getOrder_ID(),order.getComment(), 0,0);
+//				rptItems.add(acctFlowItem);
+			}
+		}
+		
+		//2. 财务单据
+		if (financeBills != null && financeBills.size() > 0){
+			for (FinanceBillSupplier bill : financeBills){
+				HeadQSupplier supplier = bill.getSupplier();
+				String billTypeName = bill.getTypeHQS();
+				
+				int billType = bill.getType();
+				String acctFlowType = "";
+				double invoiceTotal = bill.getInvoiceTotal();
+				if (billType == FinanceBill.FINANCE_DECREASE_HQ || billType == FinanceBill.FINANCE_PAID_HQ) {
+					acctFlowType = ChainAcctFlowReportItem.ACCT_FLOW_TYPE_DECREASE;
+					invoiceTotal -= bill.getInvoiceDiscount();
+				} else if (billType == FinanceBill.FINANCE_INCREASE_HQ || billType == FinanceBill.FINANCE_INCOME_HQ){
+					acctFlowType = ChainAcctFlowReportItem.ACCT_FLOW_TYPE_INCREASE;
+					invoiceTotal += bill.getInvoiceDiscount();
+				}
+				
+				SupplierAcctFlowReportItem acctFlowItem = new SupplierAcctFlowReportItem(supplier, bill.getCreateDate(), billTypeName, ChainAcctFlowReportItem.ITEM_TYPE_FINANCE, acctFlowType, 0, invoiceTotal, bill.getId(), bill.getComment(), 0,0);
+				rptItems.add(acctFlowItem);
+			}
+		}
+		
+		//3. 排序一下
+		Collections.sort(rptItems, new SupplierAcctFlowReportItemSort());
+		
+		//4. 获取前面的累计欠款
+		Date firstDate = null;
+		double acctBefore  = 0;
+		if (rptItems.size() > 0){
+			firstDate = rptItems.get(0).getDate();
+		} else 
+			firstDate = startDate;
+			
+		
+		if (firstDate != null)
+		    acctBefore = supplierAcctFlowDaoImpl.getAccumulateAcctFlowBefore(supplierId, firstDate);
+		
+		//5. 准备数据
+		HeadQSupplier cust = headQSupplierDaoImpl.get(supplierId, true);
+		if (cust != null)
+		     acctBefore += cust.getInitialAcctBalance();
+		
+		double acctAfter = acctBefore;
+		for (SupplierAcctFlowReportItem rptItem: rptItems){
+			double thisAmt = rptItem.getAmount();
+			String acctFlowType = rptItem.getAcctFlowType();
+			
+			if (acctFlowType.equalsIgnoreCase(ChainAcctFlowReportItem.ACCT_FLOW_TYPE_INCREASE)){
+				acctAfter += thisAmt;
+				rptItem.setAcctIncrease(thisAmt);
+				rptItem.setPostAcct(acctAfter);
+			} else if (acctFlowType.equalsIgnoreCase(ChainAcctFlowReportItem.ACCT_FLOW_TYPE_DECREASE)){
+				acctAfter = acctAfter - thisAmt;
+				rptItem.setAcctDecrease(thisAmt);
+				rptItem.setPostAcct(acctAfter);
+			} else {
+				rptItem.setPostAcct(acctAfter);
+			}
+
+		}
+		
+		//6.0 设置首
+		SupplierAcctFlowReportItem firstItem = new SupplierAcctFlowReportItem();
+		firstItem.setDate(startDate);
+		firstItem.setPostAcct(acctBefore);
+		rptItems.add(0, firstItem);
+		
 	}
 }

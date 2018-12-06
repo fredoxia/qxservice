@@ -21,6 +21,7 @@ import com.onlineMIS.converter.JSONSQLDateConverter;
 import com.onlineMIS.converter.JSONUtilDateConverter;
 import com.opensymphony.xwork2.ActionContext;
 
+import antlr.CommonToken;
 import net.sf.json.JSONObject;
 import net.sf.json.JsonConfig;
 
@@ -155,6 +156,39 @@ public class FinanceSupplierJSONAction extends FinanceSupplierAction {
 		try{
 			   jsonObject = JSONObject.fromObject(jsonMap,jsonConfig);
 //			   System.out.println(jsonObject.toString());
+			} catch (Exception e){
+				loggerLocal.error(e);
+			}
+		
+		return SUCCESS;
+	}
+	
+	/**
+	 * 查询帐户流水
+	 * @return
+	 */
+	public String searchAcctFlow(){
+  
+		Date startDate = Common_util.formStartDate(formBean.getSearchStartTime());
+		Date endDate = Common_util.formEndDate(formBean.getSearchEndTime());
+		int supplierId = formBean.getOrder().getSupplier().getId();
+		
+		Response response = new Response();
+		
+		try {
+			response = financeSupplierService.searchAcctFlow(startDate, endDate, supplierId, false);
+		} catch (Exception e) {
+			response.setQuickValue(Response.FAIL, e.getMessage());
+		}
+
+		jsonMap =  (Map<String, Object>)response.getReturnValue();
+		JsonConfig jsonConfig = new JsonConfig();
+
+		jsonConfig.registerJsonValueProcessor(java.util.Date.class, new JSONUtilDateConverter());  
+		jsonConfig.registerJsonValueProcessor(java.sql.Date.class, new JSONSQLDateConverter());
+		
+		try{
+			   jsonObject = JSONObject.fromObject(jsonMap,jsonConfig);
 			} catch (Exception e){
 				loggerLocal.error(e);
 			}

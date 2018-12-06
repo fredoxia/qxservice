@@ -55,7 +55,7 @@
             <result name="EditFinanceBill">/jsp/headQ/supplier/finance/EditFinanceBill.jsp</result>
             <result name="ViewFinanceBill">/jsp/headQ/supplier/finance/ViewFinanceBill.jsp</result>
             <result name="preSearchFinanceBill">/jsp/headQ/supplier/finance/SearchFinanceBill.jsp</result>   
-            <result name="preSearchAcctFlow">/jsp/headQ/supplier/finance/SearchAcctFlowHQ.jsp</result>  
+            <result name="preSearchAcctFlow">/jsp/headQ/supplier/finance/SearchAcctFlowSupplier.jsp</result>  
             <result name="preFinanceRpt">/jsp/headQ/supplier/finance/GenerateFinanceReport.jsp</result>         
         </action>  
          <action name="headQSupplierMgmtJSPAction" class="com.onlineMIS.action.headQ.supplier.supplierMgmt.HeadQSupplierMgmtJSPAction">

@@ -10,7 +10,7 @@ import org.springframework.stereotype.Controller;
 import com.onlineMIS.ORM.DAO.Response;
 import com.onlineMIS.ORM.DAO.headQ.barCodeGentor.BasicDataService;
 import com.onlineMIS.ORM.DAO.headQ.barCodeGentor.ProductBarcodeService;
-import com.onlineMIS.ORM.DAO.headQ.custMgmt.HeadQSalesService;
+import com.onlineMIS.ORM.DAO.headQ.custMgmt.HeadQCustMgmtService;
 import com.onlineMIS.ORM.entity.headQ.barcodeGentor.Year;
 import com.onlineMIS.action.BaseAction;
 import com.onlineMIS.common.loggerLocal;
@@ -23,7 +23,7 @@ public class HeadQCustMgmtAction extends BaseAction {
 	private static final long serialVersionUID = 1L;
 	
 	@Autowired
-	protected HeadQSalesService headQSalesService;
+	protected HeadQCustMgmtService headQSalesService;
 
 
 	protected HeadQCustMgmtFormBean formBean = new HeadQCustMgmtFormBean();

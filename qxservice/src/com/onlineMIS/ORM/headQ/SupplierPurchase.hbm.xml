@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="com.onlineMIS.ORM.entity.headQ.supplier.purchase">
+   <class name="PurchaseOrderProduct" table="purchase_order_product">
+       <composite-id>
+        <key-many-to-one name="pb" column="pb_id" class="com.onlineMIS.ORM.entity.headQ.barcodeGentor.ProductBarcode" lazy="false"/>
+        <key-many-to-one name="order" column="order_id" class="com.onlineMIS.ORM.entity.headQ.inventory.InventoryOrder" />
+       </composite-id>
+        <property name="quantity" column="quantity" type="integer"/>
+        <property name="index" column="indexNum" type="integer"/>
+        <property name="wholeSalePrice" column="whole_sale_price" type="double"/>
+        <property name="recCost" column="rec_cost" type="double"/>
+        <property name="discount" column="discount" type="double"/>
+        <property name="salePriceSelected" column="sale_price_selected" type="double"/>
+    </class>
+    
+    <class name="PurchaseOrder" table="purchase_order"  batch-size="15">
+        <id name="id" column="order_id">
+            <generator class="identity" />
+        </id>
+        <many-to-one name="store" fetch="select" column="store_id" class="HeadQInventoryStore" lazy="false" not-null="false"/>
+        <property name="comment" column="comment" type="string"/>
+        <property name="creationTime" column="creation_time" type="timestamp"/>
+        <property name="lastUpdateTime" column="last_update_time" type="timestamp"/>
+        <property name="status" column="order_status" type="integer"/>
+        <property name="type" column="order_type" type="integer"/>
+        
+        <property name="totalQuantity" column="total_quantity" type="integer"/>
+        <property name="totalRecCost" column="total_rec_cost" type="double"/>
+        <property name="totalWholePrice" column="total_whole_price" type="double"/>
+        <property name="totalDiscount" column="total_discount" type="double"/>    
+
+        <property name="preAcctAmt" column="pre_acct_amt" type="double"/> 
+        <property name="postAcctAmt" column="post_acct_amt" type="double"/> 
+
+        <many-to-one name="orderAuditor" fetch="select" column="order_auditor" class="com.onlineMIS.ORM.entity.headQ.user.UserInfor" lazy="false" not-null="false"/>
+        <many-to-one name="orderCounter" fetch="select" column="order_Counter" class="com.onlineMIS.ORM.entity.headQ.user.UserInfor" lazy="false" not-null="false"/>
+        <set name="productSet" cascade="all" inverse="true" lazy="true" fetch="subselect" batch-size="10">
+             <key column="order_id"/>
+             <one-to-many class="com.onlineMIS.ORM.entity.headQ.supplier.purchase.PurchaseOrderProduct"/>
+        </set>
+
+        <many-to-one name="supplier" fetch="select" column="supplier_id" class="com.onlineMIS.ORM.entity.headQ.supplier.supplierMgmt.HeadQSupplier" lazy="false" not-null="false"/>
+    </class>
+ 
+</hibernate-mapping>

@@ -50,6 +50,9 @@
                 <param name="method">swithToChain</param>
         	</result>
         </action>
+        <action name="supplierPurchaseJSP" class="com.onlineMIS.action.headQ.supplier.purchase.SupplierPurchaseJSPAction">
+                  
+        </action> 
         <!-- the supplier finance action -->
         <action name="financeSupplierJSP" class="com.onlineMIS.action.headQ.supplier.finance.FinanceSupplierJSPAction">
             <result name="EditFinanceBill">/jsp/headQ/supplier/finance/EditFinanceBill.jsp</result>
@@ -271,6 +274,11 @@
     </package>
     
     <package name="headQJSONPackage" extends="json-default" namespace="/action">
+        <action name="supplierPurchaseJSON" class="com.onlineMIS.action.headQ.supplier.purchase.SupplierPurchaseJSONAction">
+            <result type="json">
+                 <param name="root">jsonObject</param>
+            </result>
+        </action> 
        <action name="financeSupplierJSON" class="com.onlineMIS.action.headQ.supplier.finance.FinanceSupplierJSONAction">
             <result type="json">
                  <param name="root">jsonObject</param>

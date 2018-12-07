@@ -32,6 +32,15 @@ public class SystemParm {
 		return value.trim();
 	}
 	
+	public static int getTestSupplierId(){
+		String TEST_ID_OBJ = getParm("TEST_SUPPLIER_ID");
+		if (!StringUtils.isEmpty(TEST_ID_OBJ)){
+			int TEST_ID = Integer.parseInt(TEST_ID_OBJ);
+			return TEST_ID;
+		} else 
+			return -1;
+	}
+	
 	public static int getTestClientId(){
 		String TEST_ID_OBJ = getParm("TEST_CLIENT_ID");
 		if (!StringUtils.isEmpty(TEST_ID_OBJ)){

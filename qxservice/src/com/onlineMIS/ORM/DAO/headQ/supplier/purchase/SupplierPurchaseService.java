@@ -28,7 +28,7 @@ import com.onlineMIS.filter.SystemParm;
 
 
 @Service
-public class PurchaseService {
+public class SupplierPurchaseService {
  
 	@Autowired
 	private PurchaseOrderDaoImpl purchaseOrderDaoImpl;

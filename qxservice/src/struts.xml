@@ -51,7 +51,8 @@
         	</result>
         </action>
         <action name="supplierPurchaseJSP" class="com.onlineMIS.action.headQ.supplier.purchase.SupplierPurchaseJSPAction">
-                  
+            <result name="editPurchase">/jsp/headQ/supplier/purchase/EditPurchaseOrder.jsp</result>
+            <result name="viewPurchase">/jsp/headQ/supplier/purchase/ViewPurchaseOrder.jsp</result>     
         </action> 
         <!-- the supplier finance action -->
         <action name="financeSupplierJSP" class="com.onlineMIS.action.headQ.supplier.finance.FinanceSupplierJSPAction">

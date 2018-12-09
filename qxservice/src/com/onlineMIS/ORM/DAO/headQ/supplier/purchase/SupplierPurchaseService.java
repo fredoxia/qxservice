@@ -7,14 +7,18 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import com.onlineMIS.ORM.DAO.Response;
 import com.onlineMIS.ORM.DAO.headQ.barCodeGentor.ProductBarcodeDaoImpl;
 import com.onlineMIS.ORM.DAO.headQ.inventory.HeadQInventoryStockDAOImpl;
 import com.onlineMIS.ORM.DAO.headQ.supplier.finance.SupplierAcctFlowDaoImpl;
 import com.onlineMIS.ORM.DAO.headQ.supplier.supplierMgmt.HeadQSupplierDaoImpl;
+import com.onlineMIS.ORM.DAO.headQ.user.UserInforDaoImpl;
 import com.onlineMIS.ORM.entity.headQ.barcodeGentor.ProductBarcode;
 import com.onlineMIS.ORM.entity.headQ.inventory.HeadQInventoryStock;
 import com.onlineMIS.ORM.entity.headQ.inventory.HeadQInventoryStore;
@@ -23,6 +27,7 @@ import com.onlineMIS.ORM.entity.headQ.supplier.purchase.PurchaseOrder;
 import com.onlineMIS.ORM.entity.headQ.supplier.purchase.PurchaseOrderProduct;
 import com.onlineMIS.ORM.entity.headQ.supplier.supplierMgmt.HeadQSupplier;
 import com.onlineMIS.ORM.entity.headQ.user.UserInfor;
+import com.onlineMIS.action.headQ.supplier.purchase.SupplierPurchaseActionUIBean;
 import com.onlineMIS.common.Common_util;
 import com.onlineMIS.filter.SystemParm;
 
@@ -41,14 +46,17 @@ public class SupplierPurchaseService {
 	@Autowired
 	private HeadQInventoryStockDAOImpl headQInventoryStockDAOImpl;
 	
+	@Autowired
+	private UserInforDaoImpl userInforDaoImpl;
 	/**
 	 * 获取单据信息
+	 * Action 1: edit; 2 : view
 	 * @param id
 	 * @param loginUser
 	 * @return
 	 */
 	@Transactional
-	public Response getPurchaseOrderById(int id, UserInfor loginUser){
+	public Response loadPurchaseOrder(int id, UserInfor loginUser){
 		Response response = new Response();
 		
 		PurchaseOrder order = purchaseOrderDaoImpl.get(id, true);
@@ -56,15 +64,36 @@ public class SupplierPurchaseService {
 			response.setFail("无法找到 采购单据 : " + id);
 		} else {
 			UserInfor orderOwner = order.getOrderAuditor();
-			if (orderOwner.getUser_id() != loginUser.getUser_id()){
-				response.setFail("你没有权限修改 采购单据 .");
-			} else {
-				purchaseOrderDaoImpl.initialize(order);
-				
-				order.putSetToList();
-				
-				response.setReturnValue(order);
+			int status = order.getStatus();
+			
+			switch (status) {
+				case PurchaseOrder.STATUS_DRAFT:
+					if (orderOwner.getUser_id() != loginUser.getUser_id()){
+						response.setFail("你没有权限修改 采购单据 .");
+					} else {
+						purchaseOrderDaoImpl.initialize(order);
+						order.putSetToList();
+						
+						response.setReturnValue(order);
+						response.setAction(1);
+					}
+					break;
+				case PurchaseOrder.STATUS_CANCEL:
+				case PurchaseOrder.STATUS_COMPLETE:
+					purchaseOrderDaoImpl.initialize(order);
+					order.putSetToList();
+					
+					response.setReturnValue(order);
+					response.setAction(2);
+					
+				case PurchaseOrder.STATUS_DELETED:
+					response.setFail("采购单据 : " + id + " 已经被删除.");
+					break;
+			    default:
+			    	response.setFail("采购单据状态错误 : " + id);
+				    break;
 			}
+
 		}
 		
 		return response;
@@ -190,33 +219,31 @@ public class SupplierPurchaseService {
 	 * @return
 	 */
 	@Transactional
-	public Response cancelPurchaseOrder(PurchaseOrder order, UserInfor loginUser){
+	public Response cancelPurchaseOrder(int orderId, UserInfor loginUser){
 		Response response = new Response();
 				
 		//1. 保存单据
-		PurchaseOrder orderOriginal = purchaseOrderDaoImpl.get(order.getId(), true);
+		PurchaseOrder orderOriginal = purchaseOrderDaoImpl.get(orderId, true);
 		if (orderOriginal == null){
 			response.setFail("单据还未过账无法红冲");
 		} else {
 			if (orderOriginal.getStatus() != PurchaseOrder.STATUS_COMPLETE){
 				response.setFail("单据还未过账无法红冲");
 			} else {
-				purchaseOrderDaoImpl.evict(orderOriginal);
+				orderOriginal.setLastUpdateTime(Common_util.getToday());
+				orderOriginal.setOrderAuditor(loginUser);
+				orderOriginal.setStatus(PurchaseOrder.STATUS_CANCEL);
+				orderOriginal.putListToSet();
 				
-				order.setLastUpdateTime(Common_util.getToday());
-				order.setOrderAuditor(loginUser);
-				order.setStatus(PurchaseOrder.STATUS_CANCEL);
-				order.putListToSet();
-				
-				purchaseOrderDaoImpl.save(order, true);
+				purchaseOrderDaoImpl.save(orderOriginal, true);
 			}
 		}
 		
 		//2. 过账账目
-		updateSupplierAcctFlow(order, true);
+		updateSupplierAcctFlow(orderOriginal, true);
 				
 		//3. 计算库存
-		updateHeadqInventory(order, true);
+		updateHeadqInventory(orderOriginal, true);
 		
 		return response;
 	}
@@ -388,4 +415,19 @@ public class SupplierPurchaseService {
 		
 		return response;
 	}
+
+	/**
+	 * 准备搜索的页面
+	 * @param uiBean
+	 */
+	public void prepareSearchPurchasePage(SupplierPurchaseActionUIBean uiBean) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void prepareEditPurchasePage(SupplierPurchaseActionUIBean uiBean) {
+		uiBean.setUsers(userInforDaoImpl.getAllNormalUsers());
+		
+	}
+
 }

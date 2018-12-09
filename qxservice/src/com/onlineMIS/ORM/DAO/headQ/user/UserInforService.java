@@ -148,13 +148,8 @@ public class UserInforService {
 	 * @return
 	 */
 	public List<UserInfor> getAllNormalUsers() {
-		DetachedCriteria criteria = DetachedCriteria.forClass(UserInfor.class);	
-		criteria.add(Restrictions.ne("user_name", "admin"));
-		criteria.add(Restrictions.eq("resign", UserInfor.NORMAL_ACCOUNT));
 		
-		criteria.addOrder(Order.asc("pinyin"));
-		
-		List<UserInfor> user_list = userInforDaoImpl.getByCritera(criteria, true);
+		List<UserInfor> user_list = userInforDaoImpl.getAllNormalUsers();
 		
 		return user_list;
 	}

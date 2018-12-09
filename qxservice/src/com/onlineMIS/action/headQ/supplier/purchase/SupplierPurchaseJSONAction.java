@@ -41,5 +41,84 @@ public class SupplierPurchaseJSONAction extends SupplierPurchaseAction {
 		this.jsonObject = jsonObject;
 	}
 	
+	/**
+	 * 保存单据到草稿
+	 * @return
+	 */
+	public String saveToDraft(){
+		UserInfor loginUserInfor = (UserInfor)ActionContext.getContext().getSession().get(Common_util.LOGIN_USER);
+		loggerLocal.info(loginUserInfor.getUser_name() + " : SupplierPurchaseJSONAction.saveToDraft");
+		
+		Response response = supplierPurchaseService.savePurchaseOrderToDraft(formBean.getOrder(), loginUserInfor);
+		
+		try{
+			   jsonObject = JSONObject.fromObject(response);
+//			   System.out.println(jsonObject.toString());
+			} catch (Exception e){
+				loggerLocal.error(e);
+			}
+		
+		return SUCCESS;
+	}
+	
+	/**
+	 * 单据过账
+	 * @return
+	 */
+	public String saveToComplete(){
+		UserInfor loginUserInfor = (UserInfor)ActionContext.getContext().getSession().get(Common_util.LOGIN_USER);
+		loggerLocal.info(loginUserInfor.getUser_name() + " : SupplierPurchaseJSONAction.saveToComplete");
+		
+		Response response = supplierPurchaseService.savePurchaseOrderToComplete(formBean.getOrder(), loginUserInfor);
+		
+		try{
+			   jsonObject = JSONObject.fromObject(response);
+//			   System.out.println(jsonObject.toString());
+			} catch (Exception e){
+				loggerLocal.error(e);
+			}
+		
+		return SUCCESS;
+	}
+	
+	/**
+	 * 红冲过账单据
+	 * @return
+	 */
+	public String cancelPurchase(){
+		UserInfor loginUserInfor = (UserInfor)ActionContext.getContext().getSession().get(Common_util.LOGIN_USER);
+		loggerLocal.info(loginUserInfor.getUser_name() + " : SupplierPurchaseJSONAction.cancelPurchase");
+		
+		Response response = supplierPurchaseService.cancelPurchaseOrder(formBean.getOrder().getId(), loginUserInfor);
+		
+		try{
+			   jsonObject = JSONObject.fromObject(response);
+//			   System.out.println(jsonObject.toString());
+			} catch (Exception e){
+				loggerLocal.error(e);
+			}
+		
+		return SUCCESS;
+	}
+	
+	/**
+	 * 删除草稿单据
+	 * @return
+	 */
+	public String deletePurchase(){
+		UserInfor loginUserInfor = (UserInfor)ActionContext.getContext().getSession().get(Common_util.LOGIN_USER);
+		loggerLocal.info(loginUserInfor.getUser_name() + " : SupplierPurchaseJSONAction.deletePurchase");
+		
+		Response response = supplierPurchaseService.deletePurchaseOrderById(formBean.getOrder().getId(), loginUserInfor);
+		
+		try{
+			   jsonObject = JSONObject.fromObject(response);
+//			   System.out.println(jsonObject.toString());
+			} catch (Exception e){
+				loggerLocal.error(e);
+			}
+		
+		return SUCCESS;
+	}	
 	
 }

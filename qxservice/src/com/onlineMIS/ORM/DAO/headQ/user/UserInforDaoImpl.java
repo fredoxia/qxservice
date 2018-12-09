@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -13,10 +14,13 @@ import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.stereotype.Repository;
+
+
 
 
 import com.onlineMIS.ORM.DAO.BaseDAO;
@@ -30,7 +34,7 @@ import com.opensymphony.xwork2.inject.util.FinalizablePhantomReference;
 @Repository
 public class UserInforDaoImpl extends BaseDAO<UserInfor>{
 
-
+	
 	public void initialize(UserInfor userInfor) {
 		this.getHibernateTemplate().initialize(userInfor.getEmployeeUnder_Set());
 		this.getHibernateTemplate().initialize(userInfor.getUserFunction_Set());
@@ -88,6 +92,17 @@ public class UserInforDaoImpl extends BaseDAO<UserInfor>{
 			this.getHibernateTemplate().save(functionality);
 		}
 		
+	}
+
+	public List<UserInfor> getAllNormalUsers() {
+		DetachedCriteria criteria = DetachedCriteria.forClass(UserInfor.class);	
+		criteria.add(Restrictions.ne("user_name", "admin"));
+		criteria.add(Restrictions.eq("resign", UserInfor.NORMAL_ACCOUNT));
+		criteria.addOrder(Order.asc("pinyin"));
+		
+		List<UserInfor> user_list = this.getByCritera(criteria, true);
+		
+		return user_list;
 	}
 
 

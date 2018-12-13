@@ -13,10 +13,9 @@ public class PurchaseOrderProduct extends BaseProduct{
 	private ProductBarcode pb;
 	private PurchaseOrder order;
 	private int quantity;
-	private double wholeSalePrice;
-	private double recCost;
-	private double discount;
-	private double salePriceSelected;
+	private double wholeSalePrice = 0;
+	private double recCost = 0;
+
 	
 	public ProductBarcode getPb() {
 		return pb;
@@ -49,18 +48,5 @@ public class PurchaseOrderProduct extends BaseProduct{
 	public void setRecCost(double recCost) {
 		this.recCost = recCost;
 	}
-	public double getDiscount() {
-		return discount;
-	}
-	public void setDiscount(double discount) {
-		this.discount = discount;
-	}
-	public double getSalePriceSelected() {
-		return salePriceSelected;
-	}
-	public void setSalePriceSelected(double salePriceSelected) {
-		this.salePriceSelected = salePriceSelected;
-	}
-	
-	
+
 }

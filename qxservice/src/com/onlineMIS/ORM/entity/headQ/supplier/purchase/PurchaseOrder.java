@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.onlineMIS.ORM.entity.base.BaseOrder;
@@ -39,11 +40,22 @@ public class PurchaseOrder extends BaseOrder {
 	private UserInfor orderAuditor;
 	private UserInfor orderCounter;
 	private HeadQSupplier supplier;
+	private String typeS;
+	private String statusS;
+	
     private List<PurchaseOrderProduct> productList = new ArrayList<PurchaseOrderProduct>();
     private Set<PurchaseOrderProduct> productSet = new HashSet<PurchaseOrderProduct>();
     {
     	typeHQMap.put(TYPE_PURCHASE, "采购入库单");
     	typeHQMap.put(TYPE_RETURN, "采购退货单");
+	}
+    
+    
+	public String getTypeS() {
+		return typeHQMap.get(type);
+	}
+	public String getStatusS() {
+		return statusMap.get(status);
 	}
 	public int getId() {
 		return id;
@@ -142,10 +154,22 @@ public class PurchaseOrder extends BaseOrder {
 		this.productSet = productSet;
 	}
 	
+	public void copyFrom(PurchaseOrder originalOrder){
+		this.setComment(originalOrder.getComment());
+		this.setOrderAuditor(originalOrder.getOrderAuditor());
+		this.setOrderCounter(originalOrder.getOrderCounter());
+		this.setSupplier(originalOrder.getSupplier());
+		this.setTotalDiscount(originalOrder.getTotalDiscount());
+		this.setTotalQuantity(originalOrder.getTotalQuantity());
+		this.setTotalRecCost(originalOrder.getTotalRecCost());
+		this.setTotalWholePrice(originalOrder.getTotalWholePrice());
+	}
+
+	
 	public void putListToSet(){
 		if (productList != null)
 			for (int i = 0; i < productList.size(); i++){
-				if (productList.get(i)!= null && productList.get(i).getPb() != null && productList.get(i).getPb().getBarcode() != null && !productList.get(i).getPb().getBarcode().trim().equals("") && productList.get(i).getQuantity()>0){
+				if (productList.get(i)!= null && productList.get(i).getPb() != null && productList.get(i).getPb().getId()>0 && productList.get(i).getQuantity()>0){
 					PurchaseOrderProduct orderProduct = productList.get(i);
 				    orderProduct.setOrder(this);
 				    productSet.add(orderProduct);

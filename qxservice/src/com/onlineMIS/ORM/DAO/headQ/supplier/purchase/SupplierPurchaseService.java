@@ -1,32 +1,49 @@
 package com.onlineMIS.ORM.DAO.headQ.supplier.purchase;
 
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.catalina.User;
+import org.apache.commons.beanutils.BeanUtils;
+import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Restrictions;
+import org.springframework.aop.ThrowsAdvice;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.onlineMIS.ORM.DAO.Response;
 import com.onlineMIS.ORM.DAO.headQ.barCodeGentor.ProductBarcodeDaoImpl;
+import com.onlineMIS.ORM.DAO.headQ.barCodeGentor.ProductDaoImpl;
 import com.onlineMIS.ORM.DAO.headQ.inventory.HeadQInventoryStockDAOImpl;
 import com.onlineMIS.ORM.DAO.headQ.supplier.finance.SupplierAcctFlowDaoImpl;
 import com.onlineMIS.ORM.DAO.headQ.supplier.supplierMgmt.HeadQSupplierDaoImpl;
 import com.onlineMIS.ORM.DAO.headQ.user.UserInforDaoImpl;
+import com.onlineMIS.ORM.entity.headQ.barcodeGentor.Product;
 import com.onlineMIS.ORM.entity.headQ.barcodeGentor.ProductBarcode;
 import com.onlineMIS.ORM.entity.headQ.inventory.HeadQInventoryStock;
 import com.onlineMIS.ORM.entity.headQ.inventory.HeadQInventoryStore;
+import com.onlineMIS.ORM.entity.headQ.inventory.HeadQSalesHistory;
+import com.onlineMIS.ORM.entity.headQ.inventory.HeadQSalesHistoryId;
+import com.onlineMIS.ORM.entity.headQ.inventory.InventoryOrder;
 import com.onlineMIS.ORM.entity.headQ.supplier.finance.SupplierAcctFlow;
+import com.onlineMIS.ORM.entity.headQ.supplier.purchase.HeadqPurchaseHistory;
+import com.onlineMIS.ORM.entity.headQ.supplier.purchase.HeadqPurchaseHistoryId;
 import com.onlineMIS.ORM.entity.headQ.supplier.purchase.PurchaseOrder;
 import com.onlineMIS.ORM.entity.headQ.supplier.purchase.PurchaseOrderProduct;
+import com.onlineMIS.ORM.entity.headQ.supplier.purchase.PurchaseOrderVO;
 import com.onlineMIS.ORM.entity.headQ.supplier.supplierMgmt.HeadQSupplier;
 import com.onlineMIS.ORM.entity.headQ.user.UserInfor;
+import com.onlineMIS.action.headQ.supplier.purchase.SupplierPurchaseActionFormBean;
 import com.onlineMIS.action.headQ.supplier.purchase.SupplierPurchaseActionUIBean;
 import com.onlineMIS.common.Common_util;
 import com.onlineMIS.filter.SystemParm;
@@ -38,7 +55,11 @@ public class SupplierPurchaseService {
 	@Autowired
 	private PurchaseOrderDaoImpl purchaseOrderDaoImpl;
 	@Autowired
+	private PurchaseOrderProductDaoImpl PurchaseOrderProductDaoImpl;
+	@Autowired
 	private ProductBarcodeDaoImpl ProductBarcodeDaoImpl;
+	@Autowired
+	private ProductDaoImpl ProductDaoImpl;
 	@Autowired
 	private HeadQSupplierDaoImpl headQSupplierDaoImpl;
 	@Autowired
@@ -48,6 +69,9 @@ public class SupplierPurchaseService {
 	
 	@Autowired
 	private UserInforDaoImpl userInforDaoImpl;
+	
+	@Autowired
+	private HeadqPurchaseHistoryDaoImpl headqPurchaseHistoryDaoImpl;
 	/**
 	 * 获取单据信息
 	 * Action 1: edit; 2 : view
@@ -137,34 +161,47 @@ public class SupplierPurchaseService {
 	public Response savePurchaseOrderToDraft(PurchaseOrder order, UserInfor loginUser){
 		Response response = new Response();
 		
-		if (!validatePurchaseOrder(order).isSuccess()){
-			return response;
-		}
+		try {
 		
-		recalculatePurchaseOrder(order);
-		
-		PurchaseOrder orderOriginal = purchaseOrderDaoImpl.get(order.getId(), true);
-		if (orderOriginal == null){
-			order.setLastUpdateTime(Common_util.getToday());
-			order.setOrderAuditor(loginUser);
-			order.setStatus(PurchaseOrder.STATUS_DRAFT);
-			order.putListToSet();
+			if (!validatePurchaseOrder(order).isSuccess()){
+				return response;
+			}
 			
-			purchaseOrderDaoImpl.save(order, true);
-		} else {
-			purchaseOrderDaoImpl.evict(orderOriginal);
-			
-			order.setLastUpdateTime(Common_util.getToday());
-			order.setOrderAuditor(loginUser);
-			order.setStatus(PurchaseOrder.STATUS_DRAFT);
-			order.putListToSet();
-			
-			purchaseOrderDaoImpl.save(order, true);
+			recalculatePurchaseOrder(order);
+	
+			if (order.getId() == 0){
+				order.setCreationTime(Common_util.getToday());
+				order.setLastUpdateTime(Common_util.getToday());
+				order.setOrderAuditor(loginUser);
+				order.setStatus(PurchaseOrder.STATUS_DRAFT);
+				order.putListToSet();
+				
+				purchaseOrderDaoImpl.save(order, true);
+			} else {
+				PurchaseOrder orderOriginal = purchaseOrderDaoImpl.get(order.getId(), true);
+
+				PurchaseOrderProductDaoImpl.removeItems(order.getId());
+				
+				orderOriginal.copyFrom(order);
+				
+				orderOriginal.setLastUpdateTime(Common_util.getToday());
+				orderOriginal.setOrderAuditor(loginUser);
+				orderOriginal.setStatus(PurchaseOrder.STATUS_DRAFT);
+	
+				order.putListToSet();	
+				orderOriginal.setProductSet(order.getProductSet());
+				
+				purchaseOrderDaoImpl.update(orderOriginal, true);
+			}
+		} catch (Exception exception){
+			exception.printStackTrace();
+			response.setFail(exception.getMessage());
 		}
 		
 		return response;
 	}
 	
+
 	/**
 	 * @tobecheck
 	 * 保存purchase order过账
@@ -180,7 +217,12 @@ public class SupplierPurchaseService {
 			return response;
 		}
 		
-		recalculatePurchaseOrder(order);
+		try {
+		     recalculatePurchaseOrder(order);
+		} catch (Exception e){
+			response.setFail(e.getMessage());
+			return response;
+		}
 				
 		//1. 保存单据
 		PurchaseOrder orderOriginal = purchaseOrderDaoImpl.get(order.getId(), true);
@@ -249,15 +291,15 @@ public class SupplierPurchaseService {
 	}
 	
 	/**
-	 * 更新库存信息
+	 * 更新库存信息, 以及历史购买记录
 	 * @param order
 	 * @param b
 	 */
 	private void updateHeadqInventory(PurchaseOrder order, boolean isCancel) {
 		//如果是测试连锁店不需要
 		int TEST_SUPPLIER_ID = SystemParm.getTestSupplierId();
-		
-		if (order.getSupplier().getId() == TEST_SUPPLIER_ID)
+		int supplierId = order.getSupplier().getId();
+		if (supplierId == TEST_SUPPLIER_ID)
 			return;
 		
 		//更新库存数据
@@ -285,6 +327,9 @@ public class SupplierPurchaseService {
 			 
 			 HeadQInventoryStock stock = new HeadQInventoryStock(storeId, cost, costTotal, wholeSalePrice, wholeSalesTotal, quantity, pb);
 			 stocks.add(stock);
+			 
+			 HeadqPurchaseHistory purchaseHistory = new HeadqPurchaseHistory(pbId, supplierId, cost, wholeSalePrice, quantity);
+			 headqPurchaseHistoryDaoImpl.saveOrUpdate(purchaseHistory, true);
 		 }
 			
 		 headQInventoryStockDAOImpl.updateInventoryStocks(stocks);
@@ -342,8 +387,9 @@ public class SupplierPurchaseService {
 	 * 再次汇总
 	 * 合并重复的产品
 	 * @param order
+	 * @throws Exception 
 	 */
-	private void recalculatePurchaseOrder(PurchaseOrder order) {
+	private void recalculatePurchaseOrder(PurchaseOrder order) throws Exception {
 		
 		/**
 		 * this is the barcode list with a sequence
@@ -351,17 +397,24 @@ public class SupplierPurchaseService {
 		Map<Integer, PurchaseOrderProduct> orderProductMap = new HashMap<Integer, PurchaseOrderProduct>();
 		
 		List<PurchaseOrderProduct> orderProducts = order.getProductList();
+		Set<Integer> pbIds = new LinkedHashSet<Integer>();
 
 		
 		/**
-		 * 1. to group the products' quantity, recost, whole sales
+		 * 1. to group the products' quantity, recost, whole sales and build the index
 		 */
         double totalRecCost = 0;
         double totalWholePrice = 0;
         int totalQuantity = 0;
 		for (PurchaseOrderProduct orderProduct: orderProducts){
-			if (orderProduct!= null && orderProduct.getPb() != null && !orderProduct.getPb().getBarcode().equals("")){
+			if (orderProduct!= null && orderProduct.getPb() != null && orderProduct.getPb().getId() != 0){
 				int pbId = orderProduct.getPb().getId();
+				
+				ProductBarcode pBarcode = ProductBarcodeDaoImpl.get(pbId, true);
+				double wholePrice = ProductBarcodeDaoImpl.getWholeSalePrice(pBarcode);
+				
+				orderProduct.setWholeSalePrice(wholePrice);
+//				orderProduct.setPb(pBarcode);
 				
 				if (orderProductMap.containsKey(pbId)){
 					PurchaseOrderProduct original_orderProduct = orderProductMap.get(pbId);
@@ -373,6 +426,8 @@ public class SupplierPurchaseService {
 					orderProductMap.put(pbId, orderProduct);
 				}
 				
+				pbIds.add(pbId);
+				
 				totalQuantity += orderProduct.getQuantity();
 				totalRecCost += orderProduct.getRecCost() * orderProduct.getQuantity();
 				totalWholePrice += orderProduct.getWholeSalePrice() * orderProduct.getQuantity();
@@ -382,6 +437,22 @@ public class SupplierPurchaseService {
 		order.setTotalQuantity(totalQuantity);
 		order.setTotalRecCost(totalRecCost);
 		order.setTotalWholePrice(totalWholePrice);
+		
+		List<PurchaseOrderProduct> orderProducts2 = new ArrayList<PurchaseOrderProduct>();
+		order.getProductList().clear();
+		
+		int i = 0;
+		for (Integer pbId2 : pbIds){
+			PurchaseOrderProduct orderProduct = orderProductMap.get(pbId2);
+			if (orderProduct == null){
+				throw new Exception("合并货品出现错误");
+			} else {
+				orderProduct.setIndex(i++);
+				orderProducts2.add(orderProduct);
+			}
+		}
+		
+		order.setProductList(orderProducts2);
 
 	}
 
@@ -402,11 +473,6 @@ public class SupplierPurchaseService {
 				errorMsg += "条码 " + orderProduct.getPb().getBarcode() + " 的数量必须是>0\n";
 				success = false;
 			}
-			double discount = orderProduct.getDiscount();
-			if (discount <=0){
-				errorMsg += "条码 " + orderProduct.getPb().getBarcode() + " 的折扣必须是>0\n";
-				success = false;
-			}
 		}
 		
 		if (!success){
@@ -420,14 +486,135 @@ public class SupplierPurchaseService {
 	 * 准备搜索的页面
 	 * @param uiBean
 	 */
-	public void prepareSearchPurchasePage(SupplierPurchaseActionUIBean uiBean) {
-		// TODO Auto-generated method stub
-		
+	public void prepareSearchPurchasePage(SupplierPurchaseActionFormBean formBean) {
+		formBean.getOrder().setType(Common_util.ALL_RECORD);
+
 	}
 
 	public void prepareEditPurchasePage(SupplierPurchaseActionUIBean uiBean) {
 		uiBean.setUsers(userInforDaoImpl.getAllNormalUsers());
 		
+	}
+
+	/**
+	 * purchase order上面扫描条码
+	 * @param barcode
+	 * @param id
+	 * @param type
+	 * @return
+	 */
+	@Transactional
+	public Response scanByBarcodePurchaseOrder(String barcode, int supplierId, int orderType, int indexPage, int fromSrc) {
+		Response response = new Response();
+		Map<String, Object> dataMap = new HashMap<String, Object>();
+		
+		ProductBarcode productBarcode = ProductBarcodeDaoImpl.getByBarcode(barcode);
+		if (productBarcode!= null && productBarcode.getStatus() == ProductBarcode.STATUS_OK){
+                if (orderType == PurchaseOrder.TYPE_PURCHASE){
+					
+					dataMap.put("barcode", productBarcode);
+					dataMap.put("orderType", orderType);
+					dataMap.put("index", indexPage);
+					dataMap.put("where", fromSrc);
+					
+					response.setReturnValue(dataMap);
+                } else if (orderType == PurchaseOrder.TYPE_RETURN){
+        			Product product = productBarcode.getProduct();
+        			int productId = productBarcode.getId();
+        			
+        			HeadqPurchaseHistoryId headqPurchaseHistoryId = new HeadqPurchaseHistoryId(productId, supplierId);
+        			HeadqPurchaseHistory salesHistory = headqPurchaseHistoryDaoImpl.get(headqPurchaseHistoryId, true);
+        			
+        			if (salesHistory != null){
+        				product.setRecCost(salesHistory.getRecCost());
+        				product.setWholeSalePrice(salesHistory.getWholePrice());
+
+        			} else {
+        				product.setRecCost(0);
+        				product.setWholeSalePrice(0);
+        			}
+        			ProductDaoImpl.evict(product);
+        			
+					dataMap.put("barcode", productBarcode);
+					dataMap.put("orderType", orderType);
+					dataMap.put("index", indexPage);
+					dataMap.put("where", fromSrc);
+					
+					
+                } else 
+                	response.setFail("无法找到条码数据");
+	    } else {
+	    	response.setFail("无法找到条码数据");
+	    }
+
+		dataMap.put("returnCode", response.getReturnCode());
+		dataMap.put("msg",response.getMessage());
+		response.setReturnValue(dataMap);
+		
+		return response;
+	}
+
+	/**
+	 * 通过页面搜索采购单据
+	 * @param formBean
+	 * @return
+	 */
+	public Response searchPurchaseOrder(SupplierPurchaseActionFormBean formBean) {
+		Response response = new Response();
+	    DetachedCriteria criteria = DetachedCriteria.forClass(PurchaseOrder.class,"order");
+		
+		PurchaseOrder searchBean = formBean.getOrder();
+		List<PurchaseOrderVO> orderVOs = new ArrayList<PurchaseOrderVO>();
+		
+		try {
+			if (searchBean.getId() != 0){
+				criteria.add(Restrictions.eq("order.id", searchBean.getId()));
+				
+				criteria.add(Restrictions.ne("order.status", InventoryOrder.STATUS_DELETED));
+			} else {
+				Date startTime = formBean.getSearchStartTime();
+				Date endTime = formBean.getSearchEndTime();
+		
+				if (searchBean.getStatus() != Common_util.ALL_RECORD)
+					criteria.add(Restrictions.eq("order.status", searchBean.getStatus()));
+				else
+					criteria.add(Restrictions.ne("order.status", PurchaseOrder.STATUS_DELETED));
+				
+				if (searchBean.getSupplier().getId() != 0 && !searchBean.getSupplier().getName().equals("")){
+					int supplierId = searchBean.getSupplier().getId();
+		
+					criteria.add(Restrictions.eq("order.supplier.id", supplierId));
+				}
+	
+				if (startTime != null && endTime != null){
+					Date end_date = Common_util.formEndDate(endTime);
+					criteria.add(Restrictions.between("order.creationTime",startTime,end_date));
+				}
+				
+				if (searchBean.getType() != Common_util.ALL_RECORD)
+					criteria.add(Restrictions.eq("order.type",searchBean.getType()));
+				
+				criteria.addOrder(Order.asc("order.creationTime"));
+			}
+			List<PurchaseOrder> orders = purchaseOrderDaoImpl.getByCritera(criteria, true);
+				
+			
+			for (PurchaseOrder order : orders){
+				PurchaseOrderVO purchaseOrderVO = new PurchaseOrderVO(order);
+				orderVOs.add(purchaseOrderVO);
+			}
+		} catch (Exception exception ){
+			exception.printStackTrace();
+			response.setFail(exception.getMessage());
+			return response;
+		}
+		
+		Map<String, Object> data = new HashMap<String, Object>();
+		data.put("rows", orderVOs);
+		
+		response.setReturnValue(data);
+		
+		return response;
 	}
 
 }

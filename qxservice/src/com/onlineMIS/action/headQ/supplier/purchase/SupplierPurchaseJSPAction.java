@@ -1,15 +1,11 @@
 package com.onlineMIS.action.headQ.supplier.purchase;
 
-import org.aspectj.weaver.ResolvedMemberImpl;
-import org.springframework.stereotype.Controller;
 
+import java.util.List;
+
+import org.springframework.stereotype.Controller;
 import com.onlineMIS.ORM.DAO.Response;
-import com.onlineMIS.ORM.DAO.chainS.ChainUtility;
-import com.onlineMIS.ORM.entity.base.BaseOrder;
-import com.onlineMIS.ORM.entity.chainS.user.ChainUserInfor;
-import com.onlineMIS.ORM.entity.headQ.finance.FinanceBill;
-import com.onlineMIS.ORM.entity.headQ.finance.FinanceBillItem;
-import com.onlineMIS.ORM.entity.headQ.supplier.finance.FinanceBillSupplier;
+import com.onlineMIS.ORM.entity.headQ.barcodeGentor.ProductBarcode;
 import com.onlineMIS.ORM.entity.headQ.supplier.purchase.PurchaseOrder;
 import com.onlineMIS.ORM.entity.headQ.user.UserInfor;
 import com.onlineMIS.common.Common_util;
@@ -47,7 +43,7 @@ public class SupplierPurchaseJSPAction extends SupplierPurchaseAction {
 					
 					supplierPurchaseService.prepareEditPurchasePage(uiBean);
 					
-					return preEditPurchase();
+					return "editPurchase";
 				case 2:
 					PurchaseOrder order2 = (PurchaseOrder)response.getReturnValue();
 					formBean.setOrder(order2);
@@ -66,7 +62,7 @@ public class SupplierPurchaseJSPAction extends SupplierPurchaseAction {
 		UserInfor loginUserInfor = (UserInfor)ActionContext.getContext().getSession().get(Common_util.LOGIN_USER);
 		loggerLocal.info(loginUserInfor.getUser_name() + " : SupplierPurchaseJSPAction.preSearchPurchase");
 		
-		supplierPurchaseService.prepareSearchPurchasePage(uiBean);
+		supplierPurchaseService.prepareSearchPurchasePage(formBean);
 		
 		return "searchPurchase";
 	}
@@ -81,7 +77,25 @@ public class SupplierPurchaseJSPAction extends SupplierPurchaseAction {
 		
 		supplierPurchaseService.prepareEditPurchasePage(uiBean);
 		
+		formBean.getOrder().setType(PurchaseOrder.TYPE_PURCHASE);
+		
 		return "editPurchase";
 	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public String preEditPurchaseReturn(){
+		UserInfor loginUserInfor = (UserInfor)ActionContext.getContext().getSession().get(Common_util.LOGIN_USER);
+		loggerLocal.info(loginUserInfor.getUser_name() + " : SupplierPurchaseJSPAction.preEditPurchaseReturn");
+		
+		supplierPurchaseService.prepareEditPurchasePage(uiBean);
+		
+		formBean.getOrder().setType(PurchaseOrder.TYPE_RETURN);
+		
+		return "editPurchase";
+	}
+
 
 }

@@ -1,11 +1,9 @@
 package com.onlineMIS.action.headQ.supplier.purchase;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-
-import com.onlineMIS.ORM.entity.chainS.user.ChainStore;
-import com.onlineMIS.ORM.entity.headQ.finance.FinanceBill;
-import com.onlineMIS.ORM.entity.headQ.supplier.finance.FinanceBillSupplier;
+import java.util.Map;
 import com.onlineMIS.ORM.entity.headQ.supplier.purchase.PurchaseOrder;
 import com.onlineMIS.ORM.entity.headQ.user.UserInfor;
 
@@ -13,6 +11,25 @@ public class SupplierPurchaseActionUIBean {
 	private List<PurchaseOrder> orders = new ArrayList<PurchaseOrder>();
 
 	private List<UserInfor> users = new ArrayList<UserInfor>();
+	private Map<Integer, String> orderStatusMap = new HashMap<Integer, String>();
+	private Map<Integer, String> orderTypeMap = new HashMap<Integer, String>();
+	
+	
+	public Map<Integer, String> getOrderStatusMap() {
+		return orderStatusMap;
+	}
+
+	public void setOrderStatusMap(Map<Integer, String> orderStatusMap) {
+		this.orderStatusMap = orderStatusMap;
+	}
+
+	public Map<Integer, String> getOrderTypeMap() {
+		return orderTypeMap;
+	}
+
+	public void setOrderTypeMap(Map<Integer, String> orderTypeMap) {
+		this.orderTypeMap = orderTypeMap;
+	}
 
 	public List<PurchaseOrder> getOrders() {
 		return orders;

@@ -4,6 +4,7 @@ import java.sql.Date;
 
 import com.onlineMIS.ORM.entity.base.Pager;
 import com.onlineMIS.ORM.entity.chainS.user.ChainStore;
+import com.onlineMIS.ORM.entity.headQ.barcodeGentor.ProductBarcode;
 import com.onlineMIS.ORM.entity.headQ.custMgmt.HeadQCust;
 import com.onlineMIS.ORM.entity.headQ.finance.FinanceBill;
 import com.onlineMIS.ORM.entity.headQ.supplier.finance.FinanceBillSupplier;
@@ -16,12 +17,31 @@ public class SupplierPurchaseActionFormBean extends ChainActionFormBaseBean{
 	private PurchaseOrder order = new PurchaseOrder();
 	private Date searchStartTime = new Date(new java.util.Date().getTime());
 	private Date searchEndTime  = new Date(new java.util.Date().getTime());
+	private int indexPage;
+	private int fromSrc;
+	private ProductBarcode pb = new ProductBarcode();
 
     private Pager pager = new Pager();
     private int indicator ;
-    
-    
-	
+
+	public int getFromSrc() {
+		return fromSrc;
+	}
+	public void setFromSrc(int fromSrc) {
+		this.fromSrc = fromSrc;
+	}
+	public int getIndexPage() {
+		return indexPage;
+	}
+	public void setIndexPage(int indexPage) {
+		this.indexPage = indexPage;
+	}
+	public ProductBarcode getPb() {
+		return pb;
+	}
+	public void setPb(ProductBarcode pb) {
+		this.pb = pb;
+	}
 	public PurchaseOrder getOrder() {
 		return order;
 	}

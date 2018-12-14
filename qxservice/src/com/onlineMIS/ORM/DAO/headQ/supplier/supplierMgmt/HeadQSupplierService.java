@@ -120,6 +120,7 @@ public class HeadQSupplierService {
 		try {
 			//创建新的
 			if (supplier.getId() == 0){
+				supplier.setPinyin(Common_util.getPinyinCode(supplier.getName(), false));
 				headQSupplierDaoImpl.save(supplier, true);
 				response.setSuccess("成功创建新的客户");
 			} else {

@@ -42,10 +42,9 @@
     </class>
     
     <class name="HeadqPurchaseHistory" table="headq_purchase_history">
-        <composite-id name="id" class="HeadqPurchaseHistoryId">
-            <key-property name="productId" column="pb_id" type="integer"/>
-            <key-property name="supplierId" column="supplier_id" type="integer"/>   
-        </composite-id>
+        <id name="productId" column="pb_id">
+            <generator class="assigned" />
+        </id>
         <property name="recCost" column="rec_cost" type="double"/>
         <property name="wholePrice" column="whole_price" type="double"/>
         <property name="quantity" column="quantity" type="integer"/>

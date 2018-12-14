@@ -37,7 +37,6 @@ import com.onlineMIS.ORM.entity.headQ.inventory.HeadQSalesHistoryId;
 import com.onlineMIS.ORM.entity.headQ.inventory.InventoryOrder;
 import com.onlineMIS.ORM.entity.headQ.supplier.finance.SupplierAcctFlow;
 import com.onlineMIS.ORM.entity.headQ.supplier.purchase.HeadqPurchaseHistory;
-import com.onlineMIS.ORM.entity.headQ.supplier.purchase.HeadqPurchaseHistoryId;
 import com.onlineMIS.ORM.entity.headQ.supplier.purchase.PurchaseOrder;
 import com.onlineMIS.ORM.entity.headQ.supplier.purchase.PurchaseOrderProduct;
 import com.onlineMIS.ORM.entity.headQ.supplier.purchase.PurchaseOrderVO;
@@ -109,7 +108,7 @@ public class SupplierPurchaseService {
 					
 					response.setReturnValue(order);
 					response.setAction(2);
-					
+				    break;	
 				case PurchaseOrder.STATUS_DELETED:
 					response.setFail("采购单据 : " + id + " 已经被删除.");
 					break;
@@ -133,17 +132,21 @@ public class SupplierPurchaseService {
 	public Response deletePurchaseOrderById(int id, UserInfor loginUser){
 		Response response = new Response();
 		
-		PurchaseOrder order = purchaseOrderDaoImpl.get(id, true);
-		if (order == null){
-			response.setFail("无法找到 采购单据 : " + id);
+		if (id == 0){
+			response.setFail("采购单据尚未保存，无法删除 .");
 		} else {
-			UserInfor orderOwner = order.getOrderAuditor();
-			if (orderOwner.getUser_id() != loginUser.getUser_id()){
-				response.setFail("你没有权限删除 采购单据 .");
-			} else {
-				order.setLastUpdateTime(Common_util.getToday());
-				order.setStatus(PurchaseOrder.STATUS_DELETED);
-				purchaseOrderDaoImpl.update(order, true);
+			PurchaseOrder order = purchaseOrderDaoImpl.get(id, true);
+			try {
+				UserInfor orderOwner = order.getOrderAuditor();
+				if (orderOwner.getUser_id() != loginUser.getUser_id()){
+					response.setFail("你没有权限删除 采购单据 .");
+				} else {
+					order.setLastUpdateTime(Common_util.getToday());
+					order.setStatus(PurchaseOrder.STATUS_DELETED);
+					purchaseOrderDaoImpl.update(order, true);
+				}
+			} catch (Exception e){
+				response.setFail(e.getMessage());
 			}
 		}
 		
@@ -225,30 +228,44 @@ public class SupplierPurchaseService {
 		}
 				
 		//1. 保存单据
-		PurchaseOrder orderOriginal = purchaseOrderDaoImpl.get(order.getId(), true);
-		if (orderOriginal == null){
-			order.setLastUpdateTime(Common_util.getToday());
-			order.setOrderAuditor(loginUser);
-			order.setStatus(PurchaseOrder.STATUS_DRAFT);
-			order.putListToSet();
-			
-			purchaseOrderDaoImpl.save(order, true);
-		} else {
-			purchaseOrderDaoImpl.evict(orderOriginal);
-			
-			order.setLastUpdateTime(Common_util.getToday());
-			order.setOrderAuditor(loginUser);
-			order.setStatus(PurchaseOrder.STATUS_DRAFT);
-			order.putListToSet();
-			
-			purchaseOrderDaoImpl.save(order, true);
-		}
 		
-		//2. 过账账目
-		updateSupplierAcctFlow(order, false);
-				
-		//3. 计算库存
-		updateHeadqInventory(order, false);
+		if (order.getId() == 0){
+			order.setLastUpdateTime(Common_util.getToday());
+			order.setOrderAuditor(loginUser);
+			order.setStatus(PurchaseOrder.STATUS_COMPLETE);
+			order.putListToSet();
+			
+			purchaseOrderDaoImpl.save(order, true);
+			
+			
+			//2. 过账账目
+			updateSupplierAcctFlow(order, false);
+					
+			//3. 计算库存
+			updateHeadqInventory(order, false);
+		} else {
+			PurchaseOrderProductDaoImpl.removeItems(order.getId());
+			PurchaseOrder orderOriginal = purchaseOrderDaoImpl.get(order.getId(), true);
+			
+			orderOriginal.copyFrom(order);
+			
+			orderOriginal.setLastUpdateTime(Common_util.getToday());
+			orderOriginal.setOrderAuditor(loginUser);
+			orderOriginal.setStatus(PurchaseOrder.STATUS_COMPLETE);
+
+			order.putListToSet();	
+			orderOriginal.setProductSet(order.getProductSet());
+			
+			purchaseOrderDaoImpl.update(orderOriginal, true);
+			
+			
+			//2. 过账账目
+			updateSupplierAcctFlow(orderOriginal, false);
+					
+			//3. 计算库存
+			updateHeadqInventory(orderOriginal, false);
+		}
+
 		
 		return response;
 	}
@@ -328,7 +345,7 @@ public class SupplierPurchaseService {
 			 HeadQInventoryStock stock = new HeadQInventoryStock(storeId, cost, costTotal, wholeSalePrice, wholeSalesTotal, quantity, pb);
 			 stocks.add(stock);
 			 
-			 HeadqPurchaseHistory purchaseHistory = new HeadqPurchaseHistory(pbId, supplierId, cost, wholeSalePrice, quantity);
+			 HeadqPurchaseHistory purchaseHistory = new HeadqPurchaseHistory(pbId, cost, wholeSalePrice, quantity);
 			 headqPurchaseHistoryDaoImpl.saveOrUpdate(purchaseHistory, true);
 		 }
 			
@@ -522,8 +539,7 @@ public class SupplierPurchaseService {
         			Product product = productBarcode.getProduct();
         			int productId = productBarcode.getId();
         			
-        			HeadqPurchaseHistoryId headqPurchaseHistoryId = new HeadqPurchaseHistoryId(productId, supplierId);
-        			HeadqPurchaseHistory salesHistory = headqPurchaseHistoryDaoImpl.get(headqPurchaseHistoryId, true);
+        			HeadqPurchaseHistory salesHistory = headqPurchaseHistoryDaoImpl.get(productId, true);
         			
         			if (salesHistory != null){
         				product.setRecCost(salesHistory.getRecCost());

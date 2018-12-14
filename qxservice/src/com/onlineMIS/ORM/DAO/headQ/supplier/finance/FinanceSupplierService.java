@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.onlineMIS.ORM.DAO.Response;
+import com.onlineMIS.ORM.DAO.headQ.supplier.purchase.PurchaseOrderDaoImpl;
 import com.onlineMIS.ORM.DAO.headQ.supplier.supplierMgmt.HeadQSupplierDaoImpl;
 import com.onlineMIS.ORM.entity.base.Pager;
 import com.onlineMIS.ORM.entity.headQ.custMgmt.HeadQCust;
@@ -57,6 +58,8 @@ public class FinanceSupplierService {
     private FinanceBillSupplierDaoImpl financeBillSupplierDaoImpl;
     @Autowired
     private SupplierFinanceTraceImpl financeTraceImpl;
+    @Autowired
+    private PurchaseOrderDaoImpl purchaseOrderDaoImpl;
 	
 	/**
 	 * to prepare the bean when create the finance bill
@@ -240,7 +243,7 @@ public class FinanceSupplierService {
 			double amount = billItem.getTotal();
 			
 			if (amount != 0){	
-			    SupplierFinanceTrace financeTrace = new SupplierFinanceTrace(supplierId, type, billId, amount * offset, bill.getBillDate());
+			    SupplierFinanceTrace financeTrace = new SupplierFinanceTrace(supplierId, type, billId, amount * offset, Common_util.getToday());
 			    financeTraceImpl.save(financeTrace, false);
 			} 
 		}
@@ -296,7 +299,7 @@ public class FinanceSupplierService {
 		    headQSupplierDaoImpl.update(supplier, true);
     		
     		//7. 更新acct folow
-			SupplierAcctFlow supplierAcctFlow = new SupplierAcctFlow(supplierId, netAmt, "F," + bill.getId() + "," + isCancel, bill.getCreateDate());
+			SupplierAcctFlow supplierAcctFlow = new SupplierAcctFlow(supplierId, netAmt, "F," + bill.getId() + "," + isCancel, Common_util.getToday());
 			supplierAcctFlowDaoImpl.save(supplierAcctFlow, true);
 		}
 	}
@@ -446,16 +449,16 @@ public class FinanceSupplierService {
 			 * 1. 搜索所有采购单据
 			 */
 			List<PurchaseOrder> purchaseOrders = new ArrayList<PurchaseOrder>();
-//			DetachedCriteria criteria = DetachedCriteria.forClass(InventoryOrder.class,"order");
-//			criteria.add(Restrictions.eq("order.order_Status", InventoryOrder.STATUS_ACCOUNT_COMPLETE));
-//			
-//			criteria.add(Restrictions.eq("order.cust.id", supplierId));
-//	
-//			startDate  = Common_util.formStartDate(startDate);
-//			endDate = Common_util.formEndDate(endDate);
-//			criteria.add(Restrictions.between("order.order_EndTime",startDate,endDate));
-//			//criteria.addOrder(Order.asc("order.order_StartTime"));
-//			List<InventoryOrder> purchaseOrders = inventoryOrderDAOImpl.getByCritera(criteria, true);
+			DetachedCriteria criteria = DetachedCriteria.forClass(PurchaseOrder.class,"order");
+			criteria.add(Restrictions.eq("order.status", PurchaseOrder.STATUS_COMPLETE));
+			
+			criteria.add(Restrictions.eq("order.supplier.id", supplierId));
+	
+			startDate  = Common_util.formStartDate(startDate);
+			endDate = Common_util.formEndDate(endDate);
+			criteria.add(Restrictions.between("order.lastUpdateTime",startDate,endDate));
+			//criteria.addOrder(Order.asc("order.order_StartTime"));
+			purchaseOrders = purchaseOrderDaoImpl.getByCritera(criteria, true);
 	
 			/**
 			 * 2. 搜索所有财物单据
@@ -485,21 +488,17 @@ public class FinanceSupplierService {
 		//1. 货品采购单
 		if (purchaseOrders != null && purchaseOrders.size() >0){
 			for (PurchaseOrder order : purchaseOrders){
-//				HeadQCust cust = headQCustDaoImpl.get(clientId, true);
-//				String orderType = "";
-//				if (isChain)
-//					orderType = order.getOrder_type_chain();
-//				else 
-//					orderType = order.getOrder_type_ws();
-//				
-//				String acctFlowType ="";
-//				if (order.getOrder_type() == InventoryOrder.TYPE_SALES_ORDER_W)
-//					acctFlowType = ChainAcctFlowReportItem.ACCT_FLOW_TYPE_INCREASE;
-//				else if (order.getOrder_type() == InventoryOrder.TYPE_SALES_RETURN_ORDER_W)
-//					acctFlowType = ChainAcctFlowReportItem.ACCT_FLOW_TYPE_DECREASE;
-//				
-//				ChainAcctFlowReportItem acctFlowItem = new ChainAcctFlowReportItem(cust, order.getOrder_EndTime(), orderType, ChainAcctFlowReportItem.ITEM_TYPE_PURCHASE,acctFlowType, order.getTotalQuantity(), order.getTotalWholePrice() - order.getTotalDiscount(), order.getOrder_ID(),order.getComment(), 0,0);
-//				rptItems.add(acctFlowItem);
+				HeadQSupplier supplier = order.getSupplier();
+				String orderType = order.getTypeS();
+				
+				String acctFlowType ="";
+				if (order.getType() == PurchaseOrder.TYPE_PURCHASE)
+					acctFlowType = SupplierAcctFlowReportItem.ACCT_FLOW_TYPE_INCREASE;
+				else if (order.getType() == PurchaseOrder.TYPE_RETURN)
+					acctFlowType = SupplierAcctFlowReportItem.ACCT_FLOW_TYPE_DECREASE;
+				
+				SupplierAcctFlowReportItem acctFlowItem = new SupplierAcctFlowReportItem(supplier, order.getLastUpdateTime(), orderType, SupplierAcctFlowReportItem.ITEM_TYPE_PURCHASE,acctFlowType, order.getTotalQuantity(), order.getTotalRecCost() - order.getTotalDiscount(), order.getId(),order.getComment(), 0,0);
+				rptItems.add(acctFlowItem);
 			}
 		}
 		
@@ -513,14 +512,14 @@ public class FinanceSupplierService {
 				String acctFlowType = "";
 				double invoiceTotal = bill.getInvoiceTotal();
 				if (billType == FinanceBill.FINANCE_DECREASE_HQ || billType == FinanceBill.FINANCE_PAID_HQ) {
-					acctFlowType = ChainAcctFlowReportItem.ACCT_FLOW_TYPE_DECREASE;
+					acctFlowType = SupplierAcctFlowReportItem.ACCT_FLOW_TYPE_DECREASE;
 					invoiceTotal -= bill.getInvoiceDiscount();
 				} else if (billType == FinanceBill.FINANCE_INCREASE_HQ || billType == FinanceBill.FINANCE_INCOME_HQ){
-					acctFlowType = ChainAcctFlowReportItem.ACCT_FLOW_TYPE_INCREASE;
+					acctFlowType = SupplierAcctFlowReportItem.ACCT_FLOW_TYPE_INCREASE;
 					invoiceTotal += bill.getInvoiceDiscount();
 				}
 				
-				SupplierAcctFlowReportItem acctFlowItem = new SupplierAcctFlowReportItem(supplier, bill.getCreateDate(), billTypeName, ChainAcctFlowReportItem.ITEM_TYPE_FINANCE, acctFlowType, 0, invoiceTotal, bill.getId(), bill.getComment(), 0,0);
+				SupplierAcctFlowReportItem acctFlowItem = new SupplierAcctFlowReportItem(supplier, bill.getCreateDate(), billTypeName, SupplierAcctFlowReportItem.ITEM_TYPE_FINANCE, acctFlowType, 0, invoiceTotal, bill.getId(), bill.getComment(), 0,0);
 				rptItems.add(acctFlowItem);
 			}
 		}

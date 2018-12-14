@@ -10,28 +10,26 @@ public class HeadqPurchaseHistory implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 6985004647601265953L;
-    private HeadqPurchaseHistoryId id = new HeadqPurchaseHistoryId();
+    private int productId;
 	private double recCost;
 	private double wholePrice;
 	private int quantity;
 	
 	public HeadqPurchaseHistory(){	}
 	
-	public HeadqPurchaseHistory(int productId, int supplierId, double recCost, double wholePrice,  int quantity){
-		this.id.setProductId(productId);
-		this.id.setSupplierId(supplierId);
+	public HeadqPurchaseHistory(int productId, double recCost, double wholePrice,  int quantity){
+		this.setProductId(productId);
 		this.recCost = recCost;
 		this.wholePrice = wholePrice;
 		this.quantity = quantity;
 	}
-	
 
-	public HeadqPurchaseHistoryId getId() {
-		return id;
+	public int getProductId() {
+		return productId;
 	}
 
-	public void setId(HeadqPurchaseHistoryId id) {
-		this.id = id;
+	public void setProductId(int productId) {
+		this.productId = productId;
 	}
 
 	public double getRecCost() {
@@ -54,14 +52,17 @@ public class HeadqPurchaseHistory implements Serializable {
 		this.quantity = quantity;
 	}
 
-
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-
+		result = prime * result + productId;
+		result = prime * result + quantity;
+		long temp;
+		temp = Double.doubleToLongBits(recCost);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		temp = Double.doubleToLongBits(wholePrice);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
 		return result;
 	}
 
@@ -74,20 +75,18 @@ public class HeadqPurchaseHistory implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		HeadqPurchaseHistory other = (HeadqPurchaseHistory) obj;
-
-		if (id == null) {
-			if (other.id != null)
-				return false;
-		} else if (!id.equals(other.id))
+		if (productId != other.productId)
 			return false;
-
+		if (quantity != other.quantity)
+			return false;
+		if (Double.doubleToLongBits(recCost) != Double.doubleToLongBits(other.recCost))
+			return false;
+		if (Double.doubleToLongBits(wholePrice) != Double.doubleToLongBits(other.wholePrice))
+			return false;
 		return true;
 	}
 
-	@Override
-	public String toString() {
-		return "[id=" + id + "]";
-	} 
-	
+
+
 	
 }

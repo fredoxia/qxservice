@@ -229,7 +229,8 @@ public class ChainReportService {
 			response.setReturnValue(report);
 			response.setAction(1);
 		} else if (reportType == ChainReport.TYPE_FINANCE_REPORT){
-			report = generateFinanceReport(chainId, startDate, endDate);
+			int clientId = chainStoreService.getChainStoreByID(chainId).getClient_id();
+			report = generateFinanceReport(clientId, startDate, endDate);
 			response.setReturnValue(report);
 			response.setAction(1);
 		}

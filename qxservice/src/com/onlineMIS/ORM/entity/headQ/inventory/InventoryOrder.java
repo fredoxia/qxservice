@@ -142,9 +142,57 @@ public class InventoryOrder implements Serializable {
     private String deliveryComment ="";
     private Date deliveryDate;
     
+    private double cash;
+    private double card;
+    private double alipay;
+    private double wechat;
+    private int financeBillId = 0;
+    
     public InventoryOrder(){
     	
     }
+
+	public int getFinanceBillId() {
+		return financeBillId;
+	}
+
+	public void setFinanceBillId(int financeBillId) {
+		this.financeBillId = financeBillId;
+	}
+
+	public double getCash() {
+		return cash;
+	}
+
+	public void setCash(double cash) {
+		this.cash = cash;
+	}
+
+	public double getCard() {
+		return card;
+	}
+
+	public void setCard(double card) {
+		this.card = card;
+	}
+
+	public double getAlipay() {
+		return alipay;
+	}
+
+	public void setAlipay(double alipay) {
+		this.alipay = alipay;
+	}
+
+	public double getWechat() {
+		return wechat;
+	}
+
+
+	public void setWechat(double wechat) {
+		this.wechat = wechat;
+	}
+
 
 	public HeadQInventoryStore getStore() {
 		return store;

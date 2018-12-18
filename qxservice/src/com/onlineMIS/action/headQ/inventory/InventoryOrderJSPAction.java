@@ -264,13 +264,15 @@ public class InventoryOrderJSPAction  extends InventoryOrderAction {
 	 * @return
 	 */
 	public String acctAuditOrder(){
+		UserInfor loginUserInfor = (UserInfor)ActionContext.getContext().getSession().get(Common_util.LOGIN_USER);
+		
 		int orderId = formBean.getOrder().getOrder_ID();
 		
 		String uuid = Common_util.getUUID();
 		String log = logInventory("acctAuditOrder", formBean.getOrder().getCust().getId(), orderId, uuid);
 		loggerLocal.info(log);
 		
-		Response response = inventoryService.orderCompleteAudit(orderId);
+		Response response = inventoryService.orderCompleteAudit(orderId,loginUserInfor);
 		if (response.getReturnCode() != Response.SUCCESS){
 			addActionError(response.getMessage());
 			uiBean = inventoryService.prepareUIBean();

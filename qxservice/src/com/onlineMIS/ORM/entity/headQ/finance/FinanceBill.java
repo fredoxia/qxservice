@@ -10,12 +10,14 @@ import java.util.List;
 import java.util.Set;
 
 import javassist.runtime.Inner;
+import sun.nio.cs.ext.TIS_620;
 
 import com.onlineMIS.ORM.entity.base.BaseOrder;
 import com.onlineMIS.ORM.entity.base.BaseProduct;
 import com.onlineMIS.ORM.entity.chainS.user.ChainStore;
 import com.onlineMIS.ORM.entity.headQ.custMgmt.HeadQCust;
 import com.onlineMIS.ORM.entity.headQ.user.UserInfor;
+import com.onlineMIS.common.Common_util;
 import com.onlineMIS.common.loggerLocal;
 import com.onlineMIS.sorter.ProductSortByIndex;
 
@@ -54,10 +56,33 @@ public class FinanceBill extends BaseOrder implements Serializable {
 	private String comment;
     private double preAcctAmt;
     private double postAcctAmt;
+    private int inventoryOrderId;
 	
 	private Set<FinanceBillItem> financeBillItemSet = new HashSet<FinanceBillItem>();
 	private List<FinanceBillItem> financeBillItemList = new ArrayList<FinanceBillItem>();
 
+	public FinanceBill(){
+		
+	}
+	
+	public FinanceBill(int billType, UserInfor creator, HeadQCust cust2, double invoiceTotal2, double invoiceDiscount2,
+			java.sql.Date today, String comment2, int inventoryOrderId2) {
+		this.setType(billType);
+		this.setCreatorHq(creator);
+		this.setCust(cust2);
+		this.setInvoiceTotal(invoiceTotal2);
+		this.setInvoiceDiscount(invoiceDiscount2);
+		this.setBillDate(today);
+		this.setCreateDate(new Date());
+		this.setComment(comment2);
+		this.setInventoryOrderId(inventoryOrderId2);
+	}
+	public int getInventoryOrderId() {
+		return inventoryOrderId;
+	}
+	public void setInventoryOrderId(int inventoryOrderId) {
+		this.inventoryOrderId = inventoryOrderId;
+	}
 	public double getInvoiceDiscount() {
 		return invoiceDiscount;
 	}

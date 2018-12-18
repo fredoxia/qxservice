@@ -14,6 +14,15 @@ public class FinanceBillItem extends BaseProduct {
 	private String comment;
 	private FinanceBill financeBill;
 	
+	public FinanceBillItem(){
+		
+	}
+	
+	public FinanceBillItem(FinanceCategory cashCategory, double amount, String comment) {
+		this.setComment(comment);
+		this.setFinanceCategory(cashCategory);
+		this.setTotal(amount);
+	}
 	public FinanceBill getFinanceBill() {
 		return financeBill;
 	}

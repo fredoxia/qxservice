@@ -40,6 +40,10 @@
         <property name="totalQuantityA" column="total_quantity_a" type="integer"/>
         <property name="totalWholePriceA" column="total_whole_price_a" type="double"/> 
         <property name="postAcctAmt" column="post_acct_amt" type="double"/> 
+        <property name="cash" column="cash" type="double"/> 
+        <property name="card" column="card" type="double"/> 
+        <property name="alipay" column="alipay" type="double"/> 
+        <property name="wechat" column="wechat" type="double"/> 
         <property name="chainConfirmStatus" column="chain_confirm_status" type="integer"/> 
         <property name="chainConfirmComment" column="chain_confirm_comment" type="string"/> 
         <property name="chainConfirmDate" column="chain_confirm_date" type="timestamp"/>
@@ -50,6 +54,7 @@
         <many-to-one name="order_Keeper" fetch="select" column="order_Keeper" class="com.onlineMIS.ORM.entity.headQ.user.UserInfor" lazy="false" not-null="false"/>
         <many-to-one name="order_scanner" fetch="select" column="order_scanner" class="com.onlineMIS.ORM.entity.headQ.user.UserInfor" lazy="false" not-null="false"/>
         <many-to-one name="order_Counter" fetch="select" column="order_Counter" class="com.onlineMIS.ORM.entity.headQ.user.UserInfor" lazy="false" not-null="false"/>
+        <property name="financeBillId" column="finance_bill_id" type="integer"/> 
         <set name="product_Set" cascade="all" inverse="true" lazy="true" fetch="subselect" batch-size="10">
              <key column="order_ID"/>
              <one-to-many class="com.onlineMIS.ORM.entity.headQ.inventory.InventoryOrderProduct"/>

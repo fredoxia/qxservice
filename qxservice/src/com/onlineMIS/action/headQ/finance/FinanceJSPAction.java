@@ -68,12 +68,10 @@ public class FinanceJSPAction extends FinanceAction {
 		if (financeBill.getId() != 0){
 		    formBean.getOrder().setCreatorHq(loginUserInfor);
 		
-		    Response response = financeService.cancelFHQBill(formBean.getOrder(),loginUserInfor);
+		    Response response = financeService.cancelFHQBill(formBean.getOrder(),loginUserInfor, 1);
 		    if (response.getReturnCode() != Response.SUCCESS){
 		    	addActionError(response.getMessage());
-				
-				formBean.initialize();
-				return preCreateFHQ();	
+				return getFHQ();	
 		    }
 		}
 

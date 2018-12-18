@@ -11,6 +11,7 @@ import java.util.Set;
 
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Order;
+import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,9 @@ import com.onlineMIS.ORM.DAO.Response;
 import com.onlineMIS.ORM.DAO.headQ.supplier.purchase.PurchaseOrderDaoImpl;
 import com.onlineMIS.ORM.DAO.headQ.supplier.supplierMgmt.HeadQSupplierDaoImpl;
 import com.onlineMIS.ORM.entity.base.Pager;
+import com.onlineMIS.ORM.entity.chainS.report.ChainFinanceReport;
+import com.onlineMIS.ORM.entity.chainS.report.ChainFinanceReportItem;
+import com.onlineMIS.ORM.entity.chainS.report.ChainReport;
 import com.onlineMIS.ORM.entity.headQ.custMgmt.HeadQCust;
 import com.onlineMIS.ORM.entity.headQ.finance.ChainAcctFlowReportItem;
 import com.onlineMIS.ORM.entity.headQ.finance.FinanceBill;
@@ -60,6 +64,8 @@ public class FinanceSupplierService {
     private SupplierFinanceTraceImpl financeTraceImpl;
     @Autowired
     private PurchaseOrderDaoImpl purchaseOrderDaoImpl;
+    @Autowired
+    private SupplierFinanceTraceImpl supplierFinanceTraceImpl;
 	
 	/**
 	 * to prepare the bean when create the finance bill
@@ -569,5 +575,55 @@ public class FinanceSupplierService {
 		firstItem.setPostAcct(acctBefore);
 		rptItems.add(0, firstItem);
 		
+	}
+
+	/**
+	 * 
+	 * @param id
+	 * @param searchStartTime
+	 * @param searchEndTime
+	 * @return
+	 */
+	public Response generateFinanceReport(int supplierId, java.sql.Date startDate, java.sql.Date endDate) {
+		Response response = new Response();
+	    List<ChainFinanceReportItem> reportItems = new ArrayList<ChainFinanceReportItem>();
+		
+		DetachedCriteria criteria = DetachedCriteria.forClass(SupplierFinanceTrace.class);
+		ProjectionList projList = Projections.projectionList();
+		projList.add(Projections.groupProperty("categoryId"));
+		projList.add(Projections.sum("amount"));
+		criteria.setProjection(projList);
+		
+		criteria.add(Restrictions.between("date", startDate, endDate));
+		if (supplierId != 0){
+			criteria.add(Restrictions.eq("supplierId", supplierId));
+		}
+		
+		List<Object> result = supplierFinanceTraceImpl.getByCriteriaProjection(criteria,  false);
+		
+		Map<Integer, FinanceCategorySupplier> categoryMap = financeCategorySupplierImpl.getFinanceCategoryMap();
+		
+		for (int i = 0; i < result.size(); i++){
+			  Object object = result.get(i);
+			  if (object != null){
+				 Object[] recordResult = (Object[])object;
+				 int categoryId = Common_util.getInt(recordResult[0]);
+				 double amount = Common_util.getDouble(recordResult[1]);
+				 
+				 FinanceCategorySupplier category = categoryMap.get(categoryId);
+					if (category != null){
+						ChainFinanceReportItem reportItem = new ChainFinanceReportItem(category.getItemName(), amount);
+						reportItems.add(reportItem);
+					}
+			  }
+		}
+		
+		Map data = new HashMap<String, List>();
+		data.put("rows", reportItems);
+		response.setReturnValue(data);
+		response.setReturnCode(Response.SUCCESS);
+		
+		
+		return response;
 	}
 }

@@ -195,4 +195,28 @@ public class FinanceSupplierJSONAction extends FinanceSupplierAction {
 		
 		return SUCCESS;
 	}
+	
+	/**
+	 * 汇总当前的财务报表
+	 * @return
+	 */
+	public String generateFinanceRpt(){
+		Response response = new Response();
+		try {
+			response = financeSupplierService.generateFinanceReport(formBean.getOrder().getSupplier().getId(), formBean.getSearchStartTime(), formBean.getSearchEndTime());
+
+		} catch (Exception e) {
+			loggerLocal.error(e);
+			response.setReturnCode(Response.FAIL);
+		}
+		try{
+			jsonMap =  (Map<String, Object>)response.getReturnValue();
+			jsonObject = JSONObject.fromObject(jsonMap);
+		} catch (Exception e){
+
+			loggerLocal.error(e);
+		}
+		
+		return SUCCESS;
+	}
 }

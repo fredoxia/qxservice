@@ -232,10 +232,14 @@ public class FinanceService {
 	
 	/**
 	 * service to cancel the bill 
+	 * 
+	 * src : 上游操作他的动作
+	 * 1 : 单据通过financeBill 手动红冲
+	 * 2 : 单据通过自动红冲
 	 * @param financeBill
 	 */
 	@Transactional
-	public Response cancelFHQBill(FinanceBill financeBill, UserInfor user) {
+	public Response cancelFHQBill(FinanceBill financeBill, UserInfor user, int src) {
 		Response response = new Response();
 		int billId = financeBill.getId();
 		FinanceBill originalBill = financeBillImpl.get(billId, true);
@@ -244,17 +248,24 @@ public class FinanceService {
 			response.setReturnCode(Response.ERROR);
 			response.setMessage("单据不存在或者尚未过账无法红冲");
 		} else {
-			//1.0 change the bill status 
+			//1.0 如果这张单据是根据某张销售单据自动生成，那么不能单独红冲
+		    int inventoryOrderId = originalBill.getInventoryOrderId();
+		    if (inventoryOrderId != 0 && src == 1){
+		    	response.setFail("当前单据是销售单据过账自动生成。请红冲 销售单据" + inventoryOrderId +",此单据会自动红冲");
+		    	return response;
+		    }
+			
+			//2.0 change the bill status 
 			originalBill.setStatus(FinanceBill.STATUS_CANCEL);
 			originalBill.setCreatorHq(user);
 			
 			//originalBill.setCreateDate(new Date());	
 			financeBillImpl.update(originalBill, true);
 
-			//2.0 updat the finance trace
+			//3.0 updat the finance trace
 			updateFinanceTrace(originalBill, true);
 
-			//3.0 update the acct flow
+			//4.0 update the acct flow
 			updateChainAcctFlow(originalBill, true);
 
 			response.setReturnCode(Response.SUCCESS);

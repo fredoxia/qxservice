@@ -24,6 +24,7 @@ import java.util.Set;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.naming.java.javaURLContextFactory;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.hibernate.Criteria;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.ProjectionList;
@@ -245,25 +246,36 @@ public class ChainReportService {
 	 */
 	public ChainReport generateFinanceReport(int clientId, Date startDate,
 			Date endDate) {
-		Object[] values = new Object[]{clientId, startDate, endDate};
-		String hql = "select categoryId, sum(amount) from HeadQFinanceTrace where clientId =? and date between ? and ? group by categoryId";
 		List<ChainFinanceReportItem> reportItems = new ArrayList<ChainFinanceReportItem>();
 		
-		List<Object> reportObj =  chainFinanceTraceImpl.executeHQLSelect(hql, values,null, false);
-		if (reportObj != null){
-			Map<Integer, FinanceCategory> categoryMap = financeCategoryImpl.getFinanceCategoryMap();
-			
-			for (Object reportItemObj: reportObj){
-				Object[] reportItemObjArray = (Object[])reportItemObj;
-				int typeId = Common_util.getInt(reportItemObjArray[0]);
-				double amount = Common_util.getDouble(reportItemObjArray[1]);
-				
-				FinanceCategory category = categoryMap.get(typeId);
-				if (category != null){
-					ChainFinanceReportItem reportItem = new ChainFinanceReportItem(category, amount);
-					reportItems.add(reportItem);
-				}
-			}
+		DetachedCriteria criteria = DetachedCriteria.forClass(HeadQFinanceTrace.class);
+		ProjectionList projList = Projections.projectionList();
+		projList.add(Projections.groupProperty("categoryId"));
+		projList.add(Projections.sum("amount"));
+		criteria.setProjection(projList);
+		
+		criteria.add(Restrictions.between("date", startDate, endDate));
+		if (clientId != 0){
+			criteria.add(Restrictions.eq("clientId", clientId));
+		}
+		
+		List<Object> result = chainFinanceTraceImpl.getByCriteriaProjection(criteria,  false);
+		
+		Map<Integer, FinanceCategory> categoryMap = financeCategoryImpl.getFinanceCategoryMap();
+		
+		for (int i = 0; i < result.size(); i++){
+			  Object object = result.get(i);
+			  if (object != null){
+				 Object[] recordResult = (Object[])object;
+				 int categoryId = Common_util.getInt(recordResult[0]);
+				 double amount = Common_util.getDouble(recordResult[1]);
+				 
+					FinanceCategory category = categoryMap.get(categoryId);
+					if (category != null){
+						ChainFinanceReportItem reportItem = new ChainFinanceReportItem(category.getItemName(), amount);
+						reportItems.add(reportItem);
+					}
+			  }
 		}
 		
 		ChainFinanceReport financeReport = new ChainFinanceReport();

@@ -167,10 +167,10 @@ public class FinanceSupplierJSPAction extends FinanceSupplierAction {
 	 * @return
 	 */
 	public String preFinanceRpt(){
-//    	UserInfor userInfor = (UserInfor)ActionContext.getContext().getSession().get(Common_util.LOGIN_USER);
-//    	loggerLocal.info(userInfor.getUser_name() + "," + this.getClass().getName() + "." + "preFinanceRpt");
+    	UserInfor userInfor = (UserInfor)ActionContext.getContext().getSession().get(Common_util.LOGIN_USER);
+    	loggerLocal.info(userInfor.getUser_name() + "," + this.getClass().getName() + "." + "preFinanceRpt");
     	
-		//financeService.prepareSearchAcctFlowUI(uiBean,formBean, userInfor);
+//		financeService.prepareSearchAcctFlowUI(uiBean,formBean, userInfor);
 
 		return "preFinanceRpt";
 	}	

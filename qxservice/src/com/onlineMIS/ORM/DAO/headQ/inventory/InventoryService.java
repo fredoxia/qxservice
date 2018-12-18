@@ -56,6 +56,9 @@ import com.onlineMIS.ORM.DAO.chainS.user.ChainStoreService;
 import com.onlineMIS.ORM.DAO.headQ.barCodeGentor.ProductBarcodeDaoImpl;
 import com.onlineMIS.ORM.DAO.headQ.barCodeGentor.ProductDaoImpl;
 import com.onlineMIS.ORM.DAO.headQ.custMgmt.HeadQCustDaoImpl;
+import com.onlineMIS.ORM.DAO.headQ.finance.FinanceBillImpl;
+import com.onlineMIS.ORM.DAO.headQ.finance.FinanceCategoryImpl;
+import com.onlineMIS.ORM.DAO.headQ.finance.FinanceService;
 import com.onlineMIS.ORM.DAO.headQ.finance.HeadQAcctFlowDaoImpl;
 import com.onlineMIS.ORM.DAO.headQ.user.NewsService;
 import com.onlineMIS.ORM.DAO.headQ.user.UserInforService;
@@ -68,6 +71,9 @@ import com.onlineMIS.ORM.entity.headQ.barcodeGentor.Brand;
 import com.onlineMIS.ORM.entity.headQ.barcodeGentor.Product;
 import com.onlineMIS.ORM.entity.headQ.barcodeGentor.ProductBarcode;
 import com.onlineMIS.ORM.entity.headQ.custMgmt.HeadQCust;
+import com.onlineMIS.ORM.entity.headQ.finance.FinanceBill;
+import com.onlineMIS.ORM.entity.headQ.finance.FinanceBillItem;
+import com.onlineMIS.ORM.entity.headQ.finance.FinanceCategory;
 import com.onlineMIS.ORM.entity.headQ.finance.HeadQAcctFlow;
 import com.onlineMIS.ORM.entity.headQ.inventory.HeadQInventoryStock;
 import com.onlineMIS.ORM.entity.headQ.inventory.HeadQInventoryStore;
@@ -115,6 +121,12 @@ public class InventoryService {
     private HeadQInventoryStoreDAOImpl headQInventoryStoreDAOImpl;
 	@Autowired
 	private HeadQInventoryStockDAOImpl headQInventoryStockDAOImpl;
+	@Autowired
+	private FinanceBillImpl financeBillImpl;
+	@Autowired
+	private FinanceCategoryImpl financeCategoryImpl;
+	@Autowired
+	private FinanceService financeService;
 	/**
 	 * function to preview the inventory order
 	 * @param formBean
@@ -501,6 +513,9 @@ public class InventoryService {
 			//4. update inventory io
 			updateInventoryStock(order, true);
 			
+			//5. update financebill
+			updateFinanceBill(order, userInfor, true);
+			
 			response.setReturnCode(Response.SUCCESS);
         } else {
         	response.setReturnCode(Response.FAIL);
@@ -617,14 +632,13 @@ public class InventoryService {
      * @param order_id
      */
 	@Transactional
-	public Response orderCompleteAudit(int orderId) {
+	public Response orderCompleteAudit(int orderId, UserInfor user) {
 		Response response = new Response();
 		
 		InventoryOrder order = inventoryOrderDAOImpl.retrieveOrder(orderId);
 		
 		Date now = new Date();
 		String hql = "update InventoryOrder set order_Status =?, order_EndTime=? where order_ID=?";
-		
 		Object[] values = {InventoryOrder.STATUS_ACCOUNT_COMPLETE, now, orderId};
 		
 		inventoryOrderDAOImpl.executeHQLUpdateDelete(hql, values, false);
@@ -638,6 +652,15 @@ public class InventoryService {
 		//4. update the acct flow
 		updateChainAcctFlow(order,now, false);
 		
+		//5. 如果单据有付款，就创建财物单据
+		int financeBillId = updateFinanceBill(order, user, false);
+		if (financeBillId != 0){
+			String hql2 = "update InventoryOrder set financeBillId=? where order_ID=?";
+			Object[] values2 = {financeBillId, orderId};
+			
+			inventoryOrderDAOImpl.executeHQLUpdateDelete(hql2, values2, false);
+		}
+		
 		response.setReturnCode(Response.SUCCESS);
 		response.setReturnValue(order);
 
@@ -645,6 +668,66 @@ public class InventoryService {
 		return response;
 	}
 	
+	private int updateFinanceBill(InventoryOrder order, UserInfor user, boolean isCancel) {
+		if (isCancel){
+			int financeBillId = order.getFinanceBillId();
+			if (financeBillId != 0){
+				FinanceBill financeBill = new FinanceBill();
+				financeBill.setId(financeBillId);
+				
+				financeService.cancelFHQBill(financeBill, user, 2);
+			}
+			return 0;
+		} else {
+			double cash = order.getCash();
+			double card = order.getCard();
+			double alipay = order.getAlipay();
+			double wechat = order.getWechat();
+			double invoiceTotal = cash + card + alipay+ wechat;
+			
+			if (invoiceTotal != 0) {
+				HeadQCust cust = order.getCust();
+				UserInfor creator = order.getOrder_Auditor();
+				int billType = FinanceBill.FINANCE_INCOME_HQ;
+				int inventoryOrderId = order.getOrder_ID();
+				String comment = "销售单据" + inventoryOrderId + "付款";
+				
+				double invoiceDiscount = 0;
+				
+				FinanceBill financeBill = new FinanceBill(billType, creator, cust, invoiceTotal, invoiceDiscount, Common_util.getToday(), comment,inventoryOrderId );
+				List<FinanceBillItem> financeBillList = new ArrayList<FinanceBillItem>();
+				
+				//添加cash
+				FinanceCategory cashCategory = financeCategoryImpl.getByTypeId(FinanceCategory.CASH_ACCT_TYPE);
+				FinanceBillItem cashItem = new FinanceBillItem(cashCategory, cash, "");
+				financeBillList.add(cashItem);
+				
+				//添加card
+				FinanceCategory cardCategory = financeCategoryImpl.getByTypeId(FinanceCategory.CARD_ACCT_TYPE);
+				FinanceBillItem cardItem = new FinanceBillItem(cardCategory, card, "");
+				financeBillList.add(cardItem);
+				
+				//添加alipay
+				FinanceCategory alipayCategory = financeCategoryImpl.getByTypeId(FinanceCategory.ALIPAY_ACCT_TYPE);
+				FinanceBillItem alipayItem = new FinanceBillItem(alipayCategory, alipay, "");
+				financeBillList.add(alipayItem);
+				
+				//添加wechat
+				FinanceCategory wechatCategory = financeCategoryImpl.getByTypeId(FinanceCategory.WECHAT_ACCT_TYPE);
+				FinanceBillItem wechatItem = new FinanceBillItem(wechatCategory, wechat, "");
+				financeBillList.add(wechatItem);
+				
+				financeBill.setFinanceBillItemList(financeBillList);
+				
+				financeService.postFHQBill(financeBill, creator);
+				
+				return financeBill.getId();
+			} else {
+				return 0;
+			}
+		}
+	}
+
 	/**
 	 * 单据被确认或者被红冲时需要更新总部的库存
 	 * @param order

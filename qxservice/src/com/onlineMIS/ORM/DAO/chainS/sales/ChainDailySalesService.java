@@ -43,7 +43,7 @@ import com.onlineMIS.ORM.DAO.headQ.barCodeGentor.BrandDaoImpl;
 import com.onlineMIS.ORM.DAO.headQ.barCodeGentor.ProductBarcodeDaoImpl;
 import com.onlineMIS.ORM.DAO.headQ.barCodeGentor.YearDaoImpl;
 import com.onlineMIS.ORM.DAO.headQ.inventory.InventoryOrderDAOImpl;
-import com.onlineMIS.ORM.DAO.headQ.inventory.InventoryService;
+import com.onlineMIS.ORM.DAO.headQ.inventory.WholeSalesService;
 import com.onlineMIS.ORM.entity.chainS.inventoryFlow.ChainInOutStock;
 import com.onlineMIS.ORM.entity.chainS.report.ChainMonthlyActiveNum;
 import com.onlineMIS.ORM.entity.chainS.report.ChainMonthlyHotBrand;

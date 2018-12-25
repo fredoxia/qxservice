@@ -395,7 +395,7 @@ public class SupplierPurchaseService {
 		supplier.setCurrentAcctBalance(postAcctAmt);
 		headQSupplierDaoImpl.update(supplier, true);
 		
-		SupplierAcctFlow supplierAcctFlow = new SupplierAcctFlow(supplierId, netAmt, "S," + orderId + "," + isCancel, Common_util.getToday());
+		SupplierAcctFlow supplierAcctFlow = new SupplierAcctFlow(supplierId, netAmt, "S," + orderId + "," + isCancel, order.getLastUpdateTime());
 		supplierAcctFlowDaoImpl.save(supplierAcctFlow, true);
 	
 	}

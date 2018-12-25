@@ -50,6 +50,19 @@
                 <param name="method">swithToChain</param>
         	</result>
         </action>
+        <action name="headqInventoryFlowJSPAction" class="com.onlineMIS.action.headQ.inventoryFlow.HeadqInventoryFlowJSPAction">
+            <result name="preInventoryRpt">/jsp/headQ/inventoryFlow/InventoryFlowRpt.jsp</result>  
+            <result type="stream" name="download">  
+                 <param name="contentType">  
+                     application/vnd.ms-excel   
+                </param>  
+                <param name="inputName">formBean.fileStream</param>  
+               <param name="contentDisposition">  
+                    attachment;filename=${formBean.fileName}   
+                 </param>  
+                <param name="bufferSize">1024</param>  
+            </result>            
+        </action>         
         <action name="supplierPurchaseJSP" class="com.onlineMIS.action.headQ.supplier.purchase.SupplierPurchaseJSPAction">
             <result name="editPurchase">/jsp/headQ/supplier/purchase/EditPurchaseOrder.jsp</result>
             <result name="viewPurchase">/jsp/headQ/supplier/purchase/ViewPurchaseOrder.jsp</result>     
@@ -277,6 +290,14 @@
     </package>
     
     <package name="headQJSONPackage" extends="json-default" namespace="/action">
+        <action name="headqInventoryFlowJSONAction" class="com.onlineMIS.action.headQ.inventoryFlow.HeadqInventoryFlowJSONAction">
+            <result type="json">
+                 <param name="root">jsonObject</param>
+            </result>
+             <result type="json" name="jsonArray">
+                 <param name="root">jsonArray</param>
+            </result>
+        </action> 
         <action name="supplierPurchaseJSON" class="com.onlineMIS.action.headQ.supplier.purchase.SupplierPurchaseJSONAction">
             <result type="json">
                  <param name="root">jsonObject</param>
@@ -469,9 +490,6 @@
             </result>  
             <result name="preGetCurrentInventory">/jsp/chainStore/inventoryFlow/CurrentInventoryChainList.jsp</result>
             <result name="levelOneCurInventory">/jsp/chainStore/inventoryFlow/ChainCurrentInventoryLevelOne.jsp</result>
-            <result name="levelTwoCurInventory">/jsp/chainStore/inventoryFlow/ChainCurrentInventoryLevelTwo.jsp</result>
-            <result name="levelThreeCurInventory">/jsp/chainStore/inventoryFlow/ChainCurrentInventoryLevelThree.jsp</result>
-            <result name="levelFourCurInventory">/jsp/chainStore/inventoryFlow/ChainCurrentInventoryLevelFour.jsp</result>
         </action>
         <action name="chainVIPJSPAction" class="com.onlineMIS.action.chainS.vip.ChainVIPJSPAction">
             <result name="ChainSearchSpecialVIPs">/jsp/chainStore/vip/ChainSearchSpecialVIPs.jsp</result>
@@ -534,10 +552,7 @@
             <result name="AllInOneReportLevelThree">/jsp/chainStore/report/AllInOneReportLevelThree.jsp</result> 
             <result name="AllInOneReportLevelFour">/jsp/chainStore/report/AllInOneReportLevelFour.jsp</result> 
                           
-            <result name="salesStatisticReportLevelOne">/jsp/chainStore/report/SalesStatisticReportLevelOne.jsp</result> 
-			<result name="salesStatisticReportLevelTwo">/jsp/chainStore/report/SalesStatisticReportLevelTwo.jsp</result>  
-            <result name="salesStatisticReportLevelFour">/jsp/chainStore/report/SalesStatisticReportLevelFour.jsp</result>  
-            <result name="salesStatisticReportLevelThree">/jsp/chainStore/report/SalesStatisticReportLevelThree.jsp</result> 
+            <result name="salesStatisticReport">/jsp/chainStore/report/ChainSalesStatisticReport.jsp</result> 
              
             <result name="PrePurchaseStatisticReport">/jsp/chainStore/report/PrePurchaseStatisticReport.jsp</result>
             <result name="PurchaseStatisticReportLevelOne">/jsp/chainStore/report/PurchaseStatisticReportLevelOne.jsp</result> 
@@ -653,6 +668,9 @@
                 <param name="contentType">
                     text/html
                 </param>
+            </result>
+            <result type="json" name="jsonArray">
+                 <param name="root">jsonArray</param>
             </result>
         </action> 
         <action name="chainVIPJSONAction" class="com.onlineMIS.action.chainS.vip.ChainVIPJSONAction">

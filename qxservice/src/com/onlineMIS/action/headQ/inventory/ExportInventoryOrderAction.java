@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
 import com.onlineMIS.ORM.DAO.headQ.barCodeGentor.ProductBarcodeService;
-import com.onlineMIS.ORM.DAO.headQ.inventory.InventoryService;
+import com.onlineMIS.ORM.DAO.headQ.inventory.WholeSalesService;
 import com.onlineMIS.ORM.entity.headQ.inventory.InventoryOrder;
 import com.onlineMIS.ORM.entity.headQ.user.UserInfor;
 import com.onlineMIS.action.BaseAction;
@@ -47,7 +47,7 @@ public class ExportInventoryOrderAction extends BaseAction {
 	private InventoryOrderActionFormBean formBean = new InventoryOrderActionFormBean();
 	
 	@Autowired
-    private InventoryService inventoryService;
+    private WholeSalesService inventoryService;
 
 
 	public InputStream getExcelStream() {

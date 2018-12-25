@@ -12,7 +12,7 @@ import net.sf.json.JSONObject;
 import net.sf.json.JsonConfig;
 
 import com.onlineMIS.ORM.DAO.Response;
-import com.onlineMIS.ORM.DAO.headQ.inventory.InventoryService;
+import com.onlineMIS.ORM.DAO.headQ.inventory.WholeSalesService;
 import com.onlineMIS.ORM.DAO.headQ.user.UserInforService;
 
 import com.onlineMIS.ORM.entity.headQ.barcodeGentor.Product;
@@ -38,7 +38,7 @@ public class InventoryOrderAction extends BaseAction {
 	protected InventoryOrderActionUIBean uiBean = new InventoryOrderActionUIBean();
 
 	@Autowired
-	protected InventoryService inventoryService;
+	protected WholeSalesService inventoryService;
 	protected Map<String,Object> jsonMap = new HashMap<String, Object>();
 	
     //for the search by json function

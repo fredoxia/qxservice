@@ -526,7 +526,7 @@ public class ChainUserInforService {
 		purchaseOrderCriteria.add(Restrictions.eq("order_Status", InventoryOrder.STATUS_ACCOUNT_COMPLETE));
 		purchaseOrderCriteria.add(Restrictions.ne("chainConfirmStatus", InventoryOrder.STATUS_CHAIN_CONFIRM));
 		purchaseOrderCriteria.add(Restrictions.gt("order_EndTime", lastYear));
-		purchaseOrderCriteria.add(Restrictions.eq("client_id", clientId));
+		purchaseOrderCriteria.add(Restrictions.eq("cust.id", clientId));
 		purchaseOrderCriteria.setProjection(Projections.rowCount());
 		int purchaseOrderCount = Common_util.getProjectionSingleValue(chainStoreSalesOrderDaoImpl.getByCriteriaProjection(purchaseOrderCriteria, true));
 		ChainLoginStatisticInforVO purchaseOrderVO = new ChainLoginStatisticInforVO("千禧宝贝未确认收货的采购单", purchaseOrderCount);

@@ -96,7 +96,7 @@ import com.onlineMIS.sorter.SortByBrandProductCode;
 import com.opensymphony.xwork2.ActionContext;
 
 @Service
-public class InventoryService {
+public class WholeSalesService {
 	@Autowired
     private InventoryOrderProductDAOImpl inventoryOrderProductDAOImpl;
 	@Autowired
@@ -694,7 +694,7 @@ public class InventoryService {
 				
 				double invoiceDiscount = 0;
 				
-				FinanceBill financeBill = new FinanceBill(billType, creator, cust, invoiceTotal, invoiceDiscount, Common_util.getToday(), comment,inventoryOrderId );
+				FinanceBill financeBill = new FinanceBill(billType, creator, cust, invoiceTotal, invoiceDiscount, new java.sql.Date(order.getOrder_EndTime().getTime()), comment,inventoryOrderId );
 				List<FinanceBillItem> financeBillList = new ArrayList<FinanceBillItem>();
 				
 				//添加cash

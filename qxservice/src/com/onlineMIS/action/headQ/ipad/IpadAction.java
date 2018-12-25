@@ -9,7 +9,7 @@ import org.springframework.stereotype.Controller;
 
 import com.onlineMIS.ORM.DAO.chainS.user.ChainStoreService;
 import com.onlineMIS.ORM.DAO.chainS.user.ChainUserInforService;
-import com.onlineMIS.ORM.DAO.headQ.inventory.InventoryService;
+import com.onlineMIS.ORM.DAO.headQ.inventory.WholeSalesService;
 import com.onlineMIS.ORM.DAO.headQ.ipad.IpadService;
 import com.onlineMIS.ORM.DAO.headQ.user.UserInforService;
 import com.onlineMIS.action.BaseAction;

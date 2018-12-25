@@ -58,5 +58,8 @@
           <mapping resource="com/onlineMIS/ORM/headQ/Finance.hbm.xml" />
          <mapping resource="com/onlineMIS/ORM/chainS/ChainReport.hbm.xml" />
          <mapping resource="com/onlineMIS/ORM/chainS/ChainManualRpt.hbm.xml" />
+         <mapping resource="com/onlineMIS/ORM/headQ/HeadqCustMgmt.hbm.xml" />
+	     <mapping resource="com/onlineMIS/ORM/headQ/SupplierMgmt.hbm.xml" />
+		 <mapping resource="com/onlineMIS/ORM/headQ/SupplierPurchase.hbm.xml" />
       </session-factory>
   </hibernate-configuration>

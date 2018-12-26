@@ -147,7 +147,7 @@ public class ChainDailySalesService{
 
 		Object[] value_sale = new Object[]{yestorday,ChainStoreSalesOrder.STATUS_COMPLETE};
 		
-		String hql_sale = dailyBatchSelect + " and chainStore.chain_id <> " + ChainStore.CHAIN_ID_TEST_ID + " GROUP BY chainStore.chain_id";
+		String hql_sale = dailyBatchSelect + " and chainStore.chain_id <> " + SystemParm.getTestChainId() + " GROUP BY chainStore.chain_id";
 
 		List<Object> sales2 = (List<Object>)chainSalesOrderDaoImpl.executeHQLSelect(hql_sale, value_sale,null, true);
 
@@ -856,7 +856,7 @@ public class ChainDailySalesService{
 
 			Object[] value_sale = new Object[]{yestorday,ChainStoreSalesOrder.STATUS_COMPLETE};
 			
-			String hql_sale = dailyBatchSelect + " and chainStore.chain_id <> " + ChainStore.CHAIN_ID_TEST_ID + " GROUP BY chainStore.chain_id";
+			String hql_sale = dailyBatchSelect + " and chainStore.chain_id <> " + SystemParm.getTestChainId() + " GROUP BY chainStore.chain_id";
 
 			List<Object> sales2 = (List<Object>)chainSalesOrderDaoImpl.executeHQLSelect(hql_sale, value_sale,null, true);
 

@@ -56,6 +56,7 @@ import com.onlineMIS.action.chainS.vip.ChainVIPActionFormBean;
 import com.onlineMIS.action.chainS.vip.ChainVIPActionUIBean;
 import com.onlineMIS.common.Common_util;
 import com.onlineMIS.common.loggerLocal;
+import com.onlineMIS.filter.SystemParm;
 
 @Service
 public class ChainVIPService {
@@ -1173,7 +1174,7 @@ public class ChainVIPService {
 		
 		String criteriaTotal = "";
 		if (chainId == Common_util.ALL_RECORD)
-			criteriaTotal = "SELECT operationType, depositType, SUM(amount), SUM(calculatedAmt) FROM ChainVIPPrepaidFlow WHERE  chainStore.chain_id <> "+  ChainStore.CHAIN_ID_TEST_ID + " AND "  + whereCriteria +" GROUP BY operationType, depositType";
+			criteriaTotal = "SELECT operationType, depositType, SUM(amount), SUM(calculatedAmt) FROM ChainVIPPrepaidFlow WHERE  chainStore.chain_id <> "+  SystemParm.getTestChainId() + " AND "  + whereCriteria +" GROUP BY operationType, depositType";
 		else 
 			criteriaTotal = "SELECT operationType, depositType, SUM(amount), SUM(calculatedAmt) FROM ChainVIPPrepaidFlow WHERE chainStore.chain_id = " + chainId +  " AND " +whereCriteria +" GROUP BY operationType, depositType";
 		List<Object> totalObject =  (List<Object>)chainVIPPrepaidImpl.executeHQLSelect(criteriaTotal, value_sale,null, false);

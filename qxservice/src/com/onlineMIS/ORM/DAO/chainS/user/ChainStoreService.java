@@ -24,6 +24,7 @@ import com.onlineMIS.ORM.entity.headQ.custMgmt.HeadQCust;
 import com.onlineMIS.ORM.entity.headQ.user.UserInfor;
 import com.onlineMIS.action.chainS.chainMgmt.ChainMgmtActionUIBean;
 import com.onlineMIS.common.Common_util;
+import com.onlineMIS.filter.SystemParm;
 
 @Service
 public class ChainStoreService {
@@ -217,7 +218,7 @@ public class ChainStoreService {
 	public List<ChainStore> getAvailableParentChainstores(){
 		DetachedCriteria criteria = DetachedCriteria.forClass(ChainStore.class);
 		criteria.add(Restrictions.ne("status", ChainStore.STATUS_DELETE));
-		criteria.add(Restrictions.ne("chain_id", ChainStore.CHAIN_ID_TEST_ID));
+		criteria.add(Restrictions.ne("chain_id", SystemParm.getTestChainId()));
 		criteria.add(Restrictions.isNull("parentStore.chain_id"));
 		criteria.addOrder(Order.asc("pinYin"));
 		
@@ -231,7 +232,7 @@ public class ChainStoreService {
 	public List<ChainStore> getAvailableClientChainstores(){
 		DetachedCriteria criteria = DetachedCriteria.forClass(ChainStore.class);
 		criteria.add(Restrictions.ne("status", ChainStore.STATUS_DELETE));
-		criteria.add(Restrictions.ne("chain_id", ChainStore.CHAIN_ID_TEST_ID));
+		criteria.add(Restrictions.ne("chain_id", SystemParm.getTestChainId()));
 		
 		return chainStoreDaoImpl.getByCritera(criteria, true);
 	}
@@ -243,7 +244,7 @@ public class ChainStoreService {
 	public List<ChainStore> getActiveChainstoresWithOrder(){
 		DetachedCriteria criteria = DetachedCriteria.forClass(ChainStore.class);
 		criteria.add(Restrictions.eq("status", ChainStore.STATUS_ACTIVE));
-		criteria.add(Restrictions.ne("chain_id", ChainStore.CHAIN_ID_TEST_ID));
+		criteria.add(Restrictions.ne("chain_id", SystemParm.getTestChainId()));
 		criteria.addOrder(Order.asc("pinYin"));
 		
 		return chainStoreDaoImpl.getByCritera(criteria, true);
@@ -251,7 +252,7 @@ public class ChainStoreService {
 	
 	public Integer getNumOfActiveChainStore(){
 		String queryString = "select count(chain_id) from ChainStore where status = ? and chain_id !=?";
-		Object[] values = new Object[]{ChainStore.STATUS_ACTIVE, ChainStore.CHAIN_ID_TEST_ID};
+		Object[] values = new Object[]{ChainStore.STATUS_ACTIVE, SystemParm.getTestChainId()};
 		
 		return chainStoreDaoImpl.executeHQLCount(queryString, values, true);
 	}

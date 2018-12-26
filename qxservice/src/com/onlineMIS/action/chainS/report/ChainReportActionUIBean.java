@@ -4,8 +4,6 @@ import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
-import javassist.expr.NewArray;
-
 import com.onlineMIS.ORM.entity.chainS.report.ChainAllInOneReportItem;
 import com.onlineMIS.ORM.entity.chainS.report.ChainAllInOneReportItemLevelFour;
 import com.onlineMIS.ORM.entity.chainS.report.ChainAllInOneReportItemLevelOne;
@@ -13,10 +11,7 @@ import com.onlineMIS.ORM.entity.chainS.report.ChainAllInOneReportItemLevelThree;
 import com.onlineMIS.ORM.entity.chainS.report.ChainAllInOneReportItemLevelTwo;
 import com.onlineMIS.ORM.entity.chainS.report.ChainBatchRptRepositoty;
 import com.onlineMIS.ORM.entity.chainS.report.ChainPurchaseStatisReportItem;
-import com.onlineMIS.ORM.entity.chainS.report.ChainPurchaseStatisReportItemLevelFour;
-import com.onlineMIS.ORM.entity.chainS.report.ChainPurchaseStatisReportItemLevelOne;
-import com.onlineMIS.ORM.entity.chainS.report.ChainPurchaseStatisReportItemLevelThree;
-import com.onlineMIS.ORM.entity.chainS.report.ChainPurchaseStatisReportItemLevelTwo;
+
 import com.onlineMIS.ORM.entity.chainS.report.ChainSalesStatisReportItem;
 import com.onlineMIS.ORM.entity.chainS.user.ChainStore;
 import com.onlineMIS.ORM.entity.chainS.user.ChainUserInfor;
@@ -37,12 +32,6 @@ public class ChainReportActionUIBean {
 	 * purchase statistic report
 	 */
 	private ChainPurchaseStatisReportItem purchaseTotalItem = new ChainPurchaseStatisReportItem();
-	private List<ChainPurchaseStatisReportItemLevelOne> purchaseStatisLevelOne = new ArrayList<ChainPurchaseStatisReportItemLevelOne>();
-	private List<ChainPurchaseStatisReportItemLevelTwo> purchaseStatisLevelTwo = new ArrayList<ChainPurchaseStatisReportItemLevelTwo>();
-	private List<ChainPurchaseStatisReportItemLevelThree> purchaseStatisLevelThree = new ArrayList<ChainPurchaseStatisReportItemLevelThree>();
-	private List<ChainPurchaseStatisReportItemLevelFour> purchaseStatisLevelFour = new ArrayList<ChainPurchaseStatisReportItemLevelFour>();
-
-	
 	/**
 	 * AllInOne report
 	 *
@@ -141,44 +130,6 @@ public class ChainReportActionUIBean {
 	public void setPurchaseTotalItem(ChainPurchaseStatisReportItem purchaseTotalItem) {
 		this.purchaseTotalItem = purchaseTotalItem;
 	}
-
-	public List<ChainPurchaseStatisReportItemLevelOne> getPurchaseStatisLevelOne() {
-		return purchaseStatisLevelOne;
-	}
-
-	public void setPurchaseStatisLevelOne(
-			List<ChainPurchaseStatisReportItemLevelOne> purchaseStatisLevelOne) {
-		this.purchaseStatisLevelOne = purchaseStatisLevelOne;
-	}
-
-	public List<ChainPurchaseStatisReportItemLevelTwo> getPurchaseStatisLevelTwo() {
-		return purchaseStatisLevelTwo;
-	}
-
-	public void setPurchaseStatisLevelTwo(
-			List<ChainPurchaseStatisReportItemLevelTwo> purchaseStatisLevelTwo) {
-		this.purchaseStatisLevelTwo = purchaseStatisLevelTwo;
-	}
-
-	public List<ChainPurchaseStatisReportItemLevelThree> getPurchaseStatisLevelThree() {
-		return purchaseStatisLevelThree;
-	}
-
-	public void setPurchaseStatisLevelThree(
-			List<ChainPurchaseStatisReportItemLevelThree> purchaseStatisLevelThree) {
-		this.purchaseStatisLevelThree = purchaseStatisLevelThree;
-	}
-
-	public List<ChainPurchaseStatisReportItemLevelFour> getPurchaseStatisLevelFour() {
-		return purchaseStatisLevelFour;
-	}
-
-	public void setPurchaseStatisLevelFour(
-			List<ChainPurchaseStatisReportItemLevelFour> purchaseStatisLevelFour) {
-		this.purchaseStatisLevelFour = purchaseStatisLevelFour;
-	}
-
-
 
 	public ChainSalesStatisReportItem getTotalItem() {
 		return totalItem;

@@ -83,6 +83,7 @@ import com.onlineMIS.action.chainS.vo.ChainProductBarcodeVO;
 import com.onlineMIS.action.headQ.barCodeGentor.BarcodeGenBasicData;
 import com.onlineMIS.common.Common_util;
 import com.onlineMIS.common.loggerLocal;
+import com.onlineMIS.filter.SystemParm;
 import com.onlineMIS.sorter.SortYear;
 
 @Service
@@ -203,7 +204,7 @@ public class ChainMgmtService {
 			chainStore = chainStoreService.getChainStoreByID(userInfor.getMyChainStore().getChain_id());
 			formBean.setChainStore(chainStore);
 		} else {
-			chainStore = chainStoreService.getChainStoreByID(ChainStore.CHAIN_ID_TEST_ID);
+			chainStore = chainStoreService.getChainStoreByID(SystemParm.getTestChainId());
 			formBean.setChainStore(chainStore);
 		}
 		

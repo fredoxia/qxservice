@@ -54,8 +54,6 @@ public class ChainSalesStatisticReportItemVO {
 		this.setId(Common_util.getUUID());
 		this.setName(name);
 		this.setParentId(parentId);
-		this.setChainId(chainId);
-		this.setSalerId(salerId);
 		this.setYearId(yearId);
 		this.setQuarterId(quarterId);
 		this.setBrandId(brandId);

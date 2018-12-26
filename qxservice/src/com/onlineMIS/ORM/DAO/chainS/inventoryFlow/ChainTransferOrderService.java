@@ -44,6 +44,7 @@ import com.onlineMIS.action.chainS.chainTransfer.ChainTransferFormBean;
 import com.onlineMIS.action.chainS.chainTransfer.ChainTransferUIBean;
 import com.onlineMIS.action.chainS.vo.ChainProductBarcodeVO;
 import com.onlineMIS.common.Common_util;
+import com.onlineMIS.filter.SystemParm;
 
 @Service
 public class ChainTransferOrderService {
@@ -243,7 +244,7 @@ public class ChainTransferOrderService {
 		if (isMgmt){
 			criteria.add(Restrictions.ne("chain_id", fromChainId));
 		} else {
-			criteria.add(Restrictions.and(Restrictions.ne("chain_id", fromChainId), Restrictions.ne("chain_id", ChainStore.CHAIN_ID_TEST_ID)));
+			criteria.add(Restrictions.and(Restrictions.ne("chain_id", fromChainId), Restrictions.ne("chain_id", SystemParm.getTestChainId())));
 		}
 		
 		return criteria;

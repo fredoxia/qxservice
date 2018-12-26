@@ -17,8 +17,8 @@ public class ChainStore implements Serializable {
 	public static final int STATUS_DELETE = -1;
 	
 	public static final int HEADQ_MGMT_ID = 0;
-	public static final int CLIENT_ID_TEST_ID = 99999;
-	public static final int CHAIN_ID_TEST_ID = 3;
+//	public static final int CLIENT_ID_TEST_ID = 99999;
+//	public static final int CHAIN_ID_TEST_ID = 3;
 	//允许用户修改价格不
 	public static final int ALLOW_CHANGE_PRICE = 1;
 	public static final int DISALLOW_CHANGE_PRICE = 0;

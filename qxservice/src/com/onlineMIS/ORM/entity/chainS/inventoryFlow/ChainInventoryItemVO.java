@@ -26,6 +26,7 @@ public class ChainInventoryItemVO implements Serializable {
 	private int yearId = 0;
 	private int quarterId = 0;
 	private int brandId = 0;
+	private String barcode = "";
 	private boolean seeCost = false;
 	
 	public ChainInventoryItemVO() {
@@ -48,6 +49,14 @@ public class ChainInventoryItemVO implements Serializable {
 	}
 	
 	
+
+	public String getBarcode() {
+		return barcode;
+	}
+
+	public void setBarcode(String barcode) {
+		this.barcode = barcode;
+	}
 
 	public boolean getSeeCost() {
 		return seeCost;

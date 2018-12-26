@@ -638,10 +638,12 @@ public class WholeSalesService {
 		InventoryOrder order = inventoryOrderDAOImpl.retrieveOrder(orderId);
 		
 		Date now = new Date();
-		String hql = "update InventoryOrder set order_Status =?, order_EndTime=? where order_ID=?";
-		Object[] values = {InventoryOrder.STATUS_ACCOUNT_COMPLETE, now, orderId};
-		
-		inventoryOrderDAOImpl.executeHQLUpdateDelete(hql, values, false);
+//		String hql = "update InventoryOrder set order_Status =?, order_EndTime=? where order_ID=?";
+//		Object[] values = {InventoryOrder.STATUS_ACCOUNT_COMPLETE, now, orderId};
+		order.setOrder_Status(InventoryOrder.STATUS_ACCOUNT_COMPLETE);
+		order.setOrder_EndTime(now);
+		inventoryOrderDAOImpl.update(order, true);
+//		inventoryOrderDAOImpl.executeHQLUpdateDelete(hql, values, true);
 
 		//2. update the sales history
 		updateSalesHistory(order);

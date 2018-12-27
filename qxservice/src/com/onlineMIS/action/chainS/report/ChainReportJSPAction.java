@@ -19,12 +19,7 @@ import com.onlineMIS.ORM.DAO.Response;
 import com.onlineMIS.ORM.DAO.chainS.user.ChainUserInforDaoImpl;
 import com.onlineMIS.ORM.DAO.chainS.user.ChainUserInforService;
 import com.onlineMIS.ORM.entity.base.Pager;
-import com.onlineMIS.ORM.entity.chainS.report.ChainAllInOneReportItemLevelFour;
-import com.onlineMIS.ORM.entity.chainS.report.ChainAllInOneReportItemLevelOne;
-import com.onlineMIS.ORM.entity.chainS.report.ChainAllInOneReportItemLevelThree;
-import com.onlineMIS.ORM.entity.chainS.report.ChainAllInOneReportItemLevelTwo;
 import com.onlineMIS.ORM.entity.chainS.report.ChainBatchRptRepositoty;
-import com.onlineMIS.ORM.entity.chainS.report.ChainPurchaseStatisReportItem;
 import com.onlineMIS.ORM.entity.chainS.report.ChainReport;
 
 import com.onlineMIS.ORM.entity.chainS.report.rptTemplate.ChainSalesReportVIPPercentageTemplate;
@@ -162,6 +157,18 @@ public class ChainReportJSPAction extends ChainReportAction {
     	
 		return "PreAllInOneReport";
 	}
+	
+	
+	/**
+	 * 生成综合统计报表
+	 * @return
+	 */
+	public String generateAllInOneReport(){
+		ChainUserInfor userInfor = (ChainUserInfor)ActionContext.getContext().getSession().get(Common_util.LOGIN_CHAIN_USER);
+    	loggerLocal.chainActionInfo(userInfor,this.getClass().getName()+ "."+"generateAllInOneReport : " + formBean);
+    	
+    	return "allInOneStatisticReport";
+	}
 
 	/**
 	 * 生成销售统计报表
@@ -185,70 +192,7 @@ public class ChainReportJSPAction extends ChainReportAction {
     	
     	return "purchaseStatisticReport";
 	}
-	
-	/**
-	 * 生成综合统计报表
-	 * @return
-	 */
-	public String generateAllInOneReport(){
-		ChainUserInfor userInfor = (ChainUserInfor)ActionContext.getContext().getSession().get(Common_util.LOGIN_CHAIN_USER);
-    	loggerLocal.chainActionInfo(userInfor,this.getClass().getName()+ "."+"generateAllInOneReport : " + formBean);
-    	
-    	Date startDate = formBean.getStartDate();
-		Date endDate = formBean.getEndDate();
-		int chainId = formBean.getChainStore().getChain_id();
-		int yearId = formBean.getYear().getYear_ID();
-		int quarterId = formBean.getQuarter().getQuarter_ID();
-		int brandId = formBean.getBrand().getBrand_ID();
-		Pager pager = formBean.getPager();
-		
-		Response response = new Response();
-		try{
-		    response = chainReportService.generateAllInOneReport(startDate, endDate, chainId, yearId, quarterId, brandId, pager);
-		} catch (Exception e) {
-			loggerLocal.error(e);
-			response.setQuickValue(Response.FAIL, "操作失败 : " + e.getMessage());
-		}
-		
-		int returnCode = response.getReturnCode();
-		if (returnCode == Response.FAIL){
-			addActionError(response.getMessage());
-			return preAllInOneReport();
-		} else {
-			Map<String, Object> values = (Map<String, Object>)response.getReturnValue();
-			int resultCode = (Integer)values.get("type");
 
-			switch (resultCode) {
-				case ChainPurchaseStatisReportItem.LEVEL_ONE:
-					List<ChainAllInOneReportItemLevelOne> levelOne = (List<ChainAllInOneReportItemLevelOne>)values.get("data");
-					ChainAllInOneReportItemLevelOne totalItem = (ChainAllInOneReportItemLevelOne)values.get("total");
-					uiBean.setAllInOneLevelOne(levelOne);
-					uiBean.setAllInOneTotal(totalItem);
-					return "AllInOneReportLevelOne";
-				case ChainPurchaseStatisReportItem.LEVEL_TWO:
-					List<ChainAllInOneReportItemLevelTwo> levelTwo = (List<ChainAllInOneReportItemLevelTwo>)values.get("data");
-					ChainAllInOneReportItemLevelTwo totalItem1 = (ChainAllInOneReportItemLevelTwo)values.get("total");
-					uiBean.setAllInOneLevelTwo(levelTwo);
-					uiBean.setAllInOneTotal(totalItem1);
-					return "AllInOneReportLevelTwo";	
-				case ChainPurchaseStatisReportItem.LEVEL_THREE:
-					List<ChainAllInOneReportItemLevelThree> levelThree = (List<ChainAllInOneReportItemLevelThree>)values.get("data");
-					ChainAllInOneReportItemLevelThree totalItem2 = (ChainAllInOneReportItemLevelThree)values.get("total");
-					uiBean.setAllInOneLevelThree(levelThree);
-					uiBean.setAllInOneTotal(totalItem2);
-					return "AllInOneReportLevelThree";	
-				case ChainPurchaseStatisReportItem.LEVEL_FOUR:
-					List<ChainAllInOneReportItemLevelFour> levelFour = (List<ChainAllInOneReportItemLevelFour>)values.get("data");
-					ChainAllInOneReportItemLevelFour totalItem3 = (ChainAllInOneReportItemLevelFour)values.get("total");
-					uiBean.setAllInOneLevelFour(levelFour);
-					uiBean.setAllInOneTotal(totalItem3);
-					return "AllInOneReportLevelFour";
-				default:
-					addActionError("无法找到对应报表文件");
-					return preAllInOneReport();
-			}
-		}	
-	}
 	
 	/**
 	 * the action to generate the 销售报表 report 到 excel

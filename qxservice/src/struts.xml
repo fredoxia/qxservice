@@ -544,21 +544,13 @@
             <result name="PreSalesStatisticReport">/jsp/chainStore/report/PreSalesStatisticReport.jsp</result>
 
             <result name="PreSalesAnalysisReport">/jsp/chainStore/report/GenerateSalesAnalysisReport.jsp</result>
-            
+            <result name="PrePurchaseStatisticReport">/jsp/chainStore/report/PrePurchaseStatisticReport.jsp</result>
             
             <result name="PreAllInOneReport">/jsp/chainStore/report/PreAllInOneReport.jsp</result>
-            <result name="AllInOneReportLevelOne">/jsp/chainStore/report/AllInOneReportLevelOne.jsp</result> 
-            <result name="AllInOneReportLevelTwo">/jsp/chainStore/report/AllInOneReportLevelTwo.jsp</result> 
-            <result name="AllInOneReportLevelThree">/jsp/chainStore/report/AllInOneReportLevelThree.jsp</result> 
-            <result name="AllInOneReportLevelFour">/jsp/chainStore/report/AllInOneReportLevelFour.jsp</result> 
+            <result name="allInOneStatisticReport">/jsp/chainStore/report/AllInOneReport.jsp</result> 
                           
             <result name="salesStatisticReport">/jsp/chainStore/report/ChainSalesStatisticReport.jsp</result> 
             <result name="purchaseStatisticReport">/jsp/chainStore/report/ChainPurchaseStatisticReport.jsp</result> 
-            <result name="PrePurchaseStatisticReport">/jsp/chainStore/report/PrePurchaseStatisticReport.jsp</result>
-            <result name="PurchaseStatisticReportLevelOne">/jsp/chainStore/report/PurchaseStatisticReportLevelOne.jsp</result> 
-			<result name="PurchaseStatisticReportLevelTwo">/jsp/chainStore/report/PurchaseStatisticReportLevelTwo.jsp</result>  
-            <result name="PurchaseStatisticReportLevelFour">/jsp/chainStore/report/PurchaseStatisticReportLevelFour.jsp</result>  
-            <result name="PurchaseStatisticReportLevelThree">/jsp/chainStore/report/PurchaseStatisticReportLevelThree.jsp</result> 
 
             <result name="rptRepositoryUI">/jsp/chainStore/report/headRptRepository/ChainRptRepository.jsp</result> 
             

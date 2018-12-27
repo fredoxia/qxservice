@@ -4,15 +4,9 @@ import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.onlineMIS.ORM.entity.chainS.report.ChainAllInOneReportItem;
-import com.onlineMIS.ORM.entity.chainS.report.ChainAllInOneReportItemLevelFour;
-import com.onlineMIS.ORM.entity.chainS.report.ChainAllInOneReportItemLevelOne;
-import com.onlineMIS.ORM.entity.chainS.report.ChainAllInOneReportItemLevelThree;
-import com.onlineMIS.ORM.entity.chainS.report.ChainAllInOneReportItemLevelTwo;
+import com.onlineMIS.ORM.entity.chainS.report.ChainAllInOneReportItemVO;
 import com.onlineMIS.ORM.entity.chainS.report.ChainBatchRptRepositoty;
-import com.onlineMIS.ORM.entity.chainS.report.ChainPurchaseStatisReportItem;
 
-import com.onlineMIS.ORM.entity.chainS.report.ChainSalesStatisReportItem;
 import com.onlineMIS.ORM.entity.chainS.user.ChainStore;
 import com.onlineMIS.ORM.entity.chainS.user.ChainUserInfor;
 import com.onlineMIS.ORM.entity.headQ.barcodeGentor.Quarter;
@@ -24,23 +18,7 @@ public class ChainReportActionUIBean {
 	private List<Year> years = new ArrayList<Year>();
 	private List<Quarter> quarters = new ArrayList<Quarter>();
 	private List<ChainUserInfor> chainSalers = new ArrayList<ChainUserInfor>();
-	/**
-	 * sales statis report
-	 */
-	private ChainSalesStatisReportItem totalItem = new ChainSalesStatisReportItem();
-	/**
-	 * purchase statistic report
-	 */
-	private ChainPurchaseStatisReportItem purchaseTotalItem = new ChainPurchaseStatisReportItem();
-	/**
-	 * AllInOne report
-	 *
-	 */
-	private ChainAllInOneReportItem allInOneTotal = new ChainAllInOneReportItem();
-	private List<ChainAllInOneReportItemLevelOne> allInOneLevelOne = new ArrayList<ChainAllInOneReportItemLevelOne>();
-	private List<ChainAllInOneReportItemLevelTwo> allInOneLevelTwo = new ArrayList<ChainAllInOneReportItemLevelTwo>();
-	private List<ChainAllInOneReportItemLevelThree> allInOneLevelThree = new ArrayList<ChainAllInOneReportItemLevelThree>();
-	private List<ChainAllInOneReportItemLevelFour> allInOneLevelFour = new ArrayList<ChainAllInOneReportItemLevelFour>();
+
 
 	/**
 	 * report repository的参数
@@ -79,65 +57,6 @@ public class ChainReportActionUIBean {
 		this.currentSalesDates = currentSalesDates;
 	}
 
-	public List<ChainAllInOneReportItemLevelThree> getAllInOneLevelThree() {
-		return allInOneLevelThree;
-	}
-
-	public void setAllInOneLevelThree(
-			List<ChainAllInOneReportItemLevelThree> allInOneLevelThree) {
-		this.allInOneLevelThree = allInOneLevelThree;
-	}
-
-	public List<ChainAllInOneReportItemLevelFour> getAllInOneLevelFour() {
-		return allInOneLevelFour;
-	}
-
-	public void setAllInOneLevelFour(
-			List<ChainAllInOneReportItemLevelFour> allInOneLevelFour) {
-		this.allInOneLevelFour = allInOneLevelFour;
-	}
-
-	public List<ChainAllInOneReportItemLevelTwo> getAllInOneLevelTwo() {
-		return allInOneLevelTwo;
-	}
-
-	public void setAllInOneLevelTwo(
-			List<ChainAllInOneReportItemLevelTwo> allInOneLevelTwo) {
-		this.allInOneLevelTwo = allInOneLevelTwo;
-	}
-
-	public ChainAllInOneReportItem getAllInOneTotal() {
-		return allInOneTotal;
-	}
-
-	public void setAllInOneTotal(ChainAllInOneReportItem allInOneTotal) {
-		this.allInOneTotal = allInOneTotal;
-	}
-
-	public List<ChainAllInOneReportItemLevelOne> getAllInOneLevelOne() {
-		return allInOneLevelOne;
-	}
-
-	public void setAllInOneLevelOne(
-			List<ChainAllInOneReportItemLevelOne> allInOneLevelOne) {
-		this.allInOneLevelOne = allInOneLevelOne;
-	}
-
-	public ChainPurchaseStatisReportItem getPurchaseTotalItem() {
-		return purchaseTotalItem;
-	}
-
-	public void setPurchaseTotalItem(ChainPurchaseStatisReportItem purchaseTotalItem) {
-		this.purchaseTotalItem = purchaseTotalItem;
-	}
-
-	public ChainSalesStatisReportItem getTotalItem() {
-		return totalItem;
-	}
-
-	public void setTotalItem(ChainSalesStatisReportItem totalItem) {
-		this.totalItem = totalItem;
-	}
 
 
 	public List<ChainUserInfor> getChainSalers() {

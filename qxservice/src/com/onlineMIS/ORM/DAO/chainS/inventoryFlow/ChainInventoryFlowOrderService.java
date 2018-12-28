@@ -66,6 +66,7 @@ import com.onlineMIS.ORM.entity.chainS.sales.ChainStoreSalesOrder;
 import com.onlineMIS.ORM.entity.chainS.user.ChainStore;
 import com.onlineMIS.ORM.entity.chainS.user.ChainUserInfor;
 import com.onlineMIS.ORM.entity.headQ.barcodeGentor.Brand;
+import com.onlineMIS.ORM.entity.headQ.barcodeGentor.Category;
 import com.onlineMIS.ORM.entity.headQ.barcodeGentor.Color;
 import com.onlineMIS.ORM.entity.headQ.barcodeGentor.Product;
 import com.onlineMIS.ORM.entity.headQ.barcodeGentor.ProductBarcode;
@@ -146,43 +147,6 @@ public class ChainInventoryFlowOrderService {
 	
 	}
 	
-	/**
-	 * 准备调货单的页面内容
-	 * @param loginUser
-	 * @param uiBean
-	 * @param formBean
-	 * @param order
-	 */
-	@Transactional
-	public void prepareCreateInvenTransferOrderFormUIBean(
-			ChainUserInfor loginUser, ChainInventoryFlowUIBean uiBean,
-			ChainInventoryFlowFormBean formBean, ChainInventoryFlowOrder order) {
- 	    formBean.setFlowOrder(order);
-  	   
- 	    //1. set the store list
-		List<ChainStore> stores = chainStoreService.getChainStoreList(loginUser);
-		stores.add(0, ChainStoreDaoImpl.getOutsideStore());
-		uiBean.setChainStores(stores);
-		
-		//2. set the creator
-		formBean.getFlowOrder().setCreator(loginUser);
-		
-		//3. set the date
-		formBean.getFlowOrder().setOrderDate(new Date());
-		
-		//4.调货到的连锁店
-		List<ChainStore> toChainStores = new ArrayList<ChainStore>();
-		if (ChainUserInforService.isMgmtFromHQ(loginUser)){
-			toChainStores =  chainStoreDaoImpl.getAll(true);
-			toChainStores.add(0, ChainStoreDaoImpl.getOutsideStore());
-	    }else if (stores != null && stores.size() >0){
-			ChainStore fromChainStore = order.getFromChainStore();
-			if (fromChainStore == null)
-				fromChainStore = ChainStoreDaoImpl.getOutsideStore();
-			getChainStores(fromChainStore.getChain_id(),loginUser.getMyChainStore().getChain_id(),toChainStores);
-		}
-		uiBean.setToChainStores(toChainStores);
-	}
 	
 	public void prepareCheckInvenTraceUIBean(ChainUserInfor loginUserInfor,
 			ChainInventoryFlowUIBean uiBean, ChainInventoryFlowFormBean formBean) {
@@ -315,45 +279,10 @@ public class ChainInventoryFlowOrderService {
 		
 		List<ChainInventoryFlowOrder> chainOrders = chainInventoryFlowOrderDaoImpl.getByCritera(criteria2, pager.getFirstResult(), pager.getRecordPerPage(), cache);
 		
-		for (ChainInventoryFlowOrder order : chainOrders){
-			if (order.getType() == ChainInventoryFlowOrder.INVENTORY_TRANSFER_ORDER){
-				formatTransferOrderComment(order);
-				chainInventoryFlowOrderDaoImpl.evict(order);
-			}
-		}
-		
 		return chainOrders;
 	}
 	
-	private void formatTransferOrderComment(ChainInventoryFlowOrder order) {
-		ChainStore fromChainStore = order.getFromChainStore();
-		ChainStore toChainStore = order.getToChainStore();
 
-		String fromChainName = "非连锁店";
-		String toChainName = "非连锁店";
-		
-		if(fromChainStore != null && fromChainStore.getChain_id() != 0){
-			fromChainStore = chainStoreDaoImpl.get(fromChainStore.getChain_id(), true);
-			fromChainName = fromChainStore.getChain_name();
-			if (fromChainName.length() > 4)
-				fromChainName = fromChainName.substring(0,4);
-		}
-		if (toChainStore != null && toChainStore.getChain_id() != 0){
-			toChainStore = chainStoreDaoImpl.get(toChainStore.getChain_id(), true);
-			toChainName = toChainStore.getChain_name();
-			if (toChainName.length() > 4)
-				toChainName = toChainName.substring(0,4);
-		}
-		
-		String transferComment = fromChainName + " -> " + toChainName;
-
-		String orderComment = order.getComment();
-		if (orderComment.length() > 0)
-			order.setComment(transferComment + "<br/>" + orderComment);
-		else 
-			order.setComment(transferComment);
-		
-	}
 
 	private DetachedCriteria buildSearchInvenFlowCriter(ChainInventoryFlowFormBean formBean){
         DetachedCriteria criteria = DetachedCriteria.forClass(ChainInventoryFlowOrder.class);
@@ -478,9 +407,7 @@ public class ChainInventoryFlowOrderService {
     	      //ChainInventoryFlowOrder order = getOrderById(flowOrder.getId(), loginUser);
     		   flowOrder.setChainStore(chainStoreService.getChainStoreByID(flowOrder.getChainStore().getChain_id()));
     	       updateChainFlowOrderInOutStock(flowOrder, ChainStoreSalesOrder.STATUS_COMPLETE);
-    	   } else if (flowOrder.getType() == ChainInventoryFlowOrder.INVENTORY_TRANSFER_ORDER){
-    		   updateChainInvenTransferInOutStock(flowOrder, ChainStoreSalesOrder.STATUS_COMPLETE);
-    	   }
+    	   } 
 		   
 		   response.setReturnCode(Response.SUCCESS);
 		   response.setMessage("已经成功保存");
@@ -515,9 +442,7 @@ public class ChainInventoryFlowOrderService {
 		    	   //   只有报溢单,报损单，调货单可以
 		    	   if (flowOrder.getType() == ChainInventoryFlowOrder.FLOW_LOSS_ORDER || flowOrder.getType() == ChainInventoryFlowOrder.OVER_FLOW_ORDER){
 		    	       updateChainFlowOrderInOutStock(flowOrder, ChainStoreSalesOrder.STATUS_CANCEL);
-		    	   } else if (flowOrder.getType() == ChainInventoryFlowOrder.INVENTORY_TRANSFER_ORDER){
-		    		   updateChainInvenTransferInOutStock(flowOrder, ChainStoreSalesOrder.STATUS_CANCEL);
-		    	   }
+		    	   } 
 		        	
 		           response.setReturnCode(Response.SUCCESS);
 		           response.setMessage("成功红冲单据");
@@ -620,92 +545,6 @@ public class ChainInventoryFlowOrderService {
 			 chainInOutStockDaoImpl.save(inOutStock, false);
 		 }
 	}
-	
-	/**
-	 * 调库产生的库存需要修改
-	 * @param order
-	 * @param status
-	 */
-	private void updateChainInvenTransferInOutStock(ChainInventoryFlowOrder order,
-			int status)  {
-		boolean isCancel = false;
-		ChainStore fromChainStore = order.getFromChainStore();
-		ChainStore toChainStore = order.getToChainStore();
-		
-		int fromClientId = 0;
-		int toClientId = 0;
-		
-		if (fromChainStore != null && fromChainStore.getChain_id() !=0){
-			fromClientId = chainStoreService.getChainStoreByID(fromChainStore.getChain_id()).getClient_id();
-		}
-		if (toChainStore != null && toChainStore.getChain_id() !=0){
-			toClientId = chainStoreService.getChainStoreByID(toChainStore.getChain_id()).getClient_id();
-		}
-
-		if (fromClientId == 0 && toClientId == 0)
-			loggerLocal.error("调货单据的调出客户和调入客户ID不能同时为零. 单据号" + order.getId());
-
-		if (status == ChainInventoryFlowOrder.STATUS_CANCEL)
-			isCancel = true;
-		
-		String orderId = String.valueOf(order.getId());
-		int offset = isCancel ? -1 : 1;
-		String orderIdHead = isCancel ? "C" : "";
-
-		orderId = ChainInOutStock.CHAIN_TRANSFER + orderIdHead + orderId;	
-
-		 Iterator<ChainInventoryFlowOrderProduct> orderProducts = order.getProductSet().iterator();
-		 while (orderProducts.hasNext()){
-			 ChainInventoryFlowOrderProduct orderProduct = orderProducts.next();
-		 
-			 int productId = orderProduct.getProductBarcode().getId();
-			 String barcode = orderProduct.getProductBarcode().getBarcode();
-			 int quantity = orderProduct.getQuantity() * offset;
-			 
-			 /**
-			  * 1. 为from chain准备库存调出
-			  */
-			 double cost = 0;
-
-			 ProductBarcode pBarcode = productBarcodeDaoImpl.get(productId, true);
-			 double salePrice = pBarcode.getProduct().getSalesPrice();
-			 
-			 double chainSalePrice = pBarcode.getProduct().getSalesPrice();
-			 
-			 if (fromClientId > 0) {
-				 //to get the latest cost for from wholesaler
-				 int fromQuantity = -1 * quantity;
-				 HeadQSalesHistoryId historyId = new HeadQSalesHistoryId(productId, fromClientId);
-				 HeadQSalesHistory priorHistory = headQSalesHisDAOImpl.get(historyId, true);
-
-				 if (priorHistory != null)
-					 cost = priorHistory.getWholePrice();
-				 else {
-					 loggerLocal.error(ERRORS.ERROR_NO_COST + " 找不到货品进价: " + fromClientId + "," + barcode + "," + productId + "," + orderProduct.getProductBarcode().getProduct().getProductCode());
-					 cost = productBarcodeDaoImpl.getWholeSalePrice(pBarcode);
-				 }
-
-				 ChainInOutStock inOutStock = new ChainInOutStock(barcode, fromClientId, orderId, order.getType() , cost, cost * fromQuantity,salePrice, salePrice * fromQuantity, chainSalePrice* fromQuantity, fromQuantity, orderProduct.getProductBarcode());
-				 chainInOutStockDaoImpl.save(inOutStock, false);
-			 } else 
-				 cost = productBarcodeDaoImpl.getWholeSalePrice(pBarcode);
-			 
-			 /**
-			  * 为to chain store准备库存调入单, 和saleshistory
-			  */
-			 if (toClientId > 0){
-				 //1. 更新in-out
-				 int toQuantity = quantity;	 
-				 ChainInOutStock inOutStockTo = new ChainInOutStock(barcode, toClientId, orderId, order.getType() , cost, cost * toQuantity,salePrice, salePrice * toQuantity, chainSalePrice*toQuantity, toQuantity, orderProduct.getProductBarcode());
-				 chainInOutStockDaoImpl.save(inOutStockTo, false);
-				 
-//				 //2. 更新history以后合并系统可以
-//				 HeadQSalesHistory salesHistory = new HeadQSalesHistory(pBarcode.getId(), toClientId, 0 , cost, 0, toQuantity, 0, 1);
-//				 headQSalesHisDAOImpl.saveOrUpdate(salesHistory, false);
-				 
-			 }
-		 }
-	}
 
 
 	/**
@@ -720,20 +559,7 @@ public class ChainInventoryFlowOrderService {
 		
 		//check the toChainStore
 		int orderType = order.getType();
-		if (orderType == ChainInventoryFlowOrder.INVENTORY_TRANSFER_ORDER){
-			ChainStore fromChainStore= order.getFromChainStore();
-			if (fromChainStore == null){
-			    order.setFromChainStore(ChainStoreDaoImpl.getOutsideStore());
-			    chainInventoryFlowOrderDaoImpl.evict(order);
-			}
-			ChainStore toChainStore = order.getToChainStore();
-			if (toChainStore == null){
-			    order.setToChainStore(ChainStoreDaoImpl.getOutsideStore());
-			    chainInventoryFlowOrderDaoImpl.evict(order);
-			}
-			
-			order.putSetToList();
-		} else if (orderType ==  ChainInventoryFlowOrder.INVENTORY_ORDER){
+		if (orderType ==  ChainInventoryFlowOrder.INVENTORY_ORDER){
 			order.putSetToList(new ChainInventoryOrderProductSorter());
 		} else 
 		    order.putSetToList();
@@ -796,17 +622,6 @@ public class ChainInventoryFlowOrderService {
 		ChainStore fromChainStore = flowOrder.getFromChainStore();
 		if (fromChainStore != null && fromChainStore.getChain_id() == 0)
 			flowOrder.setFromChainStore(null);
-		
-		//4. 注入 chainStore
-		//   如果是调库存单，需要注入chainStore.首先fromChainStore,然后toChainStore
-		if (flowOrder.getType() == ChainInventoryFlowOrder.INVENTORY_TRANSFER_ORDER){		
-			if (fromChainStore != null && fromChainStore.getChain_id() != 0)
-				flowOrder.setChainStore(fromChainStore);
-			else if (toChainStore != null && toChainStore.getChain_id() != 0)
-				flowOrder.setChainStore(toChainStore);
-			else 
-				throw new Exception("无法找到调货单的发起人");
-		}
 				
 		
 		flowOrder.buildIndex();
@@ -1777,10 +1592,6 @@ public class ChainInventoryFlowOrderService {
 		String contextPath = webInf.substring(1, webInf.indexOf("classes")).replaceAll("%20", " ");  
 
 		ChainInventoryFlowOrder order = getOrderById(id, loginUser);
-		if (order.getType() ==  ChainInventoryFlowOrder.INVENTORY_TRANSFER_ORDER){
-			formatTransferOrderComment(order);
-			chainInventoryFlowOrderDaoImpl.evict(order);
-		}
 		
 		boolean showCost = loginUser.containFunction("purchaseAction!seeCost");
 
@@ -1942,10 +1753,14 @@ public class ChainInventoryFlowOrderService {
 						int quantity = Common_util.getInt(object2[3]);
 						
 						Brand brand = brandDaoImpl.get(brandIdDB, true);
+						boolean isChain = false;
+						if (brand.getChainStore() != null && brand.getChainStore().getChain_id() !=0)
+							isChain = true;
 						
 						String name = brand.getBrand_Name();
 						
 						ChainInventoryItemVO headqInventoryVO = new ChainInventoryItemVO(name, quantity, costTotal, retailTotal, ChainInventoryItemVO.STATE_CLOSED,parentId,  chainId, yearId, quarterId, brandIdDB,0, showCost);
+						headqInventoryVO.setIsChain(isChain);
 						chainInventoryVOs.add(headqInventoryVO);
 				}
 		    }
@@ -1972,14 +1787,19 @@ public class ChainInventoryFlowOrderService {
 						String colorName = "";
 						if (color != null)
 							colorName = color.getName();
+						Category category = pb.getProduct().getCategory();
+						String name = category.getCategory_Name() + " " + pb.getProduct().getProductCode() + colorName;
 						
-						String name = pb.getProduct().getProductCode() + colorName;
+						boolean isChain = false;
+						if (pb.getChainStore() != null && pb.getChainStore().getChain_id() !=0)
+							isChain = true;
 						
 						String barcode = pb.getBarcode();
 						
 						ChainInventoryItemVO headqInventoryVO = new ChainInventoryItemVO(name, quantity, costTotal, retailTotal, ChainInventoryItemVO.STATE_OPEN, parentId,chainId, yearId, quarterId, brandId,pbId, showCost);
 						headqInventoryVO.setBarcode(barcode);
 						chainInventoryVOs.add(headqInventoryVO);
+						headqInventoryVO.setIsChain(isChain);
 				}
 		    }
 		}

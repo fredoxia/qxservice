@@ -65,34 +65,6 @@ public class PurchaseJSONAction extends PurchaseAction {
 	}
 	
 	/**
-	 * 提供接口给总部获取当前的订单在连锁店是否已经确认收货了以及备注
-	 * @return
-	 */
-	public String chainInventoryService(){
-
-		Response response = new Response();
-		try {
-		    response = purchaseService.getChainConfirmInfor(formBean.getOrder().getOrder_ID());	
-		} catch (Exception e){
-			e.printStackTrace();
-			response.setQuickValue(Response.FAIL, e.getMessage());
-		}
-
-		
-		JsonConfig jsonConfig = new JsonConfig();
-
-		//to excludes the set and list inforamtion
-		jsonConfig.setExcludes( new String[]{"startTime","completeTime"} );
-		try{
-			   jsonObject = JSONObject.fromObject(response);
-			} catch (Exception e){
-				loggerLocal.error(e);
-			}
-		
-		return SUCCESS;
-	}
-	
-	/**
 	 * 某些情况下，客户没有清点就直接确认了，后来发现开单错误，总部需要回滚这个单子状态和库存
 	 * @return
 	 */

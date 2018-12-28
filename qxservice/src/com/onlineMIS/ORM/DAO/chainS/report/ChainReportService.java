@@ -1795,11 +1795,15 @@ public class ChainReportService {
 					} else {
 						Brand brand = brandDaoImpl.get(brandIdDB, true);
 						
+						boolean isChain = false;
+						if (brand.getChainStore() != null && brand.getChainStore().getChain_id() !=0)
+							isChain = true;
+						
 						name = brand.getBrand_Name();
 						
 						levelFour = new ChainSalesStatisticReportItemVO(name, parentId, chainId, yearId, quarterId, brandIdDB,0, showCost, ChainSalesStatisticReportItemVO.STATE_CLOSED);
-
 						levelFour.putValue(quantity, type, sales, cost, salesDiscount);
+						levelFour.setIsChain(isChain);
 					}
 					
 					dataMap.put(brandIdDB, levelFour);
@@ -1818,7 +1822,7 @@ public class ChainReportService {
 			}
 		} else if (brandId != 0) {
 			//@2. 展开所有品牌的库存信息
-			String criteria = "SELECT SUM(quantity), SUM(retailPrice * discountRate * quantity), SUM(costPrice * quantity), SUM(retailPrice * (1 - discountRate) * quantity), csp.productBarcode.id,  csp.type FROM ChainStoreSalesOrderProduct csp WHERE csp.chainSalesOrder.status = ? AND csp.chainSalesOrder.orderDate BETWEEN ? AND ? AND csp.productBarcode.product.year.year_ID = " + yearId + " AND csp.productBarcode.product.quarter.quarter_ID = " + quarterId + " AND csp.productBarcode.product.brand.brand_ID = " + brandId + " GROUP BY csp.productBarcode.id, csp.type";
+			String criteria = "SELECT SUM(quantity), SUM(retailPrice * discountRate * quantity), SUM(costPrice * quantity), SUM(retailPrice * (1 - discountRate) * quantity), csp.productBarcode.id,  csp.type FROM ChainStoreSalesOrderProduct csp WHERE csp.chainSalesOrder.status = ? AND csp.chainSalesOrder.orderDate BETWEEN ? AND ? AND csp.productBarcode.product.year.year_ID = " + yearId + " AND csp.productBarcode.product.quarter.quarter_ID = " + quarterId + whereClause + " AND csp.productBarcode.product.brand.brand_ID = " + brandId + " GROUP BY csp.productBarcode.id, csp.type";
 			List<Object> values = chainSalesOrderDaoImpl.executeHQLSelect(criteria, value_sale.toArray(), null, true);
 			
 			
@@ -1843,11 +1847,16 @@ public class ChainReportService {
 						if (color != null)
 							colorName = color.getName();
 						
-						name = pb.getProduct().getProductCode() + colorName;
+						Category category = pb.getProduct().getCategory();
+						name = category.getCategory_Name() + " " + pb.getProduct().getProductCode() + colorName;
+						
+						boolean isChain = false;
+						if (pb.getChainStore() != null && pb.getChainStore().getChain_id() !=0)
+							isChain = true;
 						
 						levelFour = new ChainSalesStatisticReportItemVO(name, parentId, chainId, yearId, quarterId, brandId, pbId, showCost, ChainSalesStatisticReportItemVO.STATE_OPEN);
-
 						levelFour.putValue(quantity, type, sales, cost, salesDiscount);
+						levelFour.setIsChain(isChain);
 					}
 					
 					dataMap.put(pbId, levelFour);
@@ -2215,8 +2224,12 @@ public class ChainReportService {
 				
 				Brand brand = brandDaoImpl.get(brandDB, true);
 				name = brand.getBrand_Name();
+				boolean isChain = false;
+				if (brand.getChainStore() != null && brand.getChainStore().getChain_id() !=0)
+					isChain = true;
 				
 				reportItem = new ChainAllInOneReportItemVO(name, parentId, chainId, yearId, quarterId, brandDB,0, ChainReportItemVO.STATE_CLOSED, sales, purchase, inventory);	
+				reportItem.setIsChain(isChain);
 			} else if (brandId != 0) {
 				int pbId = get(key, "pbId");
 				ProductBarcode pb = productBarcodeDaoImpl.get(pbId, true);
@@ -2225,9 +2238,15 @@ public class ChainReportService {
 				if (color != null)
 					colorName = color.getName();
 
-				
+				Category category = pb.getProduct().getCategory();
+				name = category.getCategory_Name() + " " + pb.getProduct().getProductCode() + colorName;
+				boolean isChain = false;
+				if (pb.getChainStore() != null && pb.getChainStore().getChain_id() !=0)
+					isChain = true;
+
 				name = pb.getProduct().getProductCode() + colorName;
 				reportItem = new ChainAllInOneReportItemVO(name, parentId, chainId, yearId, quarterId, brandId,pbId, ChainReportItemVO.STATE_OPEN, sales, purchase, inventory);
+				reportItem.setIsChain(isChain);
 			}
 			
 			reportItems.add(reportItem);

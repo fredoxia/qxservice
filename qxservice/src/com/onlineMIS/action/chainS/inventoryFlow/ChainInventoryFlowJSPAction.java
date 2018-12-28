@@ -111,27 +111,7 @@ public class ChainInventoryFlowJSPAction extends ChainInventoryFlowAction{
 		
 		return "editInventoryOrder";		
 	}
-	
-	/**
-	 * go to create 调货单 (inventory transfer order)
-	 * @return
-	 */
-	public String preCreateInventoryTransferOrder(){
-		ChainUserInfor loginUser = (ChainUserInfor)ActionContext.getContext().getSession().get(Common_util.LOGIN_CHAIN_USER);
-		loggerLocal.chainActionInfo(loginUser,this.getClass().getName()+ "."+"preCreateInventoryTransferOrder");
-    	
-		ChainInventoryFlowOrder order = formBean.getFlowOrder();
-		
-		flowOrderService.prepareCreateInvenTransferOrderFormUIBean(loginUser, uiBean, formBean, order);
-		
-		//prepare the 
-		ChainUtility.calculateParam(formBean, order);
-		
-		//set the order type
-		formBean.getFlowOrder().setType(ChainInventoryFlowOrder.INVENTORY_TRANSFER_ORDER);
-		
-		return "editInventoryTransferOrder";		
-	}
+
 	
 	public String preSearchInvenFlowOrder(){
 		ChainUserInfor loginUser = (ChainUserInfor)ActionContext.getContext().getSession().get(Common_util.LOGIN_CHAIN_USER);
@@ -367,9 +347,7 @@ public class ChainInventoryFlowJSPAction extends ChainInventoryFlowAction{
     		   Collections.sort(order.getProductList(), new ChainInveProductSort());
     		   
     		   return "displayInventoryReport";
-           } else if (orderType == ChainInventoryFlowOrder.INVENTORY_TRANSFER_ORDER)
-    		   return "displayInventoryTransferOrder";
-    	   else 
+           }  
                return "displayFlowOrder";
         }else if (orderStatus ==  ChainInventoryFlowOrder.STATUS_DRAFT){
 
@@ -377,9 +355,6 @@ public class ChainInventoryFlowJSPAction extends ChainInventoryFlowAction{
         	   flowOrderService.prepareCreateFlowOrderFormUIBean(loginUser, uiBean, formBean, order);
         	   
     		   return "editInventoryOrder";
-    	   } else if (orderType == ChainInventoryFlowOrder.INVENTORY_TRANSFER_ORDER){
-    		   flowOrderService.prepareCreateInvenTransferOrderFormUIBean(loginUser, uiBean, formBean, order);
-    		   return "editInventoryTransferOrder";
     	   } else {
         	   flowOrderService.prepareCreateFlowOrderFormUIBean(loginUser, uiBean, formBean, order);
                return "editFlowOrder";
@@ -690,9 +665,7 @@ public class ChainInventoryFlowJSPAction extends ChainInventoryFlowAction{
 			return preCreateflowLossOrder();
 		else if (orderType == ChainInventoryFlowOrder.INVENTORY_ORDER)
 			return preCreateInventoryOrder();
-		else if (orderType == ChainInventoryFlowOrder.INVENTORY_TRANSFER_ORDER)
-			return preCreateInventoryTransferOrder();
-		else
+		else 
 			return ERROR;
 	}
 	

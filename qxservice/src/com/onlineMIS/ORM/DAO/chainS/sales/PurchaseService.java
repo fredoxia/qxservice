@@ -265,33 +265,6 @@ public class PurchaseService {
 		return null;   
 	}
 	
-	public Response getChainConfirmInfor(int orderId){
-		Response response = new Response();
-		if (orderId <= 0){
-			response.setQuickValue(Response.FAIL, "无效的单据号");
-			return response;
-		}
-			
-		
-		String hql = "SELECT i.chainConfirmStatus,i.chainConfirmComment FROM InventoryOrder i WHERE i.order_ID = ?";
-		Object[] values = new Object[]{orderId};
-		List<Object> objects = inventoryOrderDAOImpl.executeHQLSelect(hql, values, null, true);
-		Object[] objects2 = (Object[])objects.get(0);
-		if (objects == null || objects.size() == 0){
-			response.setQuickValue(Response.FAIL, "无法找到对应单据号，请联系系统管理员，夏林。");
-			return response;
-		}else {
-			int status = Common_util.getInt(objects2[0]);
-			String comment = Common_util.getString(objects2[1]);
- 
-			InventoryOrderVO vo = new InventoryOrderVO();
-			vo.setStatus(status);
-			vo.setComment(comment);
-			
-			response.setReturnValue(vo);
-			return response;
-		}
-	}
 
 	public void prepareFormUIBean(PurchaseActionFormBean formBean,
 			PurchaseActionUIBean uiBean, InventoryOrder order)  {

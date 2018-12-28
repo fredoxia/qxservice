@@ -467,12 +467,10 @@
         </action> 
         <action name="inventoryFlowJSPAction" class="com.onlineMIS.action.chainS.inventoryFlow.ChainInventoryFlowJSPAction">
             <result name="input">/jsp/common/error.jsp</result>
-            <result name="editInventoryTransferOrder">/jsp/chainStore/inventoryFlow/ChainInvenTransferOrder.jsp</result>
             <result name="editFlowOrder">/jsp/chainStore/inventoryFlow/ChainInvenflowOrder.jsp</result>
             <result name="editInventoryOrder">/jsp/chainStore/inventoryFlow/ChainInvenOrder.jsp</result>
             <result name="displayFlowOrder">/jsp/chainStore/inventoryFlow/DisplayChainInvenflowOrder.jsp</result>
             <result name="displayInventoryReport">/jsp/chainStore/inventoryFlow/DisplayChainInventoryOrderReport.jsp</result>
-            <result name="displayInventoryTransferOrder">/jsp/chainStore/inventoryFlow/DisplayChainInventoryTransferOrder.jsp</result>
             <result name="searchOrder">/jsp/chainStore/inventoryFlow/SearchInvenFlowOrder.jsp</result>
             <result name="preUpload">/jsp/chainStore/inventoryFlow/UploadFile.jsp</result>
             <result name="checkInventoryTrace">/jsp/chainStore/inventoryFlow/ChainInvenTrace.jsp</result>

@@ -578,8 +578,6 @@ public class ChainUserInforService {
 		//以后可能有性能问题
  		int overFlow = 0;
  		int flowLoss = 0;
- 		int transferIn = 0 ;
- 		int transferOut = 0;
 		DetachedCriteria invenOrderCriteria = DetachedCriteria.forClass(ChainInventoryFlowOrder.class);
 		invenOrderCriteria.add(Restrictions.between("orderDate", startDate, endDate));
  		List<ChainInventoryFlowOrder> inventoryFlowOrders = chainInventoryFlowOrderDaoImpl.getByCritera(invenOrderCriteria, true);
@@ -589,30 +587,15 @@ public class ChainUserInforService {
  				switch (order.getType()) {
 					case ChainInventoryFlowOrder.OVER_FLOW_ORDER: overFlow++; break;
 					case ChainInventoryFlowOrder.FLOW_LOSS_ORDER: flowLoss++; break;
-					case ChainInventoryFlowOrder.INVENTORY_TRANSFER_ORDER: 
-						if (order.getFromChainStore() != null && order.getFromChainStore().getChain_id() == chainId)
-							transferOut++;
-						else if (order.getToChainStore() != null && order.getToChainStore().getChain_id() == chainId)
-							transferIn++;
-						break;
 					default:
 						break;
 					}
- 			} else if (order.getStatus() == ChainInventoryFlowOrder.STATUS_COMPLETE){
-				if (order.getFromChainStore() != null && order.getFromChainStore().getChain_id() == chainId)
-					transferOut++;
-				else if (order.getToChainStore() != null && order.getToChainStore().getChain_id() == chainId)
-					transferIn++;
- 			}
+ 			} 
  		}
 		ChainLoginStatisticInforVO overFlowOrderVO = new ChainLoginStatisticInforVO("近"+ statisDays + "天 创建的报溢单", overFlow);
 		statisEle.add(overFlowOrderVO);
 		ChainLoginStatisticInforVO flowLossOrderVO = new ChainLoginStatisticInforVO("近"+ statisDays + "天 创建的报损单", flowLoss);
 		statisEle.add(flowLossOrderVO);
-		ChainLoginStatisticInforVO tansferInVO = new ChainLoginStatisticInforVO("近"+ statisDays + "天 创建的(老)调货单 (调入)", transferIn);
-		statisEle.add(tansferInVO);
-		ChainLoginStatisticInforVO transferOutVO = new ChainLoginStatisticInforVO("近"+ statisDays + "天  创建的(老)调货单 (调出)", transferOut);
-		statisEle.add(transferOutVO);
 
  		//6. 获取财务单据
 		DetachedCriteria financeOrderCriteria = DetachedCriteria.forClass(FinanceBill.class);

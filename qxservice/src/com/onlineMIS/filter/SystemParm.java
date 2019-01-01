@@ -59,6 +59,15 @@ public class SystemParm {
 			return -1;
 	}
 	
+	public static int getPYSCategoryId(){
+		String TEST_ID_OBJ = getParm("PYS_CATEGORY");
+		if (!StringUtils.isEmpty(TEST_ID_OBJ)){
+			int TEST_ID = Integer.parseInt(TEST_ID_OBJ);
+			return TEST_ID;
+		} else 
+			return -1;
+	}
+	
 	/**
 	 * @param args
 	 */

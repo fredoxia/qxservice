@@ -545,7 +545,7 @@ public class ChainUserInforService {
 			purchaseClientOrderCriteria.add(Restrictions.eq("order_Status", InventoryOrder.STATUS_ACCOUNT_COMPLETE));
 			purchaseClientOrderCriteria.add(Restrictions.ne("chainConfirmStatus", InventoryOrder.STATUS_CHAIN_CONFIRM));
 			purchaseClientOrderCriteria.add(Restrictions.gt("order_EndTime", lastYear));
-			purchaseClientOrderCriteria.add(Restrictions.in("client_id", clientIds));
+			purchaseClientOrderCriteria.add(Restrictions.in("cust.id", clientIds));
 			purchaseClientOrderCriteria.setProjection(Projections.rowCount());
 			purchaseClientOrderCount = Common_util.getProjectionSingleValue(chainStoreSalesOrderDaoImpl.getByCriteriaProjection(purchaseClientOrderCriteria, true));
 		} 
@@ -600,7 +600,7 @@ public class ChainUserInforService {
  		//6. 获取财务单据
 		DetachedCriteria financeOrderCriteria = DetachedCriteria.forClass(FinanceBill.class);
 		financeOrderCriteria.add(Restrictions.eq("status", FinanceBill.STATUS_COMPLETE));
-		financeOrderCriteria.add(Restrictions.eq("chainStore.chain_id", chainId));
+		financeOrderCriteria.add(Restrictions.eq("cust.id", clientId));
 		financeOrderCriteria.add(Restrictions.between("createDate", startDate, endDate));
 		financeOrderCriteria.setProjection(Projections.rowCount());
 		int financeOrderCount = Common_util.getProjectionSingleValue(financeBillImpl.getByCriteriaProjection(financeOrderCriteria, true));

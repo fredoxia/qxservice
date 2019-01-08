@@ -52,6 +52,7 @@
         </action>
         <action name="headqInventoryFlowJSPAction" class="com.onlineMIS.action.headQ.inventoryFlow.HeadqInventoryFlowJSPAction">
             <result name="preInventoryRpt">/jsp/headQ/inventoryFlow/InventoryFlowRpt.jsp</result>  
+            <result name="OpenCheckInventoryTracePage">/jsp/headQ/inventoryFlow/HeadqInvenTracePage.jsp</result>
             <result type="stream" name="download">  
                  <param name="contentType">  
                      application/vnd.ms-excel   

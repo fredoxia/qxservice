@@ -30,6 +30,7 @@ import com.onlineMIS.ORM.entity.chainS.sales.ChainStoreSalesOrder;
 import com.onlineMIS.ORM.entity.chainS.user.ChainStore;
 import com.onlineMIS.ORM.entity.chainS.user.ChainUserInfor;
 import com.onlineMIS.ORM.entity.chainS.vip.ChainVIPCard;
+import com.onlineMIS.ORM.entity.headQ.inventory.HeadqInvenTraceInfoVO;
 import com.onlineMIS.ORM.entity.headQ.user.UserInfor;
 import com.onlineMIS.action.BaseAction;
 import com.onlineMIS.common.Common_util;
@@ -78,6 +79,26 @@ public class HeadqInventoryFlowJSPAction extends HeadqInventoryFlowAction{
 		    return "download"; 
 		} else 
 			return ERROR;
+	}
+	
+	/**
+	 * 打开库存跟踪
+	 * @return
+	 */
+	public String openInvenTracePage(){
+		loggerLocal.info("HeadqInventoryFlowJSPAction - openInvenTracePage");
+		Response response = headqInventoryService.getInventoryTraceInfor(formBean.getStoreId(), formBean.getPbId());
+		if (response.getReturnCode() == Response.SUCCESS){
+			Map<String, List> data = (Map<String, List>)response.getReturnValue();
+			List<HeadqInvenTraceInfoVO> traceVOs = data.get("rows");
+			List<HeadqInvenTraceInfoVO> footers = data.get("footer");
+			
+			if (footers != null && footers.size() >0)
+				uiBean.setTraceFooter(footers.get(0));
+			
+			uiBean.setTraceItems(traceVOs);
+		}
+		return "OpenCheckInventoryTracePage";
 	}
 	
 }

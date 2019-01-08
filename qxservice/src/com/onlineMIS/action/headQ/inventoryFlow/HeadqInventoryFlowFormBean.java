@@ -16,7 +16,15 @@ public class HeadqInventoryFlowFormBean extends ChainActionFormBaseBean{
     //file download
 	private InputStream fileStream;
 	private String fileName;
+	private int pbId;
 	
+	
+	public int getPbId() {
+		return pbId;
+	}
+	public void setPbId(int pbId) {
+		this.pbId = pbId;
+	}
 	public InputStream getFileStream() {
 		return fileStream;
 	}

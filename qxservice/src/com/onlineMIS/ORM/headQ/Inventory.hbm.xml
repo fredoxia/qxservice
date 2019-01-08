@@ -89,6 +89,7 @@
         <composite-id>
             <key-property name="storeId" column="store_id" type="integer"/>
             <key-many-to-one name="productBarcode" column="pb_id" class="com.onlineMIS.ORM.entity.headQ.barcodeGentor.ProductBarcode"/> 
+            <key-property name="orderId" column="order_id" type="string"/>
         </composite-id>
         <property name="cost" column="cost" type="double"/>
         <property name="costTotal" column="cost_total" type="double"/>

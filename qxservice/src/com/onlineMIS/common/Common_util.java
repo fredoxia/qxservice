@@ -550,6 +550,39 @@ public class Common_util {
 		return rowPerPage * (page -1);
 	}
 
+	
+	public static String getHeadqTraceActionDesp(String actionCode) {
+		String actionDesp = "*错误*";
+		if (actionCode.equals("SP"))
+			actionDesp = "采购";
+		else if (actionCode.equals("SR"))
+			actionDesp = "采购退货";
+		else if (actionCode.equals("RS"))
+			actionDesp = "批发销售";
+		else if (actionCode.equals("RR"))
+			actionDesp = "批发退货";
+		else if (actionCode.equals("CO"))
+			actionDesp = "盘点报溢";
+		else if (actionCode.equals("CL"))
+			actionDesp = "盘点报损";
+		else if (actionCode.equals("CSP"))
+			actionDesp = "采购红冲";
+		else if (actionCode.equals("CSR"))
+			actionDesp = "采购退货红冲";
+		else if (actionCode.equals("CRS"))
+			actionDesp = "批发销售红冲";
+		else if (actionCode.equals("CRR"))
+			actionDesp = "批发退货红冲";
+		else if (actionCode.equals("CCO"))
+			actionDesp = "盘点报溢红冲";
+		else if (actionCode.equals("CCL"))
+			actionDesp = "盘点报损红冲";
+		else if (actionCode.equals(ChainInOutStock.AUTO_BAR_ACCT))
+			actionDesp = "老款自动扎帐";
+
+		return actionDesp;
+	}
+	
 	public static String getTraceActionDesp(String actionCode) {
 		String actionDesp = "*错误*";
 		if (actionCode.equals("HS"))

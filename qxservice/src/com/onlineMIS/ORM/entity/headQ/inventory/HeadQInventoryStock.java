@@ -14,11 +14,19 @@ public class HeadQInventoryStock implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 3535346499179201903L;
+	public static final String SUPPLIER_PURCHASE = "SP";
+	public static final String SUPPLIER_RETURN = "SR";
+	public static final String RETAIL_SALES = "RS";
+	public static final String RETAIL_RETURN = "RR";
 
+	public static final String CHAIN_OVERFLOW = "CO";
+	public static final String CHAIN_FLOWLOSS= "CL";
+	public static final String AUTO_BAR_ACCT = "ABA";
 	
 
     private int storeId;
     private ProductBarcode productBarcode;
+    private String orderId;
 
     private double cost;
     private double costTotal;
@@ -33,7 +41,7 @@ public class HeadQInventoryStock implements Serializable {
     	
     }
     
-    public HeadQInventoryStock(int store, double cost, double costTotal, double salePrice, double salePriceTotal,  int quantity, ProductBarcode productBarcode){
+    public HeadQInventoryStock(int store, String orderId, double cost, double costTotal, double salePrice, double salePriceTotal,  int quantity, ProductBarcode productBarcode){
     	this.cost = cost;
     	this.costTotal = Common_util.roundDouble(costTotal,2);
     	this.salePrice = Common_util.roundDouble(salePrice,2);
@@ -42,8 +50,17 @@ public class HeadQInventoryStock implements Serializable {
     	date = new Date();
     	this.productBarcode = productBarcode;
     	this.storeId = store;
+    	this.orderId = orderId;
     }
  
+
+	public String getOrderId() {
+		return orderId;
+	}
+
+	public void setOrderId(String orderId) {
+		this.orderId = orderId;
+	}
 
 	public int getStoreId() {
 		return storeId;
@@ -109,13 +126,13 @@ public class HeadQInventoryStock implements Serializable {
 		this.date = date;
 	}
 	
-	public void addTo(HeadQInventoryStock stock){
-		this.quantity += stock.getQuantity();
-		this.cost = stock.getCost();
-		this.costTotal += stock.getCostTotal();
-		this.salePrice = stock.getSalePrice();
-		this.salePriceTotal += stock.getSalePriceTotal();
-	}
+//	public void addTo(HeadQInventoryStock stock){
+//		this.quantity += stock.getQuantity();
+//		this.cost = stock.getCost();
+//		this.costTotal += stock.getCostTotal();
+//		this.salePrice = stock.getSalePrice();
+//		this.salePriceTotal += stock.getSalePriceTotal();
+//	}
 
 	@Override
 	public int hashCode() {

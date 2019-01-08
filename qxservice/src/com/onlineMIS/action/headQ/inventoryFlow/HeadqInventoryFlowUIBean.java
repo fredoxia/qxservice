@@ -1,20 +1,24 @@
 package com.onlineMIS.action.headQ.inventoryFlow;
 
-import java.io.Serializable;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import com.onlineMIS.ORM.entity.chainS.inventoryFlow.ChainInvenTraceInfoVO;
-import com.onlineMIS.ORM.entity.chainS.inventoryFlow.ChainInventoryFlowOrder;
-
-import com.onlineMIS.ORM.entity.chainS.user.ChainStore;
+import com.onlineMIS.ORM.entity.headQ.inventory.HeadqInvenTraceInfoVO;
 
 
 public class HeadqInventoryFlowUIBean{
-	
-	
+	private List<HeadqInvenTraceInfoVO> traceItems = new ArrayList<HeadqInvenTraceInfoVO>();
+	private HeadqInvenTraceInfoVO traceFooter = new HeadqInvenTraceInfoVO();
+	public List<HeadqInvenTraceInfoVO> getTraceItems() {
+		return traceItems;
+	}
+	public void setTraceItems(List<HeadqInvenTraceInfoVO> traceItems) {
+		this.traceItems = traceItems;
+	}
+	public HeadqInvenTraceInfoVO getTraceFooter() {
+		return traceFooter;
+	}
+	public void setTraceFooter(HeadqInvenTraceInfoVO traceFooter) {
+		this.traceFooter = traceFooter;
+	}
 	
 }

@@ -4,11 +4,15 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +24,8 @@ import com.onlineMIS.ORM.DAO.headQ.barCodeGentor.ProductBarcodeDaoImpl;
 import com.onlineMIS.ORM.DAO.headQ.barCodeGentor.QuarterDaoImpl;
 import com.onlineMIS.ORM.DAO.headQ.barCodeGentor.YearDaoImpl;
 import com.onlineMIS.ORM.entity.chainS.inventoryFlow.ChainInOutStock;
+import com.onlineMIS.ORM.entity.chainS.inventoryFlow.ChainInOutStockArchive;
+import com.onlineMIS.ORM.entity.chainS.inventoryFlow.ChainInvenTraceInfoVO;
 import com.onlineMIS.ORM.entity.chainS.inventoryFlow.ChainInventoryReportTemplate;
 import com.onlineMIS.ORM.entity.chainS.user.ChainStore;
 import com.onlineMIS.ORM.entity.headQ.barcodeGentor.Brand;
@@ -29,6 +35,7 @@ import com.onlineMIS.ORM.entity.headQ.barcodeGentor.Quarter;
 import com.onlineMIS.ORM.entity.headQ.barcodeGentor.Year;
 import com.onlineMIS.ORM.entity.headQ.inventory.HeadQInventoryStock;
 import com.onlineMIS.ORM.entity.headQ.inventory.HeadQInventoryStore;
+import com.onlineMIS.ORM.entity.headQ.inventory.HeadqInvenTraceInfoVO;
 import com.onlineMIS.ORM.entity.headQ.inventory.HeadqInventoryReportTemplate;
 import com.onlineMIS.common.Common_util;
 import com.onlineMIS.common.ExcelUtil;
@@ -153,6 +160,7 @@ public class HeadqInventoryService {
 						String name = pb.getProduct().getProductCode() + colorName;
 						
 						HeadqInventoryVO headqInventoryVO = new HeadqInventoryVO(parentId, name, quantity, costTotal, HeadqInventoryVO.STATE_OPEN, storeId, yearId, quarterId, brandId);
+						headqInventoryVO.setPbId(pbId);
 						headqInventoryVOList.add(headqInventoryVO);
 				}
 		    }
@@ -246,6 +254,57 @@ public class HeadqInventoryService {
 			e.printStackTrace();
 		}
 
+		return response;
+	}
+
+	/**
+	 * 获取库存跟踪信息
+	 * @param storeId
+	 * @param pbId
+	 * @return
+	 */
+	public Response getInventoryTraceInfor(int storeId, int pbId) {
+		Response response = new Response();
+		Map data = new HashMap<String, List>();
+		List<HeadqInvenTraceInfoVO> traceVOs = new ArrayList<HeadqInvenTraceInfoVO>();
+		List<HeadqInvenTraceInfoVO> footers = new ArrayList<HeadqInvenTraceInfoVO>();
+		
+		if (pbId != 0){
+        	DetachedCriteria criteria1 = DetachedCriteria.forClass(HeadQInventoryStock.class);		
+        	criteria1.add(Restrictions.eq("storeId", storeId));
+    		criteria1.add(Restrictions.eq("productBarcode.id", pbId));
+    		criteria1.addOrder(Order.asc("date"));	
+			List<HeadQInventoryStock> stocks = headQInventoryStockDAOImpl.getByCritera(criteria1, true);
+
+			for (HeadQInventoryStock stock : stocks){
+				HeadqInvenTraceInfoVO traceVO = new HeadqInvenTraceInfoVO(stock);
+				traceVOs.add(traceVO);
+			}
+
+			//建设foot
+			HeadqInvenTraceInfoVO foot = new HeadqInvenTraceInfoVO();
+			int stockInventory = 0;
+			for (HeadqInvenTraceInfoVO ele : traceVOs){
+				stockInventory += ele.getQuantity();
+			}
+			
+			ProductBarcode pb = productBarcodeDaoImpl.get(pbId, true);
+			String productName = pb.getProduct().getBrand().getBrand_Name() + " " + pb.getProduct().getProductCode();
+			Color color = pb.getColor();
+			if (color != null)
+				productName += color.getName();
+			
+			foot.setDate(productName);
+			foot.setQuantity(stockInventory);
+			footers.add(foot);
+
+			response.setReturnCode(Response.SUCCESS);
+        }
+
+		data.put("rows", traceVOs);
+		data.put("footer", footers);
+		response.setReturnValue(data);
+		
 		return response;
 	}
 	

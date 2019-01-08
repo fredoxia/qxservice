@@ -319,18 +319,26 @@ public class SupplierPurchaseService {
 		if (supplierId == TEST_SUPPLIER_ID)
 			return;
 		
+		int orderId = order.getId();
+		String inventoryStockId = "";
+		
 		//更新库存数据
 		HeadQInventoryStore store = order.getStore();
 		int storeId = store.getId();
 		
-		int offset = isCancel ? -1 : 1;
+		int offset = 1;
+		if (isCancel){
+			offset = -1;
+			inventoryStockId = "C";
+		} 
 
 		if (order.getType() == PurchaseOrder.TYPE_RETURN){
-			offset *= -1;			
-		}
+			offset *= -1;	
+			inventoryStockId += HeadQInventoryStock.SUPPLIER_RETURN + orderId;
+		} else 
+			inventoryStockId += HeadQInventoryStock.SUPPLIER_PURCHASE + orderId;
 		
-		Set<HeadQInventoryStock> stocks = new HashSet<HeadQInventoryStock>();
-		 Iterator<PurchaseOrderProduct> orderProducts = order.getProductSet().iterator();
+		Iterator<PurchaseOrderProduct> orderProducts = order.getProductSet().iterator();
 		 while (orderProducts.hasNext()){
 			 PurchaseOrderProduct orderProduct = orderProducts.next();
 			 int pbId = orderProduct.getPb().getId();
@@ -342,14 +350,13 @@ public class SupplierPurchaseService {
 
 			 ProductBarcode pb = ProductBarcodeDaoImpl.get(pbId, true);
 			 
-			 HeadQInventoryStock stock = new HeadQInventoryStock(storeId, cost, costTotal, wholeSalePrice, wholeSalesTotal, quantity, pb);
-			 stocks.add(stock);
+			 HeadQInventoryStock stock = new HeadQInventoryStock(storeId, inventoryStockId, cost, costTotal, wholeSalePrice, wholeSalesTotal, quantity, pb);
+			 headQInventoryStockDAOImpl.save(stock, true);
 			 
 			 HeadqPurchaseHistory purchaseHistory = new HeadqPurchaseHistory(pbId, cost, wholeSalePrice, quantity);
 			 headqPurchaseHistoryDaoImpl.saveOrUpdate(purchaseHistory, true);
 		 }
-			
-		 headQInventoryStockDAOImpl.updateInventoryStocks(stocks);
+
 		
 	}
 

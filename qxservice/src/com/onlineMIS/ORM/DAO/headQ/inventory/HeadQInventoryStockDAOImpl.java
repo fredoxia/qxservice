@@ -26,24 +26,5 @@ public class HeadQInventoryStockDAOImpl extends BaseDAO<HeadQInventoryStock> {
   		else 
   			return null;
       }
-   
-
-      public synchronized void updateInventoryStocks(Set<HeadQInventoryStock> stocks){
-    	  for (HeadQInventoryStock stock : stocks) {
-	    	  int storeId = stock.getStoreId();
-	    	  int pbId = stock.getProductBarcode().getId();
-	    	  HeadQInventoryStock originalStock = this.getInventoryStock(storeId, pbId);
-	    	  
-				 if (originalStock == null) {
-					 this.save(stock, true);
-				 } else {
-					 originalStock.addTo(stock);
-					 if (originalStock.getQuantity() == 0)
-						 this.delete(originalStock, true);
-					 else 
-					     this.update(originalStock, true);
-				 }
-    	  }
-      }
 
 }

@@ -19,6 +19,7 @@ public class HeadqInventoryVO {
 	private int yearId = 0;
 	private int quarterId = 0;
 	private int brandId = 0;
+	private int pbId;
 	
 	public HeadqInventoryVO() {
 		// TODO Auto-generated constructor stub
@@ -38,6 +39,14 @@ public class HeadqInventoryVO {
 
 	}
 
+
+	public int getPbId() {
+		return pbId;
+	}
+
+	public void setPbId(int pbId) {
+		this.pbId = pbId;
+	}
 
 	public int getStoreId() {
 		return storeId;

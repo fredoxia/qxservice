@@ -146,7 +146,7 @@ public class HeadqInventoryService {
 		    }
 		} else if (brandId != 0) {
 			//@2. 展开当前品霞的库存信息
-			String hql = "SELECT his.productBarcode.id, SUM(costTotal), SUM(quantity) FROM HeadQInventoryStock AS his WHERE his.storeId = ? AND his.productBarcode.product.year.year_ID=? AND his.productBarcode.product.quarter.quarter_ID=? AND his.productBarcode.product.brand.brand_ID=?  ORDER BY his.productBarcode.product.productCode ASC GROUP BY his.productBarcode.id";
+			String hql = "SELECT his.productBarcode.id, SUM(costTotal), SUM(quantity) FROM HeadQInventoryStock AS his WHERE his.storeId = ? AND his.productBarcode.product.year.year_ID=? AND his.productBarcode.product.quarter.quarter_ID=? AND his.productBarcode.product.brand.brand_ID=?  GROUP BY his.productBarcode.id ORDER BY his.productBarcode.product.productCode ASC ";
 			Object[] values = {storeId, yearId, quarterId, brandId};
 			
 			List<Object> inventoryData = headQInventoryStockDAOImpl.executeHQLSelect(hql, values, null, true);

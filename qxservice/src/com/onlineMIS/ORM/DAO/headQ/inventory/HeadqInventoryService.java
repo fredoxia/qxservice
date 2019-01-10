@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Order;
@@ -131,7 +132,13 @@ public class HeadqInventoryService {
 						
 						Brand brand = brandDaoImpl.get(brandIdDB, true);
 						
-						String name = brand.getBrand_Name();
+						String name = "";
+						String pinyin = brand.getPinyin();
+						if (!StringUtils.isEmpty(pinyin)){
+							name = pinyin.substring(0, 1) + " ";
+						}
+						
+						name = brand.getBrand_Name();
 						
 						HeadqInventoryVO headqInventoryVO = new HeadqInventoryVO(parentId, name, quantity, costTotal, HeadqInventoryVO.STATE_CLOSED, storeId, yearId, quarterId, brandIdDB);
 						headqInventoryVOList.add(headqInventoryVO);
@@ -139,7 +146,7 @@ public class HeadqInventoryService {
 		    }
 		} else if (brandId != 0) {
 			//@2. 展开当前品霞的库存信息
-			String hql = "SELECT his.productBarcode.id, costTotal, quantity FROM HeadQInventoryStock AS his WHERE his.storeId = ? AND his.productBarcode.product.year.year_ID=? AND his.productBarcode.product.quarter.quarter_ID=? AND his.productBarcode.product.brand.brand_ID=?  ORDER BY his.productBarcode.product.productCode ASC";
+			String hql = "SELECT his.productBarcode.id, SUM(costTotal), SUM(quantity) FROM HeadQInventoryStock AS his WHERE his.storeId = ? AND his.productBarcode.product.year.year_ID=? AND his.productBarcode.product.quarter.quarter_ID=? AND his.productBarcode.product.brand.brand_ID=?  ORDER BY his.productBarcode.product.productCode ASC GROUP BY his.productBarcode.id";
 			Object[] values = {storeId, yearId, quarterId, brandId};
 			
 			List<Object> inventoryData = headQInventoryStockDAOImpl.executeHQLSelect(hql, values, null, true);

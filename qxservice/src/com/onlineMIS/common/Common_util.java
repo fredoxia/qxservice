@@ -578,7 +578,7 @@ public class Common_util {
 		else if (actionCode.equals("CCL"))
 			actionDesp = "盘点报损红冲";
 		else if (actionCode.equals(ChainInOutStock.AUTO_BAR_ACCT))
-			actionDesp = "老款自动扎帐";
+			actionDesp = "系统扎帐汇总";
 
 		return actionDesp;
 	}
@@ -610,7 +610,7 @@ public class Common_util {
 		else if (actionCode.equals("CLC"))
 			actionDesp = "盘点报损红冲";
 		else if (actionCode.equals(ChainInOutStock.AUTO_BAR_ACCT))
-			actionDesp = "老款自动扎帐";
+			actionDesp = "系统自动扎帐汇总";
 
 		return actionDesp;
 	}

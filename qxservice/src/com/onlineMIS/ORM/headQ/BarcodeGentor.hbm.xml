@@ -31,6 +31,7 @@
         <property name="category_Name" column="category_Name" type="string"/>
         <property name="category_Code" column="category_Code" type="string"/>
         <property name="chainId" column="chain_id" type="integer"/>
+        <property name="hide" column="hide" type="integer"/>
     </class>
     
     <class name="Quarter" table="quarter">
@@ -61,23 +62,7 @@
         <property name="deleted" column="deleted" type="integer"/>
     </class>
     
-    <class name="ColorGroup" table="color_group">
-        <cache usage="read-write" region="qxbabyConstant"/>
-        <id name="id" column="id">
-            <generator class="assigned" />
-        </id>
-        <property name="comment" column="comment" type="string"/>
-        <property name="name" column="name" type="string"/>
-        <property name="deleted" column="deleted" type="integer"/>
-    </class>
-    
-    <class name="ColorGroups" table="color_groups">
-        <cache usage="read-write" region="qxbaby"/>
-        <composite-id>
-             <key-property name="colorId" column="color_id" type="integer"/>  
-             <key-property name="colorGroupId" column="color_group_id" type="integer"/>
-        </composite-id>
-    </class>
+
  
     <class name="Size" table="size">
         <cache usage="read-write" region="qxbabyConstant"/>
@@ -88,23 +73,7 @@
         <property name="name" column="name" type="string"/>
         <property name="deleted" column="deleted" type="integer"/>
     </class>
-    <class name="SizeGroup" table="size_group">
-        <cache usage="read-write" region="qxbabyConstant"/>
-        <id name="id" column="id">
-            <generator class="assigned" />
-        </id>
-        <property name="comment" column="comment" type="string"/>
-        <property name="name" column="name" type="string"/>
-        <property name="deleted" column="deleted" type="integer"/>
-    </class>
-    
-    <class name="SizeGroups" table="size_groups">
-        <cache usage="read-write" region="qxbaby"/>
-        <composite-id>
-             <key-property name="sizeId" column="size_id" type="integer"/>  
-             <key-property name="sizeGroupId" column="size_group_id" type="integer"/>
-        </composite-id>
-    </class>
+
        
     <class name="Product" table="product">
         <cache usage="read-write" region="qxbaby"/>
@@ -129,6 +98,10 @@
         <many-to-one name="quarter" column="quarter_ID" class="com.onlineMIS.ORM.entity.headQ.barcodeGentor.Quarter" lazy="false"/>
         <many-to-one name="brand" column="brand_ID" class="com.onlineMIS.ORM.entity.headQ.barcodeGentor.Brand" lazy="false"/>
         <many-to-one name="category" column="category_ID" class="com.onlineMIS.ORM.entity.headQ.barcodeGentor.Category" lazy="false"/>
+        <property name="gender" column="gender" type="string" not-null="false"/>
+        <property name="sizeRange" column="size_range" type="string" not-null="false"/>
+        <property name="sizeMin" column="size_min" type="integer" not-null="false"/>
+        <property name="sizeMax" column="size_max" type="integer" not-null="false"/>
    </class>
 
     <class name="ProductBarcode" table="product_barcode">

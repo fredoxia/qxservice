@@ -6,8 +6,8 @@ import java.util.Map;
 
 public class Category  implements Serializable{
 //	public final static int CATEGORY_ID_NOT_PRODUCTS = 9;
-	public final static int CATEGORY_NEI_YI = 7;
-	public final static int CATEGORY_SHI_PING =11;
+//	public final static int CATEGORY_NEI_YI = 7;
+//	public final static int CATEGORY_SHI_PING =11;
 	public static final int TYPE_HEAD = -1;
 	public static final int TYPE_CHAIN = 1;
     private int category_ID;
@@ -15,6 +15,7 @@ public class Category  implements Serializable{
     private String category_Code; 
     private int chainId = -1;
     private String typeS;
+    private int hide;
      
  	private static Map<Integer, String> typesMap = new HashMap<Integer, String>();
  	static {
@@ -22,7 +23,15 @@ public class Category  implements Serializable{
  		typesMap.put(TYPE_CHAIN, "连锁店类别");
  	}
 
- 	public int getChainId() {
+ 	public int getHide() {
+		return hide;
+	}
+
+	public void setHide(int hide) {
+		this.hide = hide;
+	}
+
+	public int getChainId() {
 		return chainId;
 	}
 

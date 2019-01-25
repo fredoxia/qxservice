@@ -5,7 +5,11 @@ package com.onlineMIS.ORM.entity.headQ.barcodeGentor;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import org.objectweb.asm.xwork.commons.StaticInitMerger;
 
 import com.onlineMIS.ORM.DAO.headQ.user.NewsService;
 import com.onlineMIS.ORM.entity.chainS.user.ChainStore;
@@ -74,6 +78,69 @@ public class Product  implements Serializable{
      */
     private double discount;
     private ChainStore chainStore;
+    
+    private String gender;
+    private String sizeRange;
+    private Integer sizeMin;
+    private Integer sizeMax;
+    
+    private String genderS;
+    private String sizeRangeS;
+    static Map<String, String> genderMap = new HashMap<String, String>();
+    static Map<String, String> sizeRangeMap = new HashMap<String, String>();
+    
+    static {
+    	genderMap.put("M", "男");
+    	genderMap.put("F", "女");
+    	genderMap.put("N", "中性");
+    	
+    	sizeRangeMap.put("L", "大");
+    	sizeRangeMap.put("M", "中");
+    	sizeRangeMap.put("S", "小");
+    }
+
+
+	public String getGenderS() {
+		return genderMap.get(gender);
+	}
+
+
+	public String getSizeRangeS() {
+		return sizeRangeMap.get(sizeRange);
+	}
+
+
+	public String getGender() {
+		return gender;
+	}
+
+	public void setGender(String gender) {
+		this.gender = gender;
+	}
+
+	public String getSizeRange() {
+		return sizeRange;
+	}
+
+	public void setSizeRange(String sizeRange) {
+		this.sizeRange = sizeRange;
+	}
+
+	public Integer getSizeMin() {
+		return sizeMin;
+	}
+
+	public void setSizeMin(Integer sizeMin) {
+		this.sizeMin = sizeMin;
+	}
+
+	public Integer getSizeMax() {
+		return sizeMax;
+	}
+
+	public void setSizeMax(Integer sizeMax) {
+		this.sizeMax = sizeMax;
+	}
 
 	public ChainStore getChainStore() {
 		return chainStore;

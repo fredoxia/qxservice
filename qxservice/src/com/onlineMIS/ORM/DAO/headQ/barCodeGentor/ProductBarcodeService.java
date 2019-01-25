@@ -49,8 +49,7 @@ import com.onlineMIS.ORM.entity.headQ.barcodeGentor.BarcodeUpdateTemplate;
 import com.onlineMIS.ORM.entity.headQ.barcodeGentor.Brand;
 import com.onlineMIS.ORM.entity.headQ.barcodeGentor.Category;
 import com.onlineMIS.ORM.entity.headQ.barcodeGentor.Color;
-import com.onlineMIS.ORM.entity.headQ.barcodeGentor.ColorGroup;
-import com.onlineMIS.ORM.entity.headQ.barcodeGentor.ColorGroups;
+
 import com.onlineMIS.ORM.entity.headQ.barcodeGentor.HeadQInputHelp;
 import com.onlineMIS.ORM.entity.headQ.barcodeGentor.NumPerHand;
 import com.onlineMIS.ORM.entity.headQ.barcodeGentor.Product;
@@ -59,7 +58,7 @@ import com.onlineMIS.ORM.entity.headQ.barcodeGentor.ProductBarcodeVO;
 import com.onlineMIS.ORM.entity.headQ.barcodeGentor.ProductUnit;
 import com.onlineMIS.ORM.entity.headQ.barcodeGentor.Quarter;
 import com.onlineMIS.ORM.entity.headQ.barcodeGentor.Size;
-import com.onlineMIS.ORM.entity.headQ.barcodeGentor.SizeGroups;
+
 import com.onlineMIS.ORM.entity.headQ.barcodeGentor.Year;
 import com.onlineMIS.ORM.entity.headQ.chain.ChainSalesReportActionFormBean;
 import com.onlineMIS.ORM.entity.headQ.inventory.HeadQSalesHistory;
@@ -601,28 +600,6 @@ public class ProductBarcodeService {
 	public Response saveProduct(Product product, List<Integer> colors, List<Integer> sizes) {
 		Response response = new Response();
 		
-//		String serialNumber = product.getSerialNum();
-		/**
-		 * 1.0 To check the serial number from the Jin suan
-		 * @todo, 以后扩展
-		 */
-//		ProductsMS productsMS = productsMSDAOImpl.getBySerialNum(serialNumber);
-//		if (productsMS == null){
-//			response.setReturnCode(Response.FAIL);
-//			response.setMessage("无法在精算找到货品编码: " + serialNumber);
-//			return response;
-//		} else {
-			/**
-			 * 2.0 to check the product code
-			 */
-//			String productCode = product.getProductCode();
-//			String productMSCode = productsMS.getProductCode();
-//			
-//			if (!productCode.equals(productMSCode)){
-//				response.setReturnCode(Response.FAIL);
-//				response.setMessage("与精算物品的货号不一致: " + productMSCode);
-//				return response;				
-//			} else {
 		String serialNum = product.getSerialNum();
 
 		/**

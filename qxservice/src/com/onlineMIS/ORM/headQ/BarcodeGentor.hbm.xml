@@ -32,6 +32,9 @@
         <property name="category_Code" column="category_Code" type="string"/>
         <property name="chainId" column="chain_id" type="integer"/>
         <property name="hide" column="hide" type="integer"/>
+        <property name="material" column="material" type="string"/>
+        <property name="filler" column="filler" type="string"/>
+        
     </class>
     
     <class name="Quarter" table="quarter">

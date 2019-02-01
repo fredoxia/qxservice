@@ -16,6 +16,7 @@ import com.onlineMIS.converter.JSONSQLDateConverter;
 import com.onlineMIS.converter.JSONUtilDateConverter;
 import com.opensymphony.xwork2.ActionContext;
 
+import freemarker.cache.StringTemplateLoader;
 import net.sf.json.JSONObject;
 import net.sf.json.JsonConfig;
 
@@ -36,6 +37,10 @@ public class ChainUserJSONAction extends ChainUserAction {
 		this.jsonObject = jsonObject;
 	}
 	
+	/**
+	 * 连锁店客户登陆
+	 * @return
+	 */
 	public String login(){
 		Response response = new Response();
 		
@@ -121,7 +126,7 @@ public class ChainUserJSONAction extends ChainUserAction {
 	 */
 	public String saveRoleTypeFunctions(){
     	ChainUserInfor userInfor = (ChainUserInfor)ActionContext.getContext().getSession().get(Common_util.LOGIN_CHAIN_USER);
-    	loggerLocal.chainActionInfo(userInfor,this.getClass().getName()+ "."+"");
+    	loggerLocal.chainActionInfo(userInfor,this.getClass().getName()+ "."+"saveRoleTypeFunctions");
     	
 		int roleTypeId = formBean.getRoleType().getChainRoleTypeId();
 		
@@ -208,5 +213,38 @@ public class ChainUserJSONAction extends ChainUserAction {
 		}
 		
 		return SUCCESS;
+	}
+	
+	/**
+	 * 切换到另外的连锁店
+	 * @return
+	 */
+	public String swithToChain(){
+		ChainUserInfor userInfor = (ChainUserInfor)ActionContext.getContext().getSession().get(Common_util.LOGIN_CHAIN_USER);
+		loggerLocal.chainActionInfo(userInfor,this.getClass().getName()+ "."+"swithToChain");
+		Response response = new Response();
+		
+		try {
+		     response = chainUserInforService.swithToChain(userInfor, formBean.getChainStore());
+             
+		     if (response.isSuccess()) {
+			     //set session
+			     ChainUserInfor user = (ChainUserInfor)response.getReturnValue();
+			     ActionContext.getContext().getSession().put(Common_util.LOGIN_CHAIN_USER, user);
+		     }
+
+			} catch (Exception e) {
+				e.printStackTrace();
+				 response.setQuickValue(Response.ERROR, "系统错误，请联系管理员");
+			}
+
+		try{
+			   response.setReturnValue("");
+			   jsonObject = JSONObject.fromObject(response);
+			} catch (Exception e){
+				loggerLocal.error(e);
+			}
+    	
+    	return SUCCESS;
 	}
 }

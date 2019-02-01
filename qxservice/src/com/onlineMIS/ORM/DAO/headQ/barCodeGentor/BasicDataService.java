@@ -344,6 +344,8 @@ public class BasicDataService {
 			} else {
                 category2.setCategory_Name(category.getCategory_Name());
                 category2.setChainId(category.getChainId());
+                category2.setMaterial(category.getMaterial());
+                category2.setFiller(category.getFiller());
 				categoryDaoImpl.saveOrUpdate(category2, true);
 				response.setReturnCode(Response.SUCCESS);
 			}

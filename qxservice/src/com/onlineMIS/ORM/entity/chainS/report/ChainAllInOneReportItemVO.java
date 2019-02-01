@@ -15,9 +15,6 @@ public class ChainAllInOneReportItemVO extends ChainReportItemVO {
 
 	
 	private static final long serialVersionUID = 1L;
-	public static final String STATE_CLOSED = "closed";
-	public static final String STATE_OPEN = "open";
-
 	
 	protected Date startDate = new Date();
 	protected Date endDate = new Date();

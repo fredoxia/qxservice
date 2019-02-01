@@ -35,17 +35,21 @@ public class ChainSalesStatisticsReportTemplate  extends ExcelTemplate{
 	private final int BRAND_COLUMN = 3;
 	private final int QUARTER_COLUMN = 4;
 	private final int CATEGORY_COLUMN =5;
-	private final int SALE_Q_COLUMN =6;
-	private final int RETURN_Q_COLUMN = 7;
-	private final int NET_Q_COLUMN = 8;
-	private final int FREE_Q_COLUMN = 9;
-	private final int SALES_COLUMN = 10;
-	private final int RETURN_COLUMN = 11;
-	private final int NET_COLUMN = 12;
-	private final int NET_COST_COLUMN = 13;
-	private final int FREE_COST_COLUMN = 14;
-	private final int PROFIT_COLUMN = 15;
-	private final int SALES_DISCOUNT_COLUMN = 16;
+	private final int GENDER_COLUMN =6;
+	private final int SIZE_COLUMN =7;
+	private final int SIZE_MIN_COLUMN =8;
+	private final int SIZE_MAX_COLUMN =9;
+	private final int SALE_Q_COLUMN =10;
+	private final int RETURN_Q_COLUMN = 11;
+	private final int NET_Q_COLUMN = 12;
+	private final int FREE_Q_COLUMN = 13;
+	private final int SALES_COLUMN = 14;
+	private final int RETURN_COLUMN = 15;
+	private final int NET_COLUMN = 16;
+	private final int NET_COST_COLUMN = 17;
+	private final int FREE_COST_COLUMN = 18;
+	private final int PROFIT_COLUMN = 19;
+	private final int SALES_DISCOUNT_COLUMN = 20;
 	
 	
 	private ChainStore chainStore;
@@ -135,6 +139,18 @@ public class ChainSalesStatisticsReportTemplate  extends ExcelTemplate{
 			row.createCell(QUARTER_COLUMN).setCellValue(product.getYear().getYear() + "-" + product.getQuarter().getQuarter_Name());
 
 			row.createCell(CATEGORY_COLUMN).setCellValue(product.getCategory().getCategory_Name());
+			
+			row.createCell(GENDER_COLUMN).setCellValue(product.getGenderS());
+			row.createCell(SIZE_COLUMN).setCellValue(product.getSizeRangeS());
+			
+			Integer sizeMin = product.getSizeMin();
+			if (sizeMin != null && sizeMin != 0)
+			    row.createCell(SIZE_MIN_COLUMN).setCellValue(sizeMin);
+			
+			Integer sizeMax = product.getSizeMin();
+			if (sizeMax != null && sizeMax != 0)
+			    row.createCell(SIZE_MAX_COLUMN).setCellValue(sizeMax);
+			
 			row.createCell(SALE_Q_COLUMN).setCellValue(levelFourItem.getSalesQ());
 			row.createCell(RETURN_Q_COLUMN).setCellValue(levelFourItem.getReturnQ());
 			row.createCell(NET_Q_COLUMN).setCellValue(levelFourItem.getNetQ());

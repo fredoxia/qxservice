@@ -5,7 +5,9 @@ import java.util.List;
 
 import com.onlineMIS.ORM.entity.base.Pager;
 import com.onlineMIS.ORM.entity.chainS.user.ChainUserInfor;
+import com.onlineMIS.sorter.ChainAcctFlowReportItemSort;
 import com.onlineMIS.ORM.entity.chainS.user.ChainRoleType;
+import com.onlineMIS.ORM.entity.chainS.user.ChainStore;
 
 /**
  * this bean is for the chain user action's form parameter
@@ -18,7 +20,15 @@ public class ChainUserFormBean {
     private List<Integer> functions = new ArrayList<Integer>();
     private Pager pager = new Pager();
     private String password ="";
+    private ChainStore chainStore = new ChainStore();
 
+    		
+	public ChainStore getChainStore() {
+		return chainStore;
+	}
+	public void setChainStore(ChainStore chainStore) {
+		this.chainStore = chainStore;
+	}
 	public Pager getPager() {
 		return pager;
 	}

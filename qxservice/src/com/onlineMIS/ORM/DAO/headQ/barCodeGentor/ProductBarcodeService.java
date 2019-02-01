@@ -512,6 +512,30 @@ public class ProductBarcodeService {
         	else
         	    product.setDiscount(newProduct.getDiscount());
         	product.setCreateDate(Common_util.getToday());
+        	
+        	String gender = newProduct.getGender();
+        	if (gender.equals(""))
+        		product.setGender(null);
+        	else 
+        		product.setGender(newProduct.getGender());
+        	
+        	Integer sizeMin = newProduct.getSizeMin();
+        	if (sizeMin == null ||sizeMin == 0)
+        		product.setSizeMin(null);
+        	else 
+        		product.setSizeMin(sizeMin);
+        	
+        	Integer sizeMax = newProduct.getSizeMax();
+        	if (sizeMax == null ||sizeMax == 0)
+        		product.setSizeMax(null);
+        	else 
+        		product.setSizeMax(sizeMax);
+        	
+        	String sizeRange = newProduct.getSizeRange();
+        	if (sizeRange.equals(""))
+        		product.setSizeRange(null);
+        	else 
+        		product.setSizeRange(sizeRange);
 
         	productDaoImpl.saveOrUpdate(product,true);
         	

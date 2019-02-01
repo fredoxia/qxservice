@@ -58,7 +58,8 @@ public class ChainStoreService {
 			return chainStoreDaoImpl.getAllParentStores();
 		else {
 			List<ChainStore> chainStores = new ArrayList<ChainStore>();
-			chainStores.add(loginUser.getMyChainStore());
+			ChainStore myStore = chainStoreDaoImpl.get(loginUser.getMyChainStore().getChain_id(), true);
+			chainStores.add(myStore);
 			return chainStores;
 		}
 	}

@@ -37,6 +37,13 @@ public class ChainStoreGroupDaoImpl extends BaseDAO<ChainStoreGroup> {
 			return null;
 	}
 	
+	/**
+	 * 获取这个chainstore所在group的相关连锁店
+	 * @param myChainId
+	 * @param loginUser
+	 * @param accessLevel
+	 * @return
+	 */
 	public List<ChainStore> getChainGroupStoreList(int myChainId, ChainUserInfor loginUser, int accessLevel){
 		List<ChainStore> chainStores = new ArrayList<ChainStore>();
 		

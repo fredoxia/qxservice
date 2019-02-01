@@ -16,6 +16,8 @@ public class Category  implements Serializable{
     private int chainId = -1;
     private String typeS;
     private int hide;
+    private String material = "";
+    private String filler = "";
      
  	private static Map<Integer, String> typesMap = new HashMap<Integer, String>();
  	static {
@@ -23,7 +25,23 @@ public class Category  implements Serializable{
  		typesMap.put(TYPE_CHAIN, "连锁店类别");
  	}
 
- 	public int getHide() {
+ 	public String getMaterial() {
+		return material;
+	}
+
+	public void setMaterial(String material) {
+		this.material = material;
+	}
+
+	public String getFiller() {
+		return filler;
+	}
+
+	public void setFiller(String filler) {
+		this.filler = filler;
+	}
+
+	public int getHide() {
 		return hide;
 	}
 

@@ -88,9 +88,11 @@ public class ChainCurrentSeasonProductAnalysisTemplate extends ExcelTemplate{
 				else 
 					row.createCell(PRODUCER_COL).setCellValue(chainStoreName);
 			}
-				
 			
-			row.createCell(CATEGORY_COL).setCellValue(product.getCategory().getCategory_Name());
+			String gender = product.getGenderS();
+			String sizeRange = product.getSizeRangeS();
+			
+			row.createCell(CATEGORY_COL).setCellValue(gender + sizeRange + " " + product.getCategory().getCategory_Name());
 			
 			if (item.getMarketDate() == null)
 				row.createCell(MARKET_DATE_COL).setCellValue("-");

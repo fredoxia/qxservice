@@ -23,10 +23,15 @@ public class BarcodeTemplate extends ExcelTemplate{
 	protected final int brand_column= 2;
 	protected final int productCode_column= 3;
 	protected final int barcode_column= 4;
-	protected final int recCost_column= 5;
-	protected final int wholePrice_column= 6;
-	protected final int salePrice_column= 7;
-	protected final int delete_column= 8;
+	protected final int category_column= 5;
+	protected final int sizeMinMax_column= 6;
+	protected final int material_column= 7;
+	protected final int filler_column= 8;
+	
+	protected final int recCost_column= 9;
+	protected final int wholePrice_column= 10;
+	protected final int salePrice_column= 11;
+	protected final int delete_column= 12;
 	
 	
 	private List<ProductBarcode> products = new ArrayList<ProductBarcode>();
@@ -123,6 +128,17 @@ public class BarcodeTemplate extends ExcelTemplate{
 				else 
 					row.createCell(productCode_column).setCellValue(product.getProductCode() + color.getName());
 				row.createCell(barcode_column).setCellValue(productBarcode.getBarcode());
+				
+				row.createCell(category_column).setCellValue(product.getCategory().getCategory_Name());
+				Integer sizeMin = product.getSizeMin();
+				Integer sizeMax = product.getSizeMax();
+				
+				if (sizeMin != null && sizeMax != null)
+				     row.createCell(sizeMinMax_column).setCellValue(sizeMin + "-" + sizeMax);
+				
+				row.createCell(material_column).setCellValue(product.getCategory().getMaterial());
+				row.createCell(filler_column).setCellValue(product.getCategory().getFiller());
+				
 				row.createCell(wholePrice_column).setCellValue(product.getWholeSalePrice());
 				row.createCell(recCost_column).setCellValue(product.getRecCost());
 				row.createCell(salePrice_column).setCellValue(product.getSalesPrice());

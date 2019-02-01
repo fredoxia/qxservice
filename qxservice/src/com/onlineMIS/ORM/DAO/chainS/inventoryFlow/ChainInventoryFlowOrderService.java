@@ -1797,8 +1797,12 @@ public class ChainInventoryFlowOrderService {
 						String colorName = "";
 						if (color != null)
 							colorName = color.getName();
+						
+						Product product = pb.getProduct();
+						String gender = product.getGenderS();
+						String sizeRange = product.getSizeRangeS();
 						Category category = pb.getProduct().getCategory();
-						String name = Common_util.cutProductCode(pb.getProduct().getProductCode()) + colorName  + " " +  category.getCategory_Name();
+						String name = Common_util.cutProductCode(pb.getProduct().getProductCode()) + colorName  + " " + gender + sizeRange +  category.getCategory_Name();
 
 						boolean isChain = false;
 						if (pb.getChainStore() != null && pb.getChainStore().getChain_id() !=0)

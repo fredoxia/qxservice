@@ -35,9 +35,13 @@ public class ChainInventoryReportTemplate  extends ExcelTemplate{
 	private int unit_column = 5;
 	private int barcode_column =6;
 	private int category_column = 7;
-	private int quantity_column = 8;
-	private int totalCost_column = 9;
-	private int totalSales_column = 10;
+	private final int GENDER_COLUMN =8;
+	private final int SIZE_COLUMN =9;
+	private final int SIZE_MIN_COLUMN =10;
+	private final int SIZE_MAX_COLUMN =11;	
+	private int quantity_column = 12;
+	private int totalCost_column = 13;
+	private int totalSales_column = 14;
 	private int data_row = 3;
 
 
@@ -99,6 +103,17 @@ public class ChainInventoryReportTemplate  extends ExcelTemplate{
 			row.createCell(unit_column).setCellValue(product.getUnit());
 			
 			row.createCell(category_column).setCellValue(product.getCategory().getCategory_Name());
+			
+			row.createCell(GENDER_COLUMN).setCellValue(product.getGenderS());
+			row.createCell(SIZE_COLUMN).setCellValue(product.getSizeRangeS());
+			
+			Integer sizeMin = product.getSizeMin();
+			if (sizeMin != null && sizeMin != 0)
+			    row.createCell(SIZE_MIN_COLUMN).setCellValue(sizeMin);
+			
+			Integer sizeMax = product.getSizeMin();
+			if (sizeMax != null && sizeMax != 0)
+			    row.createCell(SIZE_MAX_COLUMN).setCellValue(sizeMax);
 
 			row.createCell(quantity_column).setCellValue(levelFourItem.getTotalQuantity());
 			

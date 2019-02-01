@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.objectweb.asm.xwork.commons.StaticInitMerger;
 
 import com.onlineMIS.ORM.DAO.headQ.user.NewsService;
@@ -94,19 +95,25 @@ public class Product  implements Serializable{
     	genderMap.put("F", "女");
     	genderMap.put("N", "中性");
     	
-    	sizeRangeMap.put("L", "大");
-    	sizeRangeMap.put("M", "中");
-    	sizeRangeMap.put("S", "小");
+    	sizeRangeMap.put("L", "大童");
+    	sizeRangeMap.put("M", "中童");
+    	sizeRangeMap.put("S", "小童");
     }
 
 
 	public String getGenderS() {
-		return genderMap.get(gender);
+		if (StringUtils.isEmpty(gender))
+			return "";
+		else 
+		    return genderMap.get(gender);
 	}
 
 
 	public String getSizeRangeS() {
-		return sizeRangeMap.get(sizeRange);
+		if (StringUtils.isEmpty(sizeRange))
+			return "";
+		else 
+		    return sizeRangeMap.get(sizeRange);
 	}
 
 

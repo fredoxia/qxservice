@@ -1,11 +1,14 @@
 package com.onlineMIS.action.headQ.ipad;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import org.springframework.stereotype.Controller;
 import net.sf.json.JSONObject;
 
 import com.onlineMIS.ORM.DAO.Response;
 
+import com.onlineMIS.ORM.entity.headQ.custMgmt.HeadQCust;
 import com.onlineMIS.ORM.entity.headQ.inventory.InventoryOrder;
 import com.onlineMIS.ORM.entity.headQ.user.UserInfor;
 import com.onlineMIS.common.Common_util;
@@ -23,24 +26,35 @@ public class IpadJSONAction extends IpadAction {
 	public String searchClientByPY(){
 		loggerLocal.info("IpadJSONAction-searchClientByPY" );
 		
+		List<HeadQCust> clients = ipadService.getHeadqCust(formBean.getPinyin());
+
+		Response response = new Response();
+		response.setReturnValue(clients);
+		
+		try{
+		    jsonObject = JSONObject.fromObject(response);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		
 		return SUCCESS;
+
 	}
 	
 	public String chooseCust(){
 		loggerLocal.info("IpadJSONAction-chooseCust" );
 		int clientId = formBean.getClientId();
 		
-//		ClientsMS clientsMS = ipadService.getClientById(clientId);
+		HeadQCust cust = ipadService.getCustById(clientId);
 //		
 		Response response = new Response();
-//		
-//		if (clientsMS != null){
-//			ActionContext.getContext().getSession().put(IpadConf.HQ_SESSION_INFO_CUSTNAME, clientsMS.getName() +" " + clientsMS.getRegion().getName());
-//			ActionContext.getContext().getSession().put(IpadConf.HQ_SESSION_INFO_CLIENT_ID, clientId);
-//			ActionContext.getContext().getSession().put(IpadConf.HQ_SESSION_INFO_ORDER_ID, null);
-//		} else 
-//			response.setFail("无法找到这个客户");
+		
+		if (cust != null){
+			ActionContext.getContext().getSession().put(IpadConf.HQ_SESSION_INFO_CUSTNAME, cust.getName() +" " + cust.getArea());
+			ActionContext.getContext().getSession().put(IpadConf.HQ_SESSION_INFO_CLIENT_ID, clientId);
+			ActionContext.getContext().getSession().put(IpadConf.HQ_SESSION_INFO_ORDER_ID, null);
+		} else 
+			response.setFail("无法找到这个客户");
 		
 		try{
 		    jsonObject = JSONObject.fromObject(response);

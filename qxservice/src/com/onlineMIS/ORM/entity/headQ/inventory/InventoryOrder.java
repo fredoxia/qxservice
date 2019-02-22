@@ -78,7 +78,7 @@ public class InventoryOrder implements Serializable {
     public int order_ID;
 
     private HeadQCust cust = new HeadQCust();
-    private HeadQInventoryStore store = new HeadQInventoryStore(1);
+    private HeadQInventoryStore store = new HeadQInventoryStore(HeadQInventoryStore.INVENTORY_STORE_DEFAULT_ID);
 
     private Date order_StartTime = new Date();
     /**

@@ -37,11 +37,14 @@ import com.onlineMIS.ORM.DAO.Response;
 import com.onlineMIS.ORM.DAO.headQ.barCodeGentor.ProductBarcodeDaoImpl;
 import com.onlineMIS.ORM.DAO.headQ.barCodeGentor.ProductBarcodeService;
 import com.onlineMIS.ORM.DAO.headQ.custMgmt.HeadQCustDaoImpl;
+import com.onlineMIS.ORM.DAO.headQ.inventory.HeadQInventoryStockDAOImpl;
 import com.onlineMIS.ORM.DAO.headQ.inventory.InventoryOrderDAOImpl;
 import com.onlineMIS.ORM.DAO.headQ.inventory.InventoryOrderProductDAOImpl;
 import com.onlineMIS.ORM.entity.headQ.barcodeGentor.Product;
 import com.onlineMIS.ORM.entity.headQ.barcodeGentor.ProductBarcode;
 import com.onlineMIS.ORM.entity.headQ.custMgmt.HeadQCust;
+import com.onlineMIS.ORM.entity.headQ.inventory.HeadQInventoryStock;
+import com.onlineMIS.ORM.entity.headQ.inventory.HeadQInventoryStore;
 import com.onlineMIS.ORM.entity.headQ.inventory.InventoryOrder;
 import com.onlineMIS.ORM.entity.headQ.inventory.InventoryOrderProduct;
 import com.onlineMIS.ORM.entity.headQ.user.UserInfor;
@@ -67,6 +70,9 @@ public class IpadService {
 	
 	@Autowired
 	private HeadQCustDaoImpl headQCustDaoImpl;
+	
+	@Autowired
+	private HeadQInventoryStockDAOImpl headQInventoryStockDAOImpl;
 
 
 	/**
@@ -74,58 +80,24 @@ public class IpadService {
 	 * @param pinyin
 	 * @return
 	 */
-//	public List<ClientsMS> getClients(String pinyin) {
-//		pinyin = pinyin.replaceAll(" ", "_");
-//		List<ClientsMS> clientsMSs = clientDAOImpl.getClientByPinyin(pinyin);
-//		
-//		for (int i = clientsMSs.size()-1; i >=0; i--){
-//			ClientsMS client= clientsMSs.get(i);
-//			String name = client.getName();
-//			if (name.contains("不做"))
-//				clientsMSs.remove(i);
-//		}
-//
-//		return clientsMSs;
-////		RegionMS region1 = new RegionMS();
-////		region1.setName("四川连锁店");
-////		
-////		ClientsMS client1 = new ClientsMS();
-////		client1.setName("夏林");
-////		client1.setClient_id(1);
-////		client1.setPinyin("XiaLin");
-////		client1.setRegion(region1);
-////		
-////		RegionMS region2 = new RegionMS();
-////		region2.setName("乐山连锁店");
-////		
-////		ClientsMS client2 = new ClientsMS();
-////		client2.setName("夏林2");
-////		client2.setClient_id(1);
-////		client2.setPinyin("XiaLin");
-////		client2.setRegion(region2);
-//		
-////		List<ClientsMS> clientsMSs = new ArrayList<ClientsMS>();
-////		
-////		clientsMSs.add(client1);
-////		clientsMSs.add(client2);
-//		
-////	    return clientsMSs;
-//	}
-//
-//	public ClientsMS getClientById(int clientId) {
-//		return clientDAOImpl.getClientsByID(clientId);
-//		
-////		RegionMS region1 = new RegionMS();
-////		region1.setName("四川连锁店");
-////		
-////		ClientsMS client1 = new ClientsMS();
-////		client1.setName("夏林");
-////		client1.setClient_id(1);
-////		client1.setPinyin("XiaLin");
-////		client1.setRegion(region1);
-////		return client1;
-//	}
-//
+	public List<HeadQCust> getHeadqCust(String pinyin) {
+		List<HeadQCust> custs = headQCustDaoImpl.getCustByPinyin(pinyin, HeadQCust.CustStatusEnum.GOOD.getKey());
+
+		return custs;
+	}
+	
+	/**
+	 * in the ipad, people choose the cust
+	 * @param clientId
+	 * @return
+	 */
+	public HeadQCust getCustById(int clientId) {
+		HeadQCust cust = null;
+		if (clientId > 0)
+		    cust = headQCustDaoImpl.get(clientId, true);
+		return cust;
+	}
+
 	public Response searchByProductCode(String productCode, Integer clientId, Integer orderId) {
 		productCode = productCode.replaceAll("\\.", "_");
 		//System.out.println("-----------" + productCode);
@@ -151,11 +123,10 @@ public class IpadService {
 			for (ProductBarcode pb: productBarcodes){
 				String barcode = pb.getBarcode();
 
-//				int inventory = pbService.getProductInven(barcode);
-//				
-//				SaleHistory orderSalesHis = null;
-
+                int inventory = headQInventoryStockDAOImpl.getProductStock(pb.getId(), HeadQInventoryStore.INVENTORY_STORE_DEFAULT_ID, true);
 				
+				int orderHis = inventoryOrderDAOImpl.getQuantityBefore(barcode, clientId);
+
 				int orderCurrent = 0 ;
 				if (orderId != null){
 					InventoryOrderProduct orderProduct = inventoryOrderProductDAOImpl.getByOrderIdProductId(orderId.intValue(), pb.getId());
@@ -164,7 +135,7 @@ public class IpadService {
 				}
 				
 				
-				ProductBarcodeVO productBarcodeVO = new ProductBarcodeVO(pb, 0, 0, orderCurrent);
+				ProductBarcodeVO productBarcodeVO = new ProductBarcodeVO(pb, inventory, orderHis, orderCurrent);
 				productBarcodeVOs.add(productBarcodeVO);
 			}
 			response.setReturnValue(productBarcodeVOs);
@@ -530,5 +501,7 @@ public class IpadService {
 			return response;
 		}
 	}
+
+
 
 }

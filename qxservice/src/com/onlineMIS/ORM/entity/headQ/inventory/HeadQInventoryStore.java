@@ -7,6 +7,7 @@ public class HeadQInventoryStore implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 4192031352894390928L;
+	public static final int INVENTORY_STORE_DEFAULT_ID =1;
     private int id;
     private String name;
     private String comment;

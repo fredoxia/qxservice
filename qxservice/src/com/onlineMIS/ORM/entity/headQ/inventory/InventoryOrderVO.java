@@ -13,6 +13,7 @@ public class InventoryOrderVO {
 	private Date completeTime;
 	private String PDAUserName ="";
 	private String keeperName = "";
+	private String auditorName = "";
 	private int totalQ ;
 	private double totalWholeSales;
 	private double totalRetailSales;
@@ -22,6 +23,7 @@ public class InventoryOrderVO {
 	private String orderType = "";
 	private int orderTypeI ;
 	private boolean isAuthorizedToEdit;
+	private boolean isAuthorizedToTransfer;
 	
 	
 	private int chainStatusIndicator = 0;
@@ -55,6 +57,8 @@ public class InventoryOrderVO {
 		   this.setPDAUserName(i.getPdaScanner().getName());
 		if (i.getOrder_Keeper() != null)
 			this.setKeeperName(i.getOrder_Keeper().getName());
+		if (i.getOrder_Auditor() != null)
+			this.setAuditorName(i.getOrder_Auditor().getName());
 		this.setTotalQ(i.getTotalQuantity());
 		this.setTotalWholeSales(i.getTotalWholePrice());
 		this.setComment(i.getComment());
@@ -76,6 +80,16 @@ public class InventoryOrderVO {
 		    setChainStatusS("系统错误");
 		else 
 			setChainStatusS(confirmStatusS);
+	}
+
+
+
+	public String getAuditorName() {
+		return auditorName;
+	}
+
+	public void setAuditorName(String auditorName) {
+		this.auditorName = auditorName;
 	}
 
 	public Date getChainConfirmDate() {
@@ -219,6 +233,14 @@ public class InventoryOrderVO {
 
 	public void setIsAuthorizedToEdit(boolean isAuthorizedToEdit) {
 		this.isAuthorizedToEdit = isAuthorizedToEdit;
+	}
+	
+	public boolean getIsAuthorizedToTransfer() {
+		return isAuthorizedToTransfer;
+	}
+
+	public void setIsAuthorizedToTransfer(boolean isAuthorizedToTransfer) {
+		this.isAuthorizedToTransfer = isAuthorizedToTransfer;
 	}
 
 	public static Map<Integer, String> getChainConfirmMap() {

@@ -96,7 +96,7 @@
         <property name="myQuantity" column="my_quantity" type="integer"/>
         <property name="myAmount" column="my_amount" type="double"/>
         <property name="myCost" column="my_cost" type="double"/>
-        <property name="rank" column="rank" type="integer"/>
+        <property name="rank" column="rank_" type="integer"/>
       </class>   
         
       <class name="ChainDailySalesImpact" table="chain_daily_sales_impact">

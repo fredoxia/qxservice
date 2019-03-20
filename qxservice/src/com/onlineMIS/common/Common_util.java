@@ -41,6 +41,7 @@ public class Common_util {
 	public static final DecimalFormat df = new DecimalFormat("#.00");
 	public static  final SimpleDateFormat dateFormat =  new SimpleDateFormat("yyyy-MM-dd");
 	public static  final SimpleDateFormat dateFormat_f =  new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
 	public static  final Pattern pattern = Pattern.compile("[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}");
 	public static  final Pattern pattern_f = Pattern.compile("[0-9]{4}-[0-9]{1,2}-[0-9]{1,2} [0-9]{1,2}:[0-9]{1,2}:[0-9]{1,2}");
 	public static  final Pattern pattern_productCode = Pattern.compile("^[0-9][0-9]-[A-Za-z0-9-]+");

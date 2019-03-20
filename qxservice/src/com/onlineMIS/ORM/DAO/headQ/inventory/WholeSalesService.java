@@ -73,12 +73,14 @@ import com.onlineMIS.ORM.entity.headQ.barcodeGentor.ProductBarcode;
 import com.onlineMIS.ORM.entity.headQ.custMgmt.HeadQCust;
 import com.onlineMIS.ORM.entity.headQ.finance.FinanceBill;
 import com.onlineMIS.ORM.entity.headQ.finance.FinanceBillItem;
+import com.onlineMIS.ORM.entity.headQ.finance.FinanceBillPrintVO;
 import com.onlineMIS.ORM.entity.headQ.finance.FinanceCategory;
 import com.onlineMIS.ORM.entity.headQ.finance.HeadQAcctFlow;
 import com.onlineMIS.ORM.entity.headQ.inventory.HeadQInventoryStock;
 import com.onlineMIS.ORM.entity.headQ.inventory.HeadQInventoryStore;
 import com.onlineMIS.ORM.entity.headQ.inventory.HeadQSalesHistory;
 import com.onlineMIS.ORM.entity.headQ.inventory.InventoryOrder;
+import com.onlineMIS.ORM.entity.headQ.inventory.InventoryOrderPrintVO;
 import com.onlineMIS.ORM.entity.headQ.inventory.InventoryOrderProduct;
 import com.onlineMIS.ORM.entity.headQ.inventory.InventoryOrderTemplate;
 import com.onlineMIS.ORM.entity.headQ.inventory.InventoryOrderVO;
@@ -1516,6 +1518,40 @@ public class WholeSalesService {
 			}
 		}
 
+		return response;
+	}
+	
+	/**
+	 * 获取inventory order作为打印的对象
+	 * @param id
+	 * @return
+	 */
+	@Transactional
+	public Response getInventoryOrderForPrint(int id){
+		Response response = new Response();
+		Map<String, Object> dataMap = new HashMap<String, Object>();
+		
+		InventoryOrder order = inventoryOrderDAOImpl.retrieveOrder(id);
+		if (order == null){
+			response.setFail("无法找到单据, 单据号  : " + id);
+		} else {
+		    order.putSetToList();
+		    
+		    InventoryOrderPrintVO inventoryOrderPrintVO = new InventoryOrderPrintVO(order);
+		    dataMap.put("inventoryOrder", inventoryOrderPrintVO);
+		    
+		    int financeBillId = order.getFinanceBillId();
+		    if (financeBillId != 0){
+		    	FinanceBill financeBill = financeService.getFinanceBillById(financeBillId);
+		    	if (financeBill != null){
+		    		FinanceBillPrintVO financeBillPrintVO = new FinanceBillPrintVO(financeBill);
+		    		dataMap.put("finance", financeBillPrintVO);
+		    	}
+		    }
+		    
+		    response.setReturnValue(dataMap);
+		}
+		
 		return response;
 	}
 

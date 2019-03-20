@@ -225,4 +225,19 @@ public class FinanceJSONAction extends FinanceAction {
 		
 		return SUCCESS;
 	}
+	
+	/**
+	 * 打印单据
+	 * @return
+	 */
+	public String printOrder(){
+		Response response = financeService.printFinanceBill(formBean.getOrder().getId());
+		try{
+			   jsonObject = JSONObject.fromObject(response);
+		   } catch (Exception e){
+				loggerLocal.error(e);
+			}
+
+		return SUCCESS;
+	}
 }

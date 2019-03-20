@@ -34,8 +34,10 @@ import com.onlineMIS.ORM.entity.headQ.finance.ChainAcctFlowReportItem;
 import com.onlineMIS.ORM.entity.headQ.finance.HeadQFinanceTrace;
 import com.onlineMIS.ORM.entity.headQ.finance.FinanceBill;
 import com.onlineMIS.ORM.entity.headQ.finance.FinanceBillItem;
+import com.onlineMIS.ORM.entity.headQ.finance.FinanceBillPrintVO;
 import com.onlineMIS.ORM.entity.headQ.finance.FinanceCategory;
 import com.onlineMIS.ORM.entity.headQ.inventory.InventoryOrder;
+import com.onlineMIS.ORM.entity.headQ.inventory.InventoryOrderPrintVO;
 import com.onlineMIS.ORM.entity.headQ.user.UserInfor;
 import com.onlineMIS.action.headQ.finance.FinanceActionFormBean;
 import com.onlineMIS.action.headQ.finance.FinanceActionUIBean;
@@ -654,6 +656,30 @@ public class FinanceService {
 		formBean.getOrder().setStatus(FinanceBill.STATUS_COMPLETE);
 		
 		return searchFHQBills(formBean);
+	}
+	
+	/**
+	 * 打印finance bill的功能
+	 * @return
+	 */
+	@Transactional
+	public Response printFinanceBill(int financeBillId){
+		Response response = new Response();
+		Map<String, Object> dataMap = new HashMap<String, Object>();
+		
+		if (financeBillId != 0){
+	    	FinanceBill financeBill = this.getFinanceBillById(financeBillId);
+	    	if (financeBill != null){
+	    		FinanceBillPrintVO financeBillPrintVO = new FinanceBillPrintVO(financeBill);
+	    		dataMap.put("finance", financeBillPrintVO);
+	    	} else {
+	    		response.setFail("无法找到单据, 单据号  : " + financeBillId);
+	    	}
+	    }
+		    
+		response.setReturnValue(dataMap);
+
+		return response;
 	}
 	
 	

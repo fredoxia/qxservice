@@ -242,6 +242,21 @@ public class InventoryOrderJSONAction extends InventoryOrderAction {
 		return "successful";
 	}
 	
+	/**
+	 * 打印单据
+	 * @return
+	 */
+	public String printOrder(){
+		Response response = inventoryService.getInventoryOrderForPrint(formBean.getOrder().getOrder_ID());
+		try{
+			   jsonObject = JSONObject.fromObject(response);
+		   } catch (Exception e){
+				loggerLocal.error(e);
+			}
+
+		return "successful";
+	}
+	
 	private String logInventory(String action, Object clientId, Object orderId, String uuid){
 		return super.logInventory(this.getClass().getSimpleName() , action, clientId, orderId, uuid);		
 	}

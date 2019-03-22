@@ -142,7 +142,6 @@
             <result name="preMaintain">/jsp/headQ/barcodeGentor/MaintainBarcodeData.jsp</result>
             <result name="brand">/jsp/headQ/barcodeGentor/updateBasicData/UpdateBrand.jsp</result>
             <result name="category">/jsp/headQ/barcodeGentor/updateBasicData/UpdateCategory.jsp</result>
-            <result name="color">/jsp/headQ/barcodeGentor/updateBasicData/UpdateColor.jsp</result>
             <result name="size">/jsp/headQ/barcodeGentor/updateBasicData/UpdateSize.jsp</result>
             <result name="updateSuccess">/jsp/headQ/common/updateSuccess.jsp?location=close</result>
             
@@ -160,6 +159,7 @@
             <result name="updateCategory">/jsp/headQ/barcodeGentor/updateBasicData/UpdateCategory.jsp</result>
             <result name="updateProductUnit">/jsp/headQ/barcodeGentor/updateBasicData/UpdateProductUnit.jsp</result>
             <result name="updateNumPerHand">/jsp/headQ/barcodeGentor/updateBasicData/UpdateNumPerHand.jsp</result>
+            <result name="updateColor">/jsp/headQ/barcodeGentor/updateBasicData/UpdateColor.jsp</result>
         </action>
        
         

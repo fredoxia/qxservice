@@ -152,5 +152,17 @@ public class BasicDataJSONAction extends BasicDataAction {
 		return SUCCESS;
 	}
 	
+	/**
+	 * 更新color
+	 * @return
+	 */
+	public String updateColor(){
+		Response response = basicDataService.updateColor(formBean.getColor());
+		
+		jsonMap.put("response", response);
+	    jsonObject = JSONObject.fromObject(jsonMap);
+		
+		return SUCCESS;
+	}	
 
 }

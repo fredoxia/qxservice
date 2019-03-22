@@ -12,7 +12,7 @@ public class Category  implements Serializable{
 	public static final int TYPE_CHAIN = 1;
     private int category_ID;
     private String category_Name;
-    private String category_Code; 
+    private String category_Code = ""; 
     private int chainId = -1;
     private String typeS;
     private int hide;

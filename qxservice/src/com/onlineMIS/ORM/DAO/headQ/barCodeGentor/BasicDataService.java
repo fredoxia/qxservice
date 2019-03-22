@@ -339,14 +339,11 @@ public class BasicDataService {
 			response.setReturnCode(Response.SUCCESS);
 		} else {
 			Category category2 = categories.get(0);
-			if (categoryId != category2.getCategory_ID()){
+			if (categoryId != category2.getCategory_ID() && (category.getChainId() == Category.TYPE_CHAIN || (category.getChainId() == Category.TYPE_HEAD && category2.getChainId() == Category.TYPE_HEAD))){
 				response.setQuickValue(Response.FAIL, "类别 重复,请检查重新输入");
 			} else {
-                category2.setCategory_Name(category.getCategory_Name());
-                category2.setChainId(category.getChainId());
-                category2.setMaterial(category.getMaterial());
-                category2.setFiller(category.getFiller());
-				categoryDaoImpl.saveOrUpdate(category2, true);
+				categoryDaoImpl.evict(category2);
+				categoryDaoImpl.saveOrUpdate(category, true);
 				response.setReturnCode(Response.SUCCESS);
 			}
 		}
@@ -413,7 +410,7 @@ public class BasicDataService {
 		String colorName = color.getName();
 		
 		DetachedCriteria criteria = DetachedCriteria.forClass(Color.class);
-		criteria.add(Restrictions.eq("colorName", colorName));
+		criteria.add(Restrictions.eq("name", colorName));
 		List<Color> colors = colorDaoImpl.getByCritera(criteria, true);
 		
 		if (colors == null || colors.size() == 0){

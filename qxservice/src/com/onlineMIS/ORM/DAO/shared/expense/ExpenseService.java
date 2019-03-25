@@ -40,7 +40,47 @@ public class ExpenseService {
 	@Autowired
 	private ChainStoreService chainStoreService;
 
-	
+	/**
+	 * 修改expense
+	 * @param expense
+	 * @return
+	 */
+	public Response updateExpenseChain(ChainUserInfor userInfor, Expense expense){
+		Response response = new Response();
+		
+		Expense expenseOrig = expenseDaoImpl.get(expense.getId(), true);
+		
+		//1. 是否被删除
+		if (expenseOrig == null){
+			response.setFail("无法找到单据");
+			return response;
+		} else if (expenseOrig.getStatus() == Expense.statusE.DELETED.getValue()){
+			response.setFail("单据已经被删除,无法修改");
+			return response;
+		}
+		
+		//1. 验证权限
+		if (!ChainUserInforService.isMgmtFromHQ(userInfor)){
+			 if (userInfor.getMyChainStore().getChain_id() != expenseOrig.getEntity().getChain_id()){
+				response.setFail("你没有权限修改其他连锁店的费用单据");
+				return response;
+			 }
+		}
+		
+		try {
+			expenseOrig.setComment(expense.getComment());
+			expenseOrig.setAmount(expense.getAmount());
+			expenseOrig.setExpenseDate(expense.getExpenseDate());
+			expenseOrig.setExpenseType(expense.getExpenseType());
+			expenseOrig.setUserId(userInfor.getUser_id());
+			expenseOrig.setUserName(userInfor.getName());
+			saveUpdateExpense(expenseOrig);
+		} catch (Exception e){
+			response.setFail(e.getMessage());
+		}
+		
+		return response;
+	}
 	/**
 	 * 修改expense
 	 * @param expense
@@ -294,7 +334,20 @@ public class ExpenseService {
 		return response;
 	}
 
+	public void prepareUpdateExpenseChainUI(ChainUserInfor userInfor,
+			ExpenseActionFormBean formBean, ExpenseActionUIBean uiBean) {
+		int expenseId = formBean.getExpense().getId();
+		
+		Expense expense = expenseDaoImpl.get(expenseId, true);
+		if (expense != null ){
+		   int chainId = expense.getEntity().getChain_id();
+		   ChainStore chainStore = chainStoreService.getChainStoreByID(chainId);
+		   formBean.setChainStore(chainStore);
+		}
 
-
-
+		formBean.setExpense(expense);
+		
+		uiBean.setExpenseTypes(expenseTypeDaoImpl.getExpenseTypes(ExpenseType.belongE.CHAIN.getType()));
+		
+	}
 }

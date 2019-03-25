@@ -410,6 +410,7 @@
             <result name="createExpenseChain">/jsp/chainStore/expense/CreateExpense.jsp</result>
             <result name="searchExpenseChain">/jsp/chainStore/expense/SearchExpense.jsp</result>
             <result name="expenseRptChain">/jsp/chainStore/expense/ExpenseReport.jsp</result>
+            <result name="updateExpenseChain">/jsp/chainStore/expense/UpdateExpense.jsp</result>
        </action>	   
        <action name="barcodeGenJSP" class="com.onlineMIS.action.headQ4Chain.barcodeGentor.BarcodeGenJSPAction">
                 <result name="BrandList">/jsp/headQ/barcodeGentor/BrandList.jsp</result>

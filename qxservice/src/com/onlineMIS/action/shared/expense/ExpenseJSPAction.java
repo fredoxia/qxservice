@@ -55,4 +55,17 @@ public class ExpenseJSPAction extends ExpenseAction{
 		
     	return "expenseRptChain";
 	}
+	
+	/**
+	 * 获取连锁店某条expense然后修改
+	 * @return
+	 */
+	public String getExpenseById(){
+    	ChainUserInfor userInfor = (ChainUserInfor)ActionContext.getContext().getSession().get(Common_util.LOGIN_CHAIN_USER);
+    	loggerLocal.chainActionInfo(userInfor,this.getClass().getName()+ "."+"getExpenseById");
+
+    	expenseService.prepareUpdateExpenseChainUI(userInfor, formBean, uiBean);
+    	
+    	return "updateExpenseChain";
+	}
 }

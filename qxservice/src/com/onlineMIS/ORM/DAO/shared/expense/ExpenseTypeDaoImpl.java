@@ -23,4 +23,22 @@ public class ExpenseTypeDaoImpl extends BaseDAO<ExpenseType>{
 		
 		return resultList;
 	}
+
+	/**
+	 * 获取总部的菜单
+	 * @return
+	 */
+	public List<ExpenseType> getHeadqExpenseType(Integer parentId) {
+		DetachedCriteria criteria = DetachedCriteria.forClass(ExpenseType.class);	
+        criteria.add(Restrictions.isNull("belong"));
+        
+        if (parentId == null)
+        	criteria.add(Restrictions.isNull("parentId"));
+        else 
+            criteria.add(Restrictions.eq("parentId", parentId));
+		
+		List<ExpenseType> resultList = this.getByCritera(criteria, true); 
+		
+		return resultList;
+	}
 }

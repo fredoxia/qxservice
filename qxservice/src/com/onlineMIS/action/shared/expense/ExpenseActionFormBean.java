@@ -3,15 +3,25 @@ package com.onlineMIS.action.shared.expense;
 
 import com.onlineMIS.ORM.entity.chainS.user.ChainStore;
 import com.onlineMIS.ORM.entity.shared.expense.Expense;
+import com.onlineMIS.ORM.entity.shared.expense.ExpenseType;
 
 public class ExpenseActionFormBean {
 	private ChainStore chainStore = new ChainStore();
+	private ExpenseType parentType = new ExpenseType();
 	private Expense expense = new Expense();
 	private java.sql.Date startDate;
 	private java.sql.Date endDate;
 	private int expenseRptLevel;
 	
-	
+
+	public ExpenseType getParentType() {
+		return parentType;
+	}
+
+	public void setParentType(ExpenseType parentType) {
+		this.parentType = parentType;
+	}
+
 	public int getExpenseRptLevel() {
 		return expenseRptLevel;
 	}

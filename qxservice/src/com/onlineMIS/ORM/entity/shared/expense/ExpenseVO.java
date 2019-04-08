@@ -9,6 +9,7 @@ public class ExpenseVO implements Serializable{
 	private static final long serialVersionUID = 3632171643209176686L;
 
 	private int id;
+	private String parentType;
 	private String expenseType;
 	private double amount;
 	private String comment;
@@ -21,6 +22,24 @@ public class ExpenseVO implements Serializable{
 	
 	public ExpenseVO(){
 		
+	}
+	public ExpenseVO(Expense e, String parentType){
+		this.setId(e.getId());
+		this.setExpenseType(e.getExpenseType().getName());
+		this.setAmount(e.getAmount());
+		this.setComment(e.getComment());
+		this.setUserName(e.getUserName());
+		this.setStatus(Expense.statusE.getStatusS(e.getStatus()));
+		ChainStore store = e.getEntity();
+		if (store == null)
+			this.setEntity("总部");
+		else 
+			this.setEntity(store.getChain_name());
+		this.setParentType(parentType);
+		
+		this.setExpenseDate(Common_util.dateFormat.format(e.getExpenseDate()));
+		this.setLastUpdateTime(Common_util.dateFormat_f.format(e.getLastUpdateTime()));
+		this.setStatusCode(e.getStatus());
 	}
 	
 	public ExpenseVO(Expense e){
@@ -42,6 +61,14 @@ public class ExpenseVO implements Serializable{
 	}
 	
 	
+	public String getParentType() {
+		return parentType;
+	}
+
+	public void setParentType(String parentType) {
+		this.parentType = parentType;
+	}
+
 	public int getStatusCode() {
 		return statusCode;
 	}

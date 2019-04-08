@@ -37,6 +37,12 @@
 
     <!--The namespace /action is the headquarter actions-->
     <package name="headQJSPPackage" extends="super-package" namespace="/action">
+         <action name="expenseHeadqJSP" class="com.onlineMIS.action.shared.expense.ExpenseJSPAction">
+            <result name="createExpenseHeadq">/jsp/headQ/expense/CreateExpense.jsp</result>
+            <result name="searchExpenseHeadq">/jsp/headQ/expense/SearchExpense.jsp</result>
+            <result name="expenseRptHeadq">/jsp/headQ/expense/ExpenseReport.jsp</result>
+            <result name="updateExpenseHeadq">/jsp/headQ/expense/UpdateExpense.jsp</result>
+         </action>	
         <action name="login" class="com.onlineMIS.action.headQ.user.LoginAction">
         	
             <result name="myTasks">/jsp/headQ/MyTasks.jsp</result>
@@ -291,6 +297,14 @@
     </package>
     
     <package name="headQJSONPackage" extends="json-default" namespace="/action">
+        <action name="expenseHeadqJSON" class="com.onlineMIS.action.shared.expense.ExpenseJSONAction">
+            <result type="json">
+                 <param name="root">jsonObject</param>
+            </result>
+            <result type="json" name="jsonArray">
+                 <param name="root">jsonArray</param>
+            </result>
+        </action>  
         <action name="headqInventoryFlowJSONAction" class="com.onlineMIS.action.headQ.inventoryFlow.HeadqInventoryFlowJSONAction">
             <result type="json">
                  <param name="root">jsonObject</param>

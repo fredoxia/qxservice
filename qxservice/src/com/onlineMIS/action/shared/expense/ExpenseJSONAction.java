@@ -45,12 +45,142 @@ public class ExpenseJSONAction extends ExpenseAction {
 		this.jsonObject = jsonObject;
 	}
 
+	/**
+	 * 创建 expense headq
+	 * @return
+	 */
+	public String createExpenseHeadq(){
+		UserInfor userInfor = (UserInfor)ActionContext.getContext().getSession().get(Common_util.LOGIN_USER);
+    	
+    	loggerLocal.info(this.getClass().getName()+ "."+"createExpenseHeadq");
+    	Response response = new Response();
+    	try {
+    	   response = expenseService.createExpenseHeadq(userInfor, formBean.getExpense());
+    	} catch (Exception e){
+    	   response.setFail(e.getMessage());
+    	}
+    	
+		try{
+			jsonObject = JSONObject.fromObject(response);
+		} catch (Exception e){
+			loggerLocal.error(e);
+		}
+		
+    	return SUCCESS;
+	}
+	
+	/**
+	 * 创建 expense headq
+	 * @return
+	 */
+	public String changeParentExpenseType(){
+		UserInfor userInfor = (UserInfor)ActionContext.getContext().getSession().get(Common_util.LOGIN_USER);
+    	
+    	loggerLocal.info(this.getClass().getName()+ "."+"changeExpenseType1");
+    	Response response = new Response();
+    	try {
+    	   response = expenseService.changeHeadqExpenseType1(formBean.getParentType().getId());
+    	} catch (Exception e){
+    	   response.setFail(e.getMessage());
+    	}
+    	
+		try{
+			jsonArray = JSONArray.fromObject(response.getReturnValue());
+		} catch (Exception e){
+			loggerLocal.error(e);
+		}
+		
+    	return "jsonArray";
+	}
+	
+	/**
+	 * update expense
+	 * @return
+	 */
+	public String updateExpenseHeadq(){
+		UserInfor userInfor = (UserInfor)ActionContext.getContext().getSession().get(Common_util.LOGIN_USER);
+		loggerLocal.info(this.getClass().getName()+ "."+"updateExpenseHeadq");
+    	Response response = new Response();
+    	try {
+    	   response = expenseService.updateExpenseHeadq(userInfor,formBean.getExpense());
+    	} catch (Exception e){
+    	   response.setFail(e.getMessage());
+    	}
+    	
+		try{
+			jsonObject = JSONObject.fromObject(response);
+		} catch (Exception e){
+			loggerLocal.error(e);
+		}
+		
+    	return SUCCESS;
+	}
+	
+	/**
+	 * 删除某一条expense
+	 * @return
+	 */
+	public String deleteExpenseHeadq(){
+		UserInfor userInfor = (UserInfor)ActionContext.getContext().getSession().get(Common_util.LOGIN_USER);
+		loggerLocal.info(this.getClass().getName()+ "."+"deleteExpenseChain");
+    	Response response = new Response();
+    	try {
+    	   response = expenseService.deleteExpenseHeadq(userInfor, formBean.getExpense().getId());
+    	} catch (Exception e){
+    	   e.printStackTrace();
+    	   response.setFail(e.getMessage());
+    	}
+    	
+		if (response.getReturnCode() == Response.SUCCESS){
+			try {
+				jsonObject = JSONObject.fromObject(response);
+			} catch (Exception e) {
+				loggerLocal.error(e);
+				response.setReturnCode(Response.FAIL);
+			}
+		}
+		
+    	return SUCCESS;
+	}
+	
+	public String searchExpenseHeadq(){
+		UserInfor userInfor = (UserInfor)ActionContext.getContext().getSession().get(Common_util.LOGIN_USER);
+		loggerLocal.info(this.getClass().getName()+ "."+"searchExpenseHeadq");
+		
+    	Response response = new Response();
+    	try {
+    	   response = expenseService.searchExpenseHeadq(formBean.getStartDate(), formBean.getEndDate(), this.getPage(), this.getRows());
+    	} catch (Exception e){
+    	   e.printStackTrace();
+    	   response.setFail(e.getMessage());
+    	}
+    	
+		if (response.getReturnCode() == Response.SUCCESS){
+			jsonMap = (Map)response.getReturnValue();
+			JsonConfig jsonConfig = new JsonConfig();
+    		jsonConfig.registerJsonValueProcessor(java.util.Date.class, new JSONUtilDateConverter());  
+    		jsonConfig.registerJsonValueProcessor(java.sql.Date.class, new JSONSQLDateConverter());  
+			try {
+				jsonObject = JSONObject.fromObject(jsonMap,jsonConfig);
+			} catch (Exception e) {
+				loggerLocal.error(e);
+				response.setReturnCode(Response.FAIL);
+			}
+		}
+		
+    	return SUCCESS;
+	}
+	
+	/**
+	 * 创建expense
+	 * @return
+	 */
 	public String saveExpenseChain(){
     	ChainUserInfor userInfor = (ChainUserInfor)ActionContext.getContext().getSession().get(Common_util.LOGIN_CHAIN_USER);
     	loggerLocal.chainActionInfo(userInfor,this.getClass().getName()+ "."+"saveExpenseChain");
     	Response response = new Response();
     	try {
-    	   response = expenseService.saveExpenseChain(userInfor,formBean.getChainStore(), formBean.getExpense());
+    	   response = expenseService.createExpenseChain(userInfor,formBean.getChainStore(), formBean.getExpense());
     	} catch (Exception e){
     	   response.setFail(e.getMessage());
     	}

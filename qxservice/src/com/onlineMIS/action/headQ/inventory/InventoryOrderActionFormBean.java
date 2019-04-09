@@ -37,8 +37,19 @@ public class InventoryOrderActionFormBean implements Serializable{
     //client pinyin code
     private String pinyin;
     
+    //搜索时的product ids
+    private String productIds = "";
+    
     private Map<Integer, String> clientMap = new HashMap<Integer, String>();
     
+	public String getProductIds() {
+		return productIds;
+	}
+
+	public void setProductIds(String productIds) {
+		this.productIds = productIds;
+	}
+
 	public UserInfor getUser() {
 		return user;
 	}

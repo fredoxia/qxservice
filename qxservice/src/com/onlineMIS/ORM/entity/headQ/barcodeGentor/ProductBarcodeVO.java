@@ -21,6 +21,18 @@ public class ProductBarcodeVO {
 	private double wholePrice2 = 0;
 	private double wholePrice3 = 0;
 	private Date createTime;
+	private int inventoryLevel = 0;
+	private int boughtBefore = 0;
+    /**
+     * 历史输入 折扣价
+     */
+    private double lastInputPrice;
+    
+    /**
+     * 历史选择价格
+     */
+    private double lastChoosePrice;
+	
 	
 	public ProductBarcodeVO(ProductBarcode pb){
 		this.id = pb.getId();
@@ -48,6 +60,38 @@ public class ProductBarcodeVO {
 		}
 	}
 	
+	public double getLastInputPrice() {
+		return lastInputPrice;
+	}
+
+	public void setLastInputPrice(double lastInputPrice) {
+		this.lastInputPrice = lastInputPrice;
+	}
+
+	public double getLastChoosePrice() {
+		return lastChoosePrice;
+	}
+
+	public void setLastChoosePrice(double lastChoosePrice) {
+		this.lastChoosePrice = lastChoosePrice;
+	}
+
+	public int getBoughtBefore() {
+		return boughtBefore;
+	}
+
+	public void setBoughtBefore(int boughtBefore) {
+		this.boughtBefore = boughtBefore;
+	}
+
+	public int getInventoryLevel() {
+		return inventoryLevel;
+	}
+
+	public void setInventoryLevel(int inventoryLevel) {
+		this.inventoryLevel = inventoryLevel;
+	}
+
 	public int getId() {
 		return id;
 	}

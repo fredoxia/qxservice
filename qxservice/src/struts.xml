@@ -139,6 +139,8 @@
                <result name="batchInsertBarcode">/jsp/headQ/barcodeGentor/BatchInsertBarcode.jsp</result> 
                
                <result name="ProductCodeSearchProducts">/jsp/headQ/barcodeGentor/SearchByProductCodeList.jsp</result>
+               
+               <result name="ProductCodeSearchProductsHeadq">/jsp/headQ/product/SearchByProductCodeList.jsp</result>
                <result name="brandPriceIncrease">/jsp/headQ/barcodeGentor/BrandPriceIncrease.jsp</result>
                <result name="editBrandPriceIncrease">/jsp/headQ/barcodeGentor/EditBrandPriceIncrease.jsp</result>
                

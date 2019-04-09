@@ -9,12 +9,14 @@ import com.onlineMIS.ORM.entity.headQ.barcodeGentor.Brand;
 import com.onlineMIS.ORM.entity.headQ.barcodeGentor.Color;
 import com.onlineMIS.ORM.entity.headQ.barcodeGentor.Product;
 import com.onlineMIS.ORM.entity.headQ.barcodeGentor.ProductBarcode;
+import com.onlineMIS.ORM.entity.headQ.barcodeGentor.ProductBarcodeVO;
 import com.onlineMIS.ORM.entity.headQ.barcodeGentor.Quarter;
 import com.onlineMIS.ORM.entity.headQ.barcodeGentor.Year;
 
 public class ProductActionUIBean {
 	private ProductBarcode product = new ProductBarcode();
 	private List<ProductBarcode> products = new ArrayList<ProductBarcode>();
+	private List<ProductBarcodeVO> productVOs = new ArrayList<ProductBarcodeVO>();
 	
 	private int index;
 	private boolean canViewRecCost = false;
@@ -83,6 +85,14 @@ public class ProductActionUIBean {
 
 	public void setIndex(int index) {
 		this.index = index;
+	}
+
+	public List<ProductBarcodeVO> getProductVOs() {
+		return productVOs;
+	}
+
+	public void setProductVOs(List<ProductBarcodeVO> productVOs) {
+		this.productVOs = productVOs;
 	}
 	
 }

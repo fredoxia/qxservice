@@ -17,6 +17,7 @@ import com.onlineMIS.ORM.entity.headQ.barcodeGentor.BrandPriceIncrease;
 import com.onlineMIS.ORM.entity.headQ.barcodeGentor.Color;
 import com.onlineMIS.ORM.entity.headQ.barcodeGentor.Product;
 import com.onlineMIS.ORM.entity.headQ.barcodeGentor.ProductBarcode;
+import com.onlineMIS.ORM.entity.headQ.barcodeGentor.ProductBarcodeVO;
 import com.onlineMIS.common.Common_util;
 import com.onlineMIS.common.loggerLocal;
 import com.opensymphony.xwork2.ActionContext;
@@ -90,6 +91,21 @@ public class ProductJSPAction extends ProductAction {
 		uiBean.setIndex(formBean.getIndexPage());
 		
 		return "ProductCodeSearchProducts";
+	}
+	
+	/**
+	 * when user scan the product by product code
+	 * 
+	 * 这个只为总部使用的action, 会计输入货品的时候查找库存
+	 * @return
+	 */
+	public String scanByProductCodeHeadq(){
+		String productCode = Common_util.decode(formBean.getProductBarcode().getProduct().getProductCode());
+		List<ProductBarcodeVO> products = productService.getProductsForSimiliarProductCodeHeadq(productCode, 0, formBean.getPager());
+		uiBean.setProductVOs(products);
+		uiBean.setIndex(formBean.getIndexPage());
+		
+		return "ProductCodeSearchProductsHeadq";
 	}
 	
 	/**

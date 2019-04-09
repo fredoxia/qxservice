@@ -36,7 +36,10 @@ import org.springframework.transaction.annotation.Transactional;
 import com.onlineMIS.ORM.DAO.Response;
 import com.onlineMIS.ORM.DAO.chainS.chainMgmt.ChainStoreGroupDaoImpl;
 import com.onlineMIS.ORM.DAO.chainS.user.ChainStoreService;
+import com.onlineMIS.ORM.DAO.headQ.inventory.HeadQInventoryStockDAOImpl;
+import com.onlineMIS.ORM.DAO.headQ.inventory.HeadQInventoryStoreDAOImpl;
 import com.onlineMIS.ORM.DAO.headQ.inventory.HeadQSalesHisDAOImpl;
+import com.onlineMIS.ORM.DAO.headQ.inventory.HeadqInventoryService;
 import com.onlineMIS.ORM.DAO.headQ.inventory.InventoryOrderDAOImpl;
 import com.onlineMIS.ORM.DAO.headQ.inventory.InventoryOrderProductDAOImpl;
 import com.onlineMIS.ORM.entity.base.Pager;
@@ -61,6 +64,7 @@ import com.onlineMIS.ORM.entity.headQ.barcodeGentor.Size;
 
 import com.onlineMIS.ORM.entity.headQ.barcodeGentor.Year;
 import com.onlineMIS.ORM.entity.headQ.chain.ChainSalesReportActionFormBean;
+import com.onlineMIS.ORM.entity.headQ.inventory.HeadQInventoryStore;
 import com.onlineMIS.ORM.entity.headQ.inventory.HeadQSalesHistory;
 import com.onlineMIS.ORM.entity.headQ.inventory.HeadQSalesHistoryId;
 import com.onlineMIS.ORM.entity.headQ.inventory.InventoryOrder;
@@ -110,6 +114,10 @@ public class ProductBarcodeService {
 	private HeadQInputHelpDaoImpl headQInputHelpDaoImpl;
 	@Autowired
 	private ChainStoreGroupDaoImpl chainStoreGroupDaoImpl;
+	@Autowired
+	private HeadQInventoryStockDAOImpl headQInventoryStockDAOImpl;
+	@Autowired
+	private HeadQInventoryStoreDAOImpl headQInventoryStoreDAOImpl;
 
 	/**
 	 * 只取出总部需要的数据
@@ -229,6 +237,30 @@ public class ProductBarcodeService {
 		DetachedCriteria criteria2 = buildSearchProductCodeCriteria(similiarProductCode, scope);
 
 		return productBarcodeDaoImpl.getByCritera(criteria2, pager.getFirstResult(), pager.getRecordPerPage(),cache);
+	}
+	
+	/**
+	 * getProductsForSimiliarProductCode 功能的扩展
+	 * @param productCode
+	 * @param i
+	 * @param pager
+	 * @return
+	 */
+	public List<ProductBarcodeVO> getProductsForSimiliarProductCodeHeadq(String productCode, int scope, Pager pager) {
+		List<ProductBarcode> products = getProductsForSimiliarProductCode(productCode, scope, pager);
+		
+		List<ProductBarcodeVO> productBarcodeVOs = new ArrayList<ProductBarcodeVO>();
+		HeadQInventoryStore store = headQInventoryStoreDAOImpl.getDefaultStore();
+		
+		for (ProductBarcode pBarcode : products){
+			int inventoryLevel = headQInventoryStockDAOImpl.getProductStock(pBarcode.getId(), store.getId(), true);
+			ProductBarcodeVO vo = new ProductBarcodeVO(pBarcode);
+			vo.setInventoryLevel(inventoryLevel);
+			
+			productBarcodeVOs.add(vo);
+		}
+		
+		return productBarcodeVOs;
 	}
 	
 
@@ -353,7 +385,9 @@ public class ProductBarcodeService {
 				final int client_id_final = client_id;
 				int qBefore = inventoryOrderDAOImpl.getQuantityBefore(barcode_final,client_id_final);
 				productBarcode.setBoughtBefore(qBefore);
-
+				
+				int inventoryLevel = headQInventoryStockDAOImpl.getProductStock(productBarcode.getId(), headQInventoryStoreDAOImpl.getDefaultStore().getId(), true);
+				productBarcode.setInventoryLevel(inventoryLevel);
 			    
 			    //2. get the sales history information
 			    int productId = productBarcode.getId();
@@ -745,54 +779,6 @@ public class ProductBarcodeService {
 	}
 
 	
-	/**
-	 * function to generate the product barcodes
-	 * @param productId
-	 * @param colorGroupId
-	 * @param sizeGroupId
-	 * @todo 弃用管家婆以后的方案
-	 */
-//	private synchronized void generateProductBarcodes(Product product , int colorGroupId, int sizeGroupId){
-//		List<ColorGroups> colorGroups = new ArrayList<ColorGroups>();
-//		List<SizeGroups> sizeGroups = new ArrayList<SizeGroups>();
-//		if (colorGroupId != 0){
-//			colorGroups = colorMSGroupsDAOImpl.getByColorGroupId(colorGroupId);
-//		} else {
-//			colorGroups.add(ColorGroups.dummy);
-//		}
-//		if (sizeGroupId != 0){
-//			sizeGroups = sizeMSGroupsDAOImpl.getBySizeGroupId(sizeGroupId);
-//		} else {
-//			sizeGroups.add(SizeGroups.dummy);
-//		}
-//		
-//		for (ColorGroups colorGroup: colorGroups){
-//			int colorId = colorGroup.getColorId();
-//			Color color = null;
-//			if (colorId != 0){
-//                color = colorMSDAOImpl.get(colorId, true);
-//			}
-//			
-//			for (SizeGroups sizeGroup: sizeGroups){
-//				int sizeId = sizeGroup.getSizeId();
-//				Size size = null;
-//				if (sizeId != 0){
-//					size = sizeMSDAOImpl.get(sizeId, true);
-//				}
-//				
-//				//save the productBarcode information
-//				ProductBarcode productBarcode = new ProductBarcode(product, color, size);
-//				productBarcodeDaoImpl.save(productBarcode, true);
-//				
-//				//generate the barcode
-//				int id = productBarcode.getId();
-//				String barcode = generateBarcode(id);
-//				productBarcode.setBarcode(barcode);
-//				productBarcodeDaoImpl.update(productBarcode, true);
-//			}
-//		}
-//		
-//	}
 	
 	/**
 	 * logic of barcode
@@ -870,6 +856,10 @@ public class ProductBarcodeService {
 		if (productBarcode != null){
 			Product product = productBarcode.getProduct();
 			int productId = productBarcode.getId();
+			
+			int inventoryLevel = headQInventoryStockDAOImpl.getProductStock(productBarcode.getId(), headQInventoryStoreDAOImpl.getDefaultStore().getId(), true);
+			productBarcode.setInventoryLevel(inventoryLevel);
+		    
 			
 			HeadQSalesHistoryId headQSalesHistoryId = new HeadQSalesHistoryId(productId, client_id);
 			HeadQSalesHistory salesHistory = headQSalesHisDAOImpl.get(headQSalesHistoryId, true);
@@ -1188,5 +1178,7 @@ public class ProductBarcodeService {
 		
 		return response;
 	}
+
+
 	
 }

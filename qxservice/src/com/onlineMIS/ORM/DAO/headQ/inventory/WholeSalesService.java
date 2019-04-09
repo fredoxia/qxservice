@@ -342,6 +342,19 @@ public class WholeSalesService {
 			if (searchBean.getOrder_type() != Common_util.ALL_RECORD)
 				criteria.add(Restrictions.eq("order.order_type",searchBean.getOrder_type()));
 			
+			if (!StringUtils.isEmpty(formBean.getProductIds())){
+				String[] productIds = formBean.getProductIds().split(",");
+				if (productIds.length > 0){
+					Set<Integer> productIdSet = new HashSet<Integer>();
+					for (String id : productIds){
+						productIdSet.add(Integer.parseInt(id));
+					}
+					DetachedCriteria inventoryProduct = criteria.createCriteria("product_Set");
+					inventoryProduct.add(Restrictions.in("productBarcode.id", productIdSet));
+					
+				}
+			}
+			
 			criteria.addOrder(Order.asc("order.order_StartTime"));
 		}
 		return inventoryOrderDAOImpl.search(criteria);

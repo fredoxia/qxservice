@@ -20,6 +20,10 @@ import com.onlineMIS.common.loggerLocal;
 @Repository
 public class HeadQInventoryStoreDAOImpl extends BaseDAO<HeadQInventoryStore> {
 
-   
+   public HeadQInventoryStore getDefaultStore(){
+	   List<HeadQInventoryStore> stores = getAll(true);
+	   
+	   return stores.get(0);
+   }
 
 }

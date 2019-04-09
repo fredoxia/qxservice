@@ -20,6 +20,7 @@ public class SupplierAcctFlowReportItem {
 	private String acctFlowType = "";
 	private int quantity;
 	private double amount;
+	private double amtFlow;
 	private int id;
 	private String comment;
 	private double acctIncrease ;
@@ -30,19 +31,28 @@ public class SupplierAcctFlowReportItem {
 		
 	}
 	
-	public SupplierAcctFlowReportItem(HeadQSupplier supplier, Date date,String itemTypeName, String itemType, String acctFlowType, int quantity, double amount, int id, String comment, double preAcct, double postAcct){
+	public SupplierAcctFlowReportItem(HeadQSupplier supplier, Date date,String itemTypeName, String itemType, String acctFlowType, int quantity, double amount, double amtFlow, int id, String comment, double preAcct, double postAcct){
 		this.supplier = supplier;
 		this.date = date;
 		this.itemTypeName = itemTypeName;
 		this.itemType = itemType;
 		this.quantity = quantity;
 		this.amount = amount;
+		this.amtFlow = amtFlow;
 		this.id = id;
 		this.comment = comment;
 		this.acctFlowType = acctFlowType;
 	}
 	
 
+
+	public double getAmtFlow() {
+		return amtFlow;
+	}
+
+	public void setAmtFlow(double amtFlow) {
+		this.amtFlow = amtFlow;
+	}
 
 	public String getAcctFlowType() {
 		return acctFlowType;

@@ -286,9 +286,9 @@ public class FinanceSupplierService {
     		//4. 设计折扣
     		double invoiceTotal = bill.getInvoiceTotal();
 			if (billType == FinanceBillSupplier.FINANCE_DECREASE_HQ || billType == FinanceBillSupplier.FINANCE_PAID_HQ) {
-				invoiceTotal -= bill.getInvoiceDiscount();
-			} else if (billType == FinanceBillSupplier.FINANCE_INCREASE_HQ || billType == FinanceBillSupplier.FINANCE_INCOME_HQ){
 				invoiceTotal += bill.getInvoiceDiscount();
+			} else if (billType == FinanceBillSupplier.FINANCE_INCREASE_HQ || billType == FinanceBillSupplier.FINANCE_INCOME_HQ){
+				invoiceTotal -= bill.getInvoiceDiscount();
 			}
 			double netAmt = offset * invoiceTotal;
 			double postAcctAmt = Common_util.getDecimalDouble(preAcctAmt + netAmt);
@@ -503,7 +503,7 @@ public class FinanceSupplierService {
 				else if (order.getType() == PurchaseOrder.TYPE_RETURN)
 					acctFlowType = SupplierAcctFlowReportItem.ACCT_FLOW_TYPE_DECREASE;
 				
-				SupplierAcctFlowReportItem acctFlowItem = new SupplierAcctFlowReportItem(supplier, order.getLastUpdateTime(), orderType, SupplierAcctFlowReportItem.ITEM_TYPE_PURCHASE,acctFlowType, order.getTotalQuantity(), order.getTotalRecCost() - order.getTotalDiscount(), order.getId(),order.getComment(), 0,0);
+				SupplierAcctFlowReportItem acctFlowItem = new SupplierAcctFlowReportItem(supplier, order.getLastUpdateTime(), orderType, SupplierAcctFlowReportItem.ITEM_TYPE_PURCHASE,acctFlowType, order.getTotalQuantity(), order.getTotalRecCost(),order.getTotalRecCost() - order.getTotalDiscount(), order.getId(),order.getComment(), 0,0);
 				rptItems.add(acctFlowItem);
 			}
 		}
@@ -517,15 +517,16 @@ public class FinanceSupplierService {
 				int billType = bill.getType();
 				String acctFlowType = "";
 				double invoiceTotal = bill.getInvoiceTotal();
+				double amtFlow = invoiceTotal;
 				if (billType == FinanceBill.FINANCE_DECREASE_HQ || billType == FinanceBill.FINANCE_PAID_HQ) {
 					acctFlowType = SupplierAcctFlowReportItem.ACCT_FLOW_TYPE_DECREASE;
-					invoiceTotal -= bill.getInvoiceDiscount();
+					amtFlow += bill.getInvoiceDiscount();
 				} else if (billType == FinanceBill.FINANCE_INCREASE_HQ || billType == FinanceBill.FINANCE_INCOME_HQ){
 					acctFlowType = SupplierAcctFlowReportItem.ACCT_FLOW_TYPE_INCREASE;
-					invoiceTotal += bill.getInvoiceDiscount();
+					amtFlow -= bill.getInvoiceDiscount();
 				}
 				
-				SupplierAcctFlowReportItem acctFlowItem = new SupplierAcctFlowReportItem(supplier, bill.getCreateDate(), billTypeName, SupplierAcctFlowReportItem.ITEM_TYPE_FINANCE, acctFlowType, 0, invoiceTotal, bill.getId(), bill.getComment(), 0,0);
+				SupplierAcctFlowReportItem acctFlowItem = new SupplierAcctFlowReportItem(supplier, bill.getCreateDate(), billTypeName, SupplierAcctFlowReportItem.ITEM_TYPE_FINANCE, acctFlowType, 0, invoiceTotal, amtFlow, bill.getId(), bill.getComment(), 0,0);
 				rptItems.add(acctFlowItem);
 			}
 		}
@@ -552,7 +553,7 @@ public class FinanceSupplierService {
 		
 		double acctAfter = acctBefore;
 		for (SupplierAcctFlowReportItem rptItem: rptItems){
-			double thisAmt = rptItem.getAmount();
+			double thisAmt = rptItem.getAmtFlow();
 			String acctFlowType = rptItem.getAcctFlowType();
 			
 			if (acctFlowType.equalsIgnoreCase(ChainAcctFlowReportItem.ACCT_FLOW_TYPE_INCREASE)){

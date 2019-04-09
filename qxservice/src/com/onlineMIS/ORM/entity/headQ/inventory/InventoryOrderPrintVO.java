@@ -45,8 +45,7 @@ public class InventoryOrderPrintVO {
     	this.setPreAcctAmt(Common_util.df.format(order.getPreAcctAmt()));
     	this.setPostAcctAmt(Common_util.df.format(order.getPostAcctAmt()));
     	this.setDiscount(Common_util.df.format(order.getTotalDiscount()));
-    	
-    	
+
     	List<InventoryOrderProduct> orderProducts = order.getProduct_List();
     	for (InventoryOrderProduct product : orderProducts){
     		InventoryOrderProdPrintVO orderProdPrintVO = new InventoryOrderProdPrintVO(product);

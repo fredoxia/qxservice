@@ -11,6 +11,7 @@ public class ExpenseVO implements Serializable{
 	private int id;
 	private String parentType;
 	private String expenseType;
+	private String feeType;
 	private double amount;
 	private String comment;
 	private String userName;
@@ -24,22 +25,9 @@ public class ExpenseVO implements Serializable{
 		
 	}
 	public ExpenseVO(Expense e, String parentType){
-		this.setId(e.getId());
-		this.setExpenseType(e.getExpenseType().getName());
-		this.setAmount(e.getAmount());
-		this.setComment(e.getComment());
-		this.setUserName(e.getUserName());
-		this.setStatus(Expense.statusE.getStatusS(e.getStatus()));
-		ChainStore store = e.getEntity();
-		if (store == null)
-			this.setEntity("总部");
-		else 
-			this.setEntity(store.getChain_name());
+		this(e);
 		this.setParentType(parentType);
-		
-		this.setExpenseDate(Common_util.dateFormat.format(e.getExpenseDate()));
-		this.setLastUpdateTime(Common_util.dateFormat_f.format(e.getLastUpdateTime()));
-		this.setStatusCode(e.getStatus());
+
 	}
 	
 	public ExpenseVO(Expense e){
@@ -58,9 +46,23 @@ public class ExpenseVO implements Serializable{
 		this.setExpenseDate(Common_util.dateFormat.format(e.getExpenseDate()));
 		this.setLastUpdateTime(Common_util.dateFormat_f.format(e.getLastUpdateTime()));
 		this.setStatusCode(e.getStatus());
+		switch (e.getFeeType()) {
+		   case 1: this.setFeeType("现金"); break;
+		   case 2: this.setFeeType("银行卡"); break;
+		   case 3: this.setFeeType("支付宝"); break;
+		   case 4: this.setFeeType("微信"); break;
+		default:
+			break;
+		}
 	}
 	
 	
+	public String getFeeType() {
+		return feeType;
+	}
+	public void setFeeType(String feeType) {
+		this.feeType = feeType;
+	}
 	public String getParentType() {
 		return parentType;
 	}

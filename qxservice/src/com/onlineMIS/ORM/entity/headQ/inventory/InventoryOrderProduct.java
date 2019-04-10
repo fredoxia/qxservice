@@ -1,5 +1,6 @@
 package com.onlineMIS.ORM.entity.headQ.inventory;
 
+import java.beans.Transient;
 import java.io.Serializable;
 import com.onlineMIS.ORM.entity.base.BaseProduct;
 import com.onlineMIS.ORM.entity.headQ.barcodeGentor.ProductBarcode;
@@ -36,6 +37,11 @@ public class InventoryOrderProduct extends BaseProduct implements Serializable {
      * the selected sale price 
      */
     private double salePriceSelected;
+    
+    /**
+     * 单个批发价的汇总
+     */
+    private double totalWholeSalePrice;
     
 	public double getSalesPrice() {
 		return salesPrice;
@@ -75,6 +81,12 @@ public class InventoryOrderProduct extends BaseProduct implements Serializable {
 		this.order = order;
 	}
 
+	public double getTotalWholeSalePrice() {
+		return totalWholeSalePrice;
+	}
+	public void setTotalWholeSalePrice(double totalWholeSalePrice) {
+		this.totalWholeSalePrice = totalWholeSalePrice;
+	}
 	public ProductBarcode getProductBarcode() {
 		return productBarcode;
 	}

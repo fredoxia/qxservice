@@ -61,5 +61,6 @@
          <mapping resource="com/onlineMIS/ORM/headQ/HeadqCustMgmt.hbm.xml" />
 	     <mapping resource="com/onlineMIS/ORM/headQ/SupplierMgmt.hbm.xml" />
 		 <mapping resource="com/onlineMIS/ORM/headQ/SupplierPurchase.hbm.xml" />
+		 <mapping resource="com/onlineMIS/ORM/shared/Expense.hbm.xml" />
       </session-factory>
   </hibernate-configuration>

@@ -1,6 +1,6 @@
 package com.onlineMIS.ORM.entity.headQ.inventory;
 
-import java.beans.Transient;
+
 import java.io.Serializable;
 import com.onlineMIS.ORM.entity.base.BaseProduct;
 import com.onlineMIS.ORM.entity.headQ.barcodeGentor.ProductBarcode;

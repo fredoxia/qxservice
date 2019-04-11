@@ -820,6 +820,50 @@ public class WholeSalesService {
 		 }
 	}
 	
+	private double calculatePreAcctBalance(InventoryOrder order, Date date){
+  	int clientId = order.getCust().getId();
+		
+    	HeadQCust cust = headQCustDaoImpl.get(clientId, true);
+    	
+		int orderId = order.getOrder_ID();
+    	
+    	int orderType = order.getOrder_type();
+    	double totalAmt = order.getTotalWholePrice();
+    	double totalDis = order.getTotalDiscount();
+    	double netAmt = totalAmt - totalDis;
+    	
+    	//1. update the offset
+    	int offset = 1;
+		if (orderType == InventoryOrder.TYPE_SALES_RETURN_ORDER_W)
+			offset *= -1;
+
+		netAmt *= offset;
+		
+		//2.update the order's preAcctAmt and postAcctAmt
+		double initialAcctAmt = cust.getInitialAcctBalance();  		
+		double acctAmtFlow = chainAcctFlowDaoImpl.getAccumulateAcctFlow(clientId);
+		double preAcctAmt = Common_util.getDecimalDouble(initialAcctAmt + acctAmtFlow);
+		
+		return preAcctAmt;
+	}
+	
+	private double calculatePostAcctBalance(InventoryOrder order, double preAcctAmt){
+    	int orderType = order.getOrder_type();
+    	double totalAmt = order.getTotalWholePrice();
+    	double totalDis = order.getTotalDiscount();
+    	double netAmt = totalAmt - totalDis;
+    	//1. update the offset
+    	int offset = 1;
+		if (orderType == InventoryOrder.TYPE_SALES_RETURN_ORDER_W)
+			offset *= -1;
+
+		netAmt *= offset;
+
+		double postAcctAmt = Common_util.getDecimalDouble(preAcctAmt + netAmt - order.getCash() - order.getCard() - order.getAlipay() - order.getWechat());
+		
+		return postAcctAmt;
+	}
+	
 	/**
 	 * to update the chain's acct flow
 	 * @param order
@@ -1550,17 +1594,21 @@ public class WholeSalesService {
 		} else {
 		    order.putSetToList();
 		    
-		    InventoryOrderPrintVO inventoryOrderPrintVO = new InventoryOrderPrintVO(order);
+		    double preAcctAmt = this.calculatePreAcctBalance(order, new Date());
+		    
+		    double postAcctAmt = this.calculatePostAcctBalance(order, preAcctAmt);
+		    
+		    InventoryOrderPrintVO inventoryOrderPrintVO = new InventoryOrderPrintVO(order, preAcctAmt, postAcctAmt);
 		    dataMap.put("inventoryOrder", inventoryOrderPrintVO);
 		    
-		    int financeBillId = order.getFinanceBillId();
-		    if (financeBillId != 0){
-		    	FinanceBill financeBill = financeService.getFinanceBillById(financeBillId);
-		    	if (financeBill != null){
-		    		FinanceBillPrintVO financeBillPrintVO = new FinanceBillPrintVO(financeBill);
-		    		dataMap.put("finance", financeBillPrintVO);
-		    	}
-		    }
+//		    int financeBillId = order.getFinanceBillId();
+//		    if (financeBillId != 0){
+//		    	FinanceBill financeBill = financeService.getFinanceBillById(financeBillId);
+//		    	if (financeBill != null){
+//		    		FinanceBillPrintVO financeBillPrintVO = new FinanceBillPrintVO(financeBill);
+//		    		dataMap.put("finance", financeBillPrintVO);
+//		    	}
+//		    }
 		    
 		    response.setReturnValue(dataMap);
 		}

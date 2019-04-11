@@ -223,40 +223,6 @@ public class InventoryOrderJSPAction  extends InventoryOrderAction {
 		return "retrieveSuccess";
 	}	
 
-	/**
-	 * the inventory submit the order to the accountants
-	 * @return
-	 */
-	public String save(){
-		String uuid = Common_util.getUUID();
-		loggerLocal.info(logInventory("save", formBean.getOrder().getCust().getId(), formBean.getOrder().getOrder_ID(), uuid));
-		
-		if (formBean.getOrder().getCust().getId() == 0){
-			addFieldError("clientID.empty", "客户名字必填");
-			return INPUT;
-		} else if (formBean.getOrder().getOrder_Keeper() == null){
-			addFieldError("orderKeeper.empty", "订单输入人员必填");
-			return INPUT;
-		} else if (formBean.getOrder().getOrder_Counter() == null){
-			addFieldError("orderCounter.empty", "订单点数人员必填");
-			return INPUT;
-		} else if (formBean.getOrder().getOrder_scanner() == null){
-			addFieldError("orderScanner.empty", "订单扫描人员必填");
-			return INPUT;
-		} 
-		UserInfor loginUserInfor = (UserInfor)ActionContext.getContext().getSession().get(Common_util.LOGIN_USER);
-		
-		
-		boolean isSuccess = inventoryService.inventoryComplsave(formBean, loginUserInfor);
-		
-		loggerLocal.infoR(logInventory("save", formBean.getOrder().getCust().getId(), formBean.getOrder().getOrder_ID(), uuid) + "," + isSuccess);
-		
-		int orderType = formBean.getOrder().getOrder_type();
-		if (orderType == InventoryOrder.TYPE_SALES_ORDER_W)
-		    return "success";
-		else 
-			return "success2";
-	}
 	
 	
 	/**

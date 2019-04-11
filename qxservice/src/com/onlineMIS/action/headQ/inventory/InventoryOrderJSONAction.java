@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import net.sf.json.JSONObject;
 import net.sf.json.JsonConfig;
 
@@ -32,7 +33,46 @@ public class InventoryOrderJSONAction extends InventoryOrderAction {
 		this.message = message;
 	}
 
-	
+	/**
+	 * the inventory submit the order to the accountants
+	 * @return
+	 */
+	public String save(){
+		String uuid = Common_util.getUUID();
+		loggerLocal.info(logInventory("save", formBean.getOrder().getCust().getId(), formBean.getOrder().getOrder_ID(), uuid));
+		
+		if (formBean.getOrder().getCust().getId() == 0){
+			addFieldError("clientID.empty", "客户名字必填");
+			return INPUT;
+		} else if (formBean.getOrder().getOrder_Keeper() == null){
+			addFieldError("orderKeeper.empty", "订单输入人员必填");
+			return INPUT;
+		} else if (formBean.getOrder().getOrder_Counter() == null){
+			addFieldError("orderCounter.empty", "订单点数人员必填");
+			return INPUT;
+		} else if (formBean.getOrder().getOrder_scanner() == null){
+			addFieldError("orderScanner.empty", "订单扫描人员必填");
+			return INPUT;
+		} 
+		UserInfor loginUserInfor = (UserInfor)ActionContext.getContext().getSession().get(Common_util.LOGIN_USER);
+		
+		
+		boolean isSuccess = inventoryService.inventoryComplsave(formBean, loginUserInfor);
+		
+		Response response = new Response();
+		if (isSuccess){
+			response = inventoryService.getInventoryOrderForPrint(formBean.getOrder().getOrder_ID());
+		} else 
+			response.setFail("单据保存失败 ");
+		
+		try{
+			   jsonObject = JSONObject.fromObject(response);
+		   } catch (Exception e){
+				loggerLocal.error(e);
+			}
+
+		return "successful";
+	}
 	
 	/**
 	 * copy the 

@@ -39,6 +39,7 @@ import com.onlineMIS.ORM.entity.headQ.inventory.InventoryOrder;
 public class Common_util {
 	public static final DecimalFormat pf = new DecimalFormat("#0.0%");
 	public static final DecimalFormat df = new DecimalFormat("#.00");
+	public static final DecimalFormat df2 = new DecimalFormat("#.0");
 	public static  final SimpleDateFormat dateFormat =  new SimpleDateFormat("yyyy-MM-dd");
 	public static  final SimpleDateFormat dateFormat_f =  new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 

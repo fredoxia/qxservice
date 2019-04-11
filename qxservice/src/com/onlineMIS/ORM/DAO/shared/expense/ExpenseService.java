@@ -231,6 +231,7 @@ public class ExpenseService {
 			expenseOrig.setExpenseType(expense.getExpenseType());
 			expenseOrig.setUserId(user.getUser_id());
 			expenseOrig.setUserName(user.getName());
+			expenseOrig.setFeeType(expense.getFeeType());
 			saveUpdateExpense(expenseOrig);
 		} catch (Exception e){
 			response.setFail(e.getMessage());
@@ -341,6 +342,7 @@ public class ExpenseService {
 			expenseOrig.setExpenseType(expense.getExpenseType());
 			expenseOrig.setUserId(userInfor.getUser_id());
 			expenseOrig.setUserName(userInfor.getName());
+			expenseOrig.setFeeType(expense.getFeeType());
 			saveUpdateExpense(expenseOrig);
 		} catch (Exception e){
 			response.setFail(e.getMessage());

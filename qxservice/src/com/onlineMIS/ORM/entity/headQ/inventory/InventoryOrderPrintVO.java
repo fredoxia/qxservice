@@ -21,6 +21,10 @@ public class InventoryOrderPrintVO {
 	private String orderType = "";
     private String preAcctAmt = "";
     private String postAcctAmt = "";
+    private String cash = "";
+    private String card = "";
+    private String alipay = "";
+    private String wechat = "";
     
     private List<InventoryOrderProdPrintVO> products =new  ArrayList<InventoryOrderProdPrintVO>();
     
@@ -28,7 +32,7 @@ public class InventoryOrderPrintVO {
     	
     }
     
-    public InventoryOrderPrintVO(InventoryOrder order){
+    public InventoryOrderPrintVO(InventoryOrder order, double preAcctAmt, double postAcctAmt){
     	this.setId(order.getOrder_ID());
     	this.setClientName(order.getCust().getName());
     	this.setOrderTime(Common_util.dateFormat_f.format(order.getOrder_ComplTime()));
@@ -39,13 +43,17 @@ public class InventoryOrderPrintVO {
     	if (order.getOrder_Auditor() != null)
     		this.setAuditorName(order.getOrder_Auditor().getName());
     	this.setTotalQ(order.getTotalQuantity());
-    	this.setTotalWholeSales(Common_util.df.format(order.getTotalWholePrice()));
+    	this.setTotalWholeSales(Common_util.df2.format(order.getTotalWholePrice()));
     	this.setComment(order.getComment());
     	this.setOrderType(order.getOrder_type_ws());
-    	this.setPreAcctAmt(Common_util.df.format(order.getPreAcctAmt()));
-    	this.setPostAcctAmt(Common_util.df.format(order.getPostAcctAmt()));
-    	this.setDiscount(Common_util.df.format(order.getTotalDiscount()));
-
+    	this.setPreAcctAmt(Common_util.df.format(preAcctAmt));
+    	this.setPostAcctAmt(Common_util.df.format(postAcctAmt));
+    	this.setDiscount(Common_util.df2.format(order.getTotalDiscount()));
+    	this.setCash(Common_util.df2.format(order.getCash()));
+    	this.setCard(Common_util.df2.format(order.getCard()));
+    	this.setAlipay(Common_util.df2.format(order.getAlipay()));
+    	this.setWechat(Common_util.df2.format(order.getWechat()));
+    	
     	List<InventoryOrderProduct> orderProducts = order.getProduct_List();
     	for (InventoryOrderProduct product : orderProducts){
     		InventoryOrderProdPrintVO orderProdPrintVO = new InventoryOrderProdPrintVO(product);
@@ -53,6 +61,38 @@ public class InventoryOrderPrintVO {
     	}
     }
     
+	public String getCash() {
+		return cash;
+	}
+
+	public void setCash(String cash) {
+		this.cash = cash;
+	}
+
+	public String getCard() {
+		return card;
+	}
+
+	public void setCard(String card) {
+		this.card = card;
+	}
+
+	public String getAlipay() {
+		return alipay;
+	}
+
+	public void setAlipay(String alipay) {
+		this.alipay = alipay;
+	}
+
+	public String getWechat() {
+		return wechat;
+	}
+
+	public void setWechat(String wechat) {
+		this.wechat = wechat;
+	}
+
 	public String getDiscount() {
 		return discount;
 	}

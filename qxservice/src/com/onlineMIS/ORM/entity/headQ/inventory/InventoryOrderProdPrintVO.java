@@ -34,10 +34,10 @@ public class InventoryOrderProdPrintVO {
 		this.setBrand(pb.getProduct().getBrand().getBrand_Name());
 		
 		this.setQuantity(String.valueOf(product.getQuantity()));
-		this.setSelectPrice(Common_util.df.format(product.getSalePriceSelected()));
+		this.setSelectPrice(Common_util.df2.format(product.getSalePriceSelected()));
 		this.setDiscountRate(Common_util.df.format(product.getDiscount()));
-		this.setWholeSales(Common_util.df.format(product.getWholeSalePrice()));
-		this.setTotalWholeSales(Common_util.df.format(product.getWholeSalePrice() * product.getQuantity()));
+		this.setWholeSales(Common_util.df2.format(product.getWholeSalePrice()));
+		this.setTotalWholeSales(Common_util.df2.format(product.getWholeSalePrice() * product.getQuantity()));
 	}
 	
 	public String getBrand() {

@@ -38,6 +38,7 @@ import com.onlineMIS.ORM.DAO.headQ.barCodeGentor.ProductBarcodeDaoImpl;
 import com.onlineMIS.ORM.DAO.headQ.barCodeGentor.ProductBarcodeService;
 import com.onlineMIS.ORM.DAO.headQ.custMgmt.HeadQCustDaoImpl;
 import com.onlineMIS.ORM.DAO.headQ.inventory.HeadQInventoryStockDAOImpl;
+import com.onlineMIS.ORM.DAO.headQ.inventory.HeadQInventoryStoreDAOImpl;
 import com.onlineMIS.ORM.DAO.headQ.inventory.InventoryOrderDAOImpl;
 import com.onlineMIS.ORM.DAO.headQ.inventory.InventoryOrderProductDAOImpl;
 import com.onlineMIS.ORM.entity.headQ.barcodeGentor.Product;
@@ -64,9 +65,7 @@ public class IpadService {
 	
 	@Autowired
 	private InventoryOrderProductDAOImpl inventoryOrderProductDAOImpl;
-	
-	@Autowired
-	private ProductBarcodeService pbService;
+
 	
 	@Autowired
 	private HeadQCustDaoImpl headQCustDaoImpl;
@@ -74,7 +73,8 @@ public class IpadService {
 	@Autowired
 	private HeadQInventoryStockDAOImpl headQInventoryStockDAOImpl;
 
-
+	@Autowired
+	private HeadQInventoryStoreDAOImpl headQInventoryStoreDAOImpl;
 	/**
 	 * when people type the pinyin, this service will search the client infroamtion from the jinsuan database
 	 * @param pinyin
@@ -477,20 +477,27 @@ public class IpadService {
 		} else {
 			response = orderProduct(clientIdObj, orderIdObj, pb.getId(), quantity, loginUser);
 			if (response.isSuccess()){
-				
-				int orderHis = 0;
-				
-				
+
 				int orderCurrent = 0 ;
 				Integer orderId = (Integer) orderIdObj;
-				if (orderId != null){
-					InventoryOrderProduct orderProduct = inventoryOrderProductDAOImpl.getByOrderIdProductId(orderId.intValue(), pb.getId());
-				    if(orderProduct != null)
-					  orderCurrent = orderProduct.getQuantity();
+				if (orderId == null){
+					Map<String, Integer> result = (Map<String, Integer>)response.getReturnValue();
+					
+					orderId = result.get("orderId");
 				}
 				
+				InventoryOrderProduct orderProduct = inventoryOrderProductDAOImpl.getByOrderIdProductId(orderId.intValue(), pb.getId());
+			    if(orderProduct != null)
+				  orderCurrent = orderProduct.getQuantity();
+
 				
-				ProductBarcodeVO productBarcodeVO = new ProductBarcodeVO(pb, 0, orderHis, orderCurrent);
+				HeadQInventoryStore store = headQInventoryStoreDAOImpl.getDefaultStore();
+				int inventoryLevel = headQInventoryStockDAOImpl.getProductStock(pb.getId(), store.getId(), true);
+				
+				int client_id = Integer.valueOf(String.valueOf(clientIdObj));
+				int orderHis = inventoryOrderDAOImpl.getQuantityBefore(barcode,client_id);
+				
+				ProductBarcodeVO productBarcodeVO = new ProductBarcodeVO(pb, inventoryLevel, orderHis, orderCurrent);
 				
 				Map<String, Object> result = (Map)response.getReturnValue();
 				result.put("product", productBarcodeVO.toString());

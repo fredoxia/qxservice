@@ -642,7 +642,7 @@ public class WholeSalesService {
 
 
 	/**
-     * to change the order status 
+     * 会计完成单据的审核
      * @param Status
      * @param order_id
      */
@@ -669,7 +669,7 @@ public class WholeSalesService {
 		//4. update the acct flow
 		updateChainAcctFlow(order,now, false);
 		
-		//5. 如果单据有付款，就创建财物单据
+		//5. 如果单据有付款或者收款，就创建财物单据
 		int financeBillId = updateFinanceBill(order, user, false);
 		if (financeBillId != 0){
 			String hql2 = "update InventoryOrder set financeBillId=? where order_ID=?";
@@ -700,18 +700,34 @@ public class WholeSalesService {
 			double card = order.getCard();
 			double alipay = order.getAlipay();
 			double wechat = order.getWechat();
-			double invoiceTotal = cash + card + alipay+ wechat;
 			
-			if (invoiceTotal != 0) {
+			
+			if (cash != 0 || card !=0 || alipay!=0 || wechat !=0) {
+				double invoiceTotal = cash + card + alipay+ wechat;
 				HeadQCust cust = order.getCust();
 				UserInfor creator = order.getOrder_Auditor();
-				int billType = FinanceBill.FINANCE_INCOME_HQ;
+				
 				int inventoryOrderId = order.getOrder_ID();
-				String comment = "销售单据" + inventoryOrderId + "付款";
-				
+				String comment = "";
 				double invoiceDiscount = 0;
-				
-				FinanceBill financeBill = new FinanceBill(billType, creator, cust, invoiceTotal, invoiceDiscount, new java.sql.Date(order.getOrder_EndTime().getTime()), comment,inventoryOrderId );
+				FinanceBill financeBill = null;
+				//收款单
+				if (invoiceTotal >= 0){
+					int billType = FinanceBill.FINANCE_INCOME_HQ;
+					comment = "销售单据" + inventoryOrderId + "收款单";
+					financeBill = new FinanceBill(billType, creator, cust, invoiceTotal, invoiceDiscount, new java.sql.Date(order.getOrder_EndTime().getTime()), comment,inventoryOrderId );
+					
+				} else {
+				//付款单'
+					int billType = FinanceBill.FINANCE_PAID_HQ;
+					comment = "销售单据" + inventoryOrderId + "付款单";
+					financeBill = new FinanceBill(billType, creator, cust, invoiceTotal, invoiceDiscount, new java.sql.Date(order.getOrder_EndTime().getTime()), comment,inventoryOrderId );
+					cash *= -1;
+					card *= -1;
+					alipay *= -1;
+					wechat *= -1;
+				}
+	
 				List<FinanceBillItem> financeBillList = new ArrayList<FinanceBillItem>();
 				
 				//添加cash

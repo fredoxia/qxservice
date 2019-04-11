@@ -13,6 +13,7 @@ import java.util.Set;
 
 import org.apache.catalina.User;
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
@@ -616,6 +617,19 @@ public class SupplierPurchaseService {
 				
 				if (searchBean.getType() != Common_util.ALL_RECORD)
 					criteria.add(Restrictions.eq("order.type",searchBean.getType()));
+				
+				if (!StringUtils.isEmpty(formBean.getProductIds())){
+					String[] productIds = formBean.getProductIds().split(",");
+					if (productIds.length > 0){
+						Set<Integer> productIdSet = new HashSet<Integer>();
+						for (String id : productIds){
+							productIdSet.add(Integer.parseInt(id));
+						}
+						DetachedCriteria inventoryProduct = criteria.createCriteria("productSet");
+						inventoryProduct.add(Restrictions.in("pb.id", productIdSet));
+						
+					}
+				}
 				
 				criteria.addOrder(Order.asc("order.creationTime"));
 			}

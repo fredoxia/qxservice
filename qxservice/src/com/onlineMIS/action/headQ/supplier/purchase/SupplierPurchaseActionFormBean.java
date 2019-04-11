@@ -20,10 +20,18 @@ public class SupplierPurchaseActionFormBean extends ChainActionFormBaseBean{
 	private int indexPage;
 	private int fromSrc;
 	private ProductBarcode pb = new ProductBarcode();
-
+    //搜索时的product ids
+    private String productIds = "";
+    
     private Pager pager = new Pager();
     private int indicator ;
 
+	public String getProductIds() {
+		return productIds;
+	}
+	public void setProductIds(String productIds) {
+		this.productIds = productIds;
+	}
 	public int getFromSrc() {
 		return fromSrc;
 	}

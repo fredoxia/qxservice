@@ -222,7 +222,7 @@ public class InventoryOrderJSONAction extends InventoryOrderAction {
 		loggerLocal.info(log);
 		
 		List<InventoryOrder> orderList = inventoryService.search(formBean);
-		jsonMap = inventoryService.constructInventoryOrderVOMap(orderList, loginUserInfor);
+		jsonMap = inventoryService.constructInventoryOrderSearchVOMap(orderList, loginUserInfor);
 
 		//to excludes the set and list inforamtion
 		JsonConfig jsonConfig = new JsonConfig();

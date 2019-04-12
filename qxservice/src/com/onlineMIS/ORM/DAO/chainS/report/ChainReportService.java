@@ -262,7 +262,8 @@ public class ChainReportService {
 		List<Object> result = chainFinanceTraceImpl.getByCriteriaProjection(criteria,  false);
 		
 		Map<Integer, FinanceCategory> categoryMap = financeCategoryImpl.getFinanceCategoryMap();
-		
+		ChainFinanceReportItem footer = new ChainFinanceReportItem("- 合计  -", 0);
+		double total = 0;
 		for (int i = 0; i < result.size(); i++){
 			  Object object = result.get(i);
 			  if (object != null){
@@ -274,10 +275,13 @@ public class ChainReportService {
 					if (category != null){
 						ChainFinanceReportItem reportItem = new ChainFinanceReportItem(category.getItemName(), amount);
 						reportItems.add(reportItem);
+						total += amount;
 					}
 			  }
 		}
 		
+		footer.setAmount(total);
+		reportItems.add(footer);
 		ChainFinanceReport financeReport = new ChainFinanceReport();
 		financeReport.setReportItems(reportItems);
 		financeReport.setType(ChainReport.TYPE_FINANCE_REPORT);

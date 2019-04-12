@@ -1458,10 +1458,15 @@ public class WholeSalesService {
 	 * @param user
 	 * @return
 	 */
-	public Map constructInventoryOrderVOMap(
+	public Map constructInventoryOrderSearchVOMap(
 			List<InventoryOrder> orderList, UserInfor user) {
 		Map data = new HashMap<String, Object>();
 		List<InventoryOrderVO> inventoryOrderVOs = new ArrayList<InventoryOrderVO>();
+		List<InventoryOrderVO> footers = new ArrayList<InventoryOrderVO>();
+		
+		InventoryOrderVO footer = new InventoryOrderVO();
+		int totalQ = 0;
+		double totalWholeSales = 0;
 		if (orderList != null){
 			for (InventoryOrder order : orderList){
 				boolean isEditable = false;
@@ -1503,6 +1508,23 @@ public class WholeSalesService {
 				default:
 					break;
 				}
+				
+				if (orderStatus != InventoryOrder.STATUS_CANCELLED && orderStatus != InventoryOrder.STATUS_DELETED){
+					int orderType = order.getOrder_type();
+					switch (orderType) {
+						case InventoryOrder.TYPE_SALES_ORDER_W:
+							totalQ += order.getTotalQuantity();
+							totalWholeSales += order.getTotalWholePrice();
+							break;
+						case InventoryOrder.TYPE_SALES_RETURN_ORDER_W:
+							totalQ -= order.getTotalQuantity();
+							totalWholeSales -= order.getTotalWholePrice();
+							break;
+						default:
+							break;
+					}
+				}
+				
 			
 				InventoryOrderVO vo = new InventoryOrderVO(order);
 				vo.setIsAuthorizedToEdit(isEditable);
@@ -1511,7 +1533,12 @@ public class WholeSalesService {
 			}
 		}
 		
+		footer.setTotalQ(totalQ);
+		footer.setTotalWholeSales(totalWholeSales);
+		footer.setClientName("合计");
+		footers.add(footer);
 		data.put("rows", inventoryOrderVOs);
+		data.put("footer", footers);
 		return data;
 	}
 

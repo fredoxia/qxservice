@@ -588,7 +588,8 @@ public class FinanceSupplierService {
 	public Response generateFinanceReport(int supplierId, java.sql.Date startDate, java.sql.Date endDate) {
 		Response response = new Response();
 	    List<ChainFinanceReportItem> reportItems = new ArrayList<ChainFinanceReportItem>();
-		
+	    List<ChainFinanceReportItem> footers = new ArrayList<ChainFinanceReportItem>();
+	    
 		DetachedCriteria criteria = DetachedCriteria.forClass(SupplierFinanceTrace.class);
 		ProjectionList projList = Projections.projectionList();
 		projList.add(Projections.groupProperty("categoryId"));
@@ -603,7 +604,8 @@ public class FinanceSupplierService {
 		List<Object> result = supplierFinanceTraceImpl.getByCriteriaProjection(criteria,  false);
 		
 		Map<Integer, FinanceCategorySupplier> categoryMap = financeCategorySupplierImpl.getFinanceCategoryMap();
-		
+		ChainFinanceReportItem footer = new ChainFinanceReportItem("- 合计  -", 0);
+		double total = 0;
 		for (int i = 0; i < result.size(); i++){
 			  Object object = result.get(i);
 			  if (object != null){
@@ -615,12 +617,17 @@ public class FinanceSupplierService {
 					if (category != null){
 						ChainFinanceReportItem reportItem = new ChainFinanceReportItem(category.getItemName(), amount);
 						reportItems.add(reportItem);
+						total += amount;
 					}
 			  }
 		}
 		
+		footer.setAmount(total);
+		footers.add(footer);
+		
 		Map data = new HashMap<String, List>();
 		data.put("rows", reportItems);
+		data.put("footer", footers);
 		response.setReturnValue(data);
 		response.setReturnCode(Response.SUCCESS);
 		

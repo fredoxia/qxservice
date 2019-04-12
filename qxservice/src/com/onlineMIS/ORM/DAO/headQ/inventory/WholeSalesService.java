@@ -836,25 +836,9 @@ public class WholeSalesService {
 		 }
 	}
 	
-	private double calculatePreAcctBalance(InventoryOrder order, Date date){
-  	int clientId = order.getCust().getId();
-		
-    	HeadQCust cust = headQCustDaoImpl.get(clientId, true);
-    	
-		int orderId = order.getOrder_ID();
-    	
-    	int orderType = order.getOrder_type();
-    	double totalAmt = order.getTotalWholePrice();
-    	double totalDis = order.getTotalDiscount();
-    	double netAmt = totalAmt - totalDis;
-    	
-    	//1. update the offset
-    	int offset = 1;
-		if (orderType == InventoryOrder.TYPE_SALES_RETURN_ORDER_W)
-			offset *= -1;
+	private double calculatePreAcctBalance(int clientId){
+  	    HeadQCust cust = headQCustDaoImpl.get(clientId, true);
 
-		netAmt *= offset;
-		
 		//2.update the order's preAcctAmt and postAcctAmt
 		double initialAcctAmt = cust.getInitialAcctBalance();  		
 		double acctAmtFlow = chainAcctFlowDaoImpl.getAccumulateAcctFlow(clientId);
@@ -908,9 +892,7 @@ public class WholeSalesService {
 		netAmt *= offset;
 		
 		//2.update the order's preAcctAmt and postAcctAmt
-		double initialAcctAmt = cust.getInitialAcctBalance();  		
-		double acctAmtFlow = chainAcctFlowDaoImpl.getAccumulateAcctFlow(clientId);
-		double preAcctAmt = Common_util.getDecimalDouble(initialAcctAmt + acctAmtFlow);
+		double preAcctAmt = calculatePreAcctBalance(clientId);
 		double postAcctAmt = Common_util.getDecimalDouble(preAcctAmt + netAmt);
 		if (!isCancel){  
 			String hql = "update InventoryOrder set preAcctAmt =?, postAcctAmt=? where order_ID=?";
@@ -1354,15 +1336,21 @@ public class WholeSalesService {
 			response.setQuickValue(Response.FAIL, "数据库无法找到,单据" + orderId);
 		} else {
 			int status = order.getOrder_Status();
+			double preAcct = 0;
+			double postAcct = 0;
 			switch (status) {
 				case InventoryOrder.STATUS_DELETED:
 					response.setQuickValue(Response.FAIL, "单据" + orderId + " 处于删除状态,无法开启。请联系管理员");
 					break;
 				case InventoryOrder.STATUS_PDA_COMPLETE:
 					order = editPDAComplete(orderId, loginUserInfor);
+					preAcct = calculatePreAcctBalance(order.getCust().getId());	
+					order.setPreAcctAmt(preAcct);
 					response.setReturnValue(order);
 					response.setAction(1);
 					response.setReturnCode(Response.SUCCESS);
+
+					
 					break;
 //				case InventoryOrder.STATUS_STORE_COMPLETE:
 //					order = searchByID(orderId);
@@ -1380,9 +1368,13 @@ public class WholeSalesService {
 					if (keeper.getUser_id() != loginUserInfor.getUser_id()){
 						response.setQuickValue(Response.FAIL, "单据 正在被 " + keeper.getName() + " 修改,你暂时无法修改");
 					} else {
+						preAcct = calculatePreAcctBalance(order.getCust().getId());			
+						order.setPreAcctAmt(preAcct);
+						order.setPostAcctAmt(postAcct);
 					    response.setAction(1);
 					    response.setReturnValue(order);
 					    response.setReturnCode(Response.SUCCESS);
+
 					}
 					break;
 				case InventoryOrder.STATUS_ACCOUNT_PROCESS:		
@@ -1391,12 +1383,23 @@ public class WholeSalesService {
 					if (auditor2 == null || auditor2.getUser_id() == 0){
 						order.setOrder_Auditor(loginUserInfor);
 						inventoryOrderDAOImpl.update(order, true);
+						
+						preAcct = calculatePreAcctBalance(order.getCust().getId());	
+						postAcct = calculatePostAcctBalance(order, preAcct);
+						order.setPreAcctAmt(preAcct);
+						order.setPostAcctAmt(postAcct);
+						
 						response.setAction(2);
 						response.setReturnValue(order);
 						response.setReturnCode(Response.SUCCESS);
 					} else if (auditor2.getUser_id() != loginUserInfor.getUser_id()){
 						response.setQuickValue(Response.FAIL, "单据 正在被 " + auditor2.getName() + " 修改,你暂时无法修改");
 					} else {
+						preAcct = calculatePreAcctBalance(order.getCust().getId());			
+						postAcct = calculatePostAcctBalance(order, preAcct);
+						order.setPreAcctAmt(preAcct);
+						order.setPostAcctAmt(postAcct);
+						
 						response.setAction(2);
 						response.setReturnValue(order);
 						response.setReturnCode(Response.SUCCESS);
@@ -1637,7 +1640,7 @@ public class WholeSalesService {
 		} else {
 		    order.putSetToList();
 		    
-		    double preAcctAmt = this.calculatePreAcctBalance(order, new Date());
+		    double preAcctAmt = this.calculatePreAcctBalance(order.getCust().getId());
 		    
 		    double postAcctAmt = this.calculatePostAcctBalance(order, preAcctAmt);
 		    

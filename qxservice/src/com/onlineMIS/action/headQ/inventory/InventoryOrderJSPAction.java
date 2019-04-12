@@ -19,6 +19,11 @@ import com.opensymphony.xwork2.ActionContext;
 public class InventoryOrderJSPAction  extends InventoryOrderAction {
 
 	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2577947504617094207L;
+
+	/**
 	 * inventory peopole save the order to draft
 	 * @return
 	 */
@@ -59,8 +64,6 @@ public class InventoryOrderJSPAction  extends InventoryOrderAction {
 		}
 		
 		int returnCode = response.getReturnCode();
-
-		loggerLocal.infoR(log + "," + returnCode);
 		
 		if (returnCode != Response.SUCCESS){
 			addActionError(response.getMessage());

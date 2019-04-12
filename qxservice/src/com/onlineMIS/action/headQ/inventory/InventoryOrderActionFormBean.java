@@ -39,9 +39,11 @@ public class InventoryOrderActionFormBean implements Serializable{
     
     //搜索时的product ids
     private String productIds = "";
+ 
     
     private Map<Integer, String> clientMap = new HashMap<Integer, String>();
-    
+
+
 	public String getProductIds() {
 		return productIds;
 	}

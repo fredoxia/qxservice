@@ -22,6 +22,7 @@ import com.onlineMIS.ORM.DAO.chainS.user.ChainStoreDaoImpl;
 import com.onlineMIS.ORM.DAO.chainS.user.ChainStoreService;
 import com.onlineMIS.ORM.DAO.chainS.user.ChainUserInforService;
 import com.onlineMIS.ORM.DAO.headQ.custMgmt.HeadQCustDaoImpl;
+import com.onlineMIS.ORM.DAO.headQ.finance.sorter.FinanceSummaryRptVOElesSorter;
 import com.onlineMIS.ORM.DAO.headQ.inventory.InventoryOrderDAOImpl;
 import com.onlineMIS.ORM.entity.base.Pager;
 import com.onlineMIS.ORM.entity.chainS.inventoryFlow.ChainInOutStock;
@@ -36,6 +37,7 @@ import com.onlineMIS.ORM.entity.headQ.finance.FinanceBill;
 import com.onlineMIS.ORM.entity.headQ.finance.FinanceBillItem;
 import com.onlineMIS.ORM.entity.headQ.finance.FinanceBillPrintVO;
 import com.onlineMIS.ORM.entity.headQ.finance.FinanceCategory;
+import com.onlineMIS.ORM.entity.headQ.finance.FinanceSummaryRptVOEles;
 import com.onlineMIS.ORM.entity.headQ.inventory.InventoryOrder;
 import com.onlineMIS.ORM.entity.headQ.inventory.InventoryOrderPrintVO;
 import com.onlineMIS.ORM.entity.headQ.user.UserInfor;
@@ -679,6 +681,68 @@ public class FinanceService {
 		    
 		response.setReturnValue(dataMap);
 
+		return response;
+	}
+	
+	/**
+	 * 获取批发财物统计报表
+	 * @param formBean
+	 * @return
+	 */
+	@Transactional
+	public Response generateFinanceSummaryRpt(FinanceActionFormBean formBean){
+        //1. 获取所有单据
+		DetachedCriteria criteria = DetachedCriteria.forClass(FinanceBill.class);
+        FinanceBill financeBill = formBean.getOrder();
+		
+	    criteria.add(Restrictions.eq("status", FinanceBill.STATUS_COMPLETE));		
+
+		int clientId = financeBill.getCust().getId();
+		if (clientId != Common_util.ALL_RECORD_NEW)
+			criteria.add(Restrictions.eq("cust.id", clientId));
+
+		Date startDate = Common_util.formStartDate(formBean.getSearchStartTime());
+		Date endDate = Common_util.formEndDate(formBean.getSearchEndTime());
+		criteria.add(Restrictions.between("billDate", startDate, endDate));
+		
+		List<FinanceBill> financeBills = financeBillImpl.getByCritera(criteria, true);
+		
+		//2. 计算单据
+		Map<Integer, FinanceCategory> categoryIdMapToItem = financeCategoryImpl.getFinanceCategoryMapWithIDKey();
+		Map<Integer, FinanceSummaryRptVOEles> rptEles = new HashMap<Integer, FinanceSummaryRptVOEles>();
+		for (FinanceBill bill : financeBills){
+			int custId = bill.getCust().getId();
+			FinanceSummaryRptVOEles rptVOEles = rptEles.get(custId);
+			
+			if (rptVOEles == null){
+				rptVOEles = new FinanceSummaryRptVOEles();
+				rptVOEles.setCust(bill.getCust().getName());
+			}
+			rptVOEles.add(bill, categoryIdMapToItem);
+			
+			rptEles.put(custId, rptVOEles);
+		}
+		List<FinanceSummaryRptVOEles> financeSummaryRptVOEles =new ArrayList<FinanceSummaryRptVOEles>(rptEles.values());
+		Collections.sort(financeSummaryRptVOEles, new FinanceSummaryRptVOElesSorter());
+		
+		//3.汇总和排序
+
+		List<FinanceSummaryRptVOEles> footers =new ArrayList<FinanceSummaryRptVOEles>();
+		FinanceSummaryRptVOEles summaryRptVOEles = new FinanceSummaryRptVOEles();
+		summaryRptVOEles.setCust("合计");
+		for (FinanceSummaryRptVOEles eles : financeSummaryRptVOEles){
+			summaryRptVOEles.calculateSum(eles);
+		}
+		footers.add(summaryRptVOEles);
+
+		Map data = new HashMap<String, List>();
+		data.put("rows", financeSummaryRptVOEles);
+		data.put("footer", footers);
+		
+		Response response = new Response();
+		response.setReturnValue(data);
+		response.setReturnCode(Response.SUCCESS);
+		
 		return response;
 	}
 	

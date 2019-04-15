@@ -208,14 +208,15 @@ public class FinanceJSONAction extends FinanceAction {
 	public String generateFinanceReport(){
 		Response response = new Response();
 		try {
-			ChainReport chainReport = chainReportService.generateFinanceReport(formBean.getOrder().getCust().getId(), formBean.getSearchStartTime(), formBean.getSearchEndTime());
-		    response.setReturnValue(chainReport);
+			//ChainReport chainReport = chainReportService.generateFinanceReport(formBean.getOrder().getCust().getId(), formBean.getSearchStartTime(), formBean.getSearchEndTime());
+		    
+			response = financeService.generateFinanceSummaryRpt(formBean);
 		} catch (Exception e) {
 			loggerLocal.error(e);
 			response.setReturnCode(Response.FAIL);
 		}
 		try{
-			jsonMap.put("report", response.getReturnValue());
+			jsonMap = (Map<String, Object>)response.getReturnValue();
 
 			jsonObject = JSONObject.fromObject(jsonMap);
 		} catch (Exception e){

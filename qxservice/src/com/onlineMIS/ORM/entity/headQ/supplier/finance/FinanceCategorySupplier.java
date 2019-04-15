@@ -11,7 +11,12 @@ public class FinanceCategorySupplier implements Serializable{
 	private static final long serialVersionUID = -8852583637495149815L;
 //	public static final int PREPAY_ACCT_TYPE = 3;
 	public static final int INCREASE_DECREASE_ACCT_TYPE = 4;
+	public static final int CASH_ACCT_TYPE = 2;
+	public static final int CARD_ACCT_TYPE = 1;
+	public static final int ALIPAY_ACCT_TYPE = 5;
+	public static final int WECHAT_ACCT_TYPE = 6;
 
+	
 	private int id;
 	private String itemName;
 	private int type;

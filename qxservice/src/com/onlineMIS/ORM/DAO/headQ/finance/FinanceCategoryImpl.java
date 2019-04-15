@@ -49,6 +49,23 @@ public class FinanceCategoryImpl extends BaseDAO<FinanceCategory> {
 	    	}
 	    	return categoryMap;
 	    }
+	    
+	    /**
+	     * id: categoryId;
+	     * value: financeCategory
+	     * @return
+	     */
+	    public Map<Integer, FinanceCategory> getFinanceCategoryMapWithIDKey(){
+	    	List<FinanceCategory> categories = getAll(true);
+	    	
+	    	Map<Integer, FinanceCategory> categoryMap = new HashMap<Integer, FinanceCategory>();
+	    	
+	    	for (FinanceCategory financeCategory: categories){
+	    		int id = financeCategory.getId();
+	    		categoryMap.put(id, financeCategory);
+	    	}
+	    	return categoryMap;
+	    }
 	
 //	    /**
 //	     * get the preincomeItem

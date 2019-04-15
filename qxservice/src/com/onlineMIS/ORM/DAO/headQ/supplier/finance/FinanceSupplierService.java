@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.onlineMIS.ORM.DAO.Response;
+import com.onlineMIS.ORM.DAO.headQ.supplier.finance.sorter.FinanceSummaryRptVOElesSorter;
 import com.onlineMIS.ORM.DAO.headQ.supplier.purchase.PurchaseOrderDaoImpl;
 import com.onlineMIS.ORM.DAO.headQ.supplier.supplierMgmt.HeadQSupplierDaoImpl;
 import com.onlineMIS.ORM.entity.base.Pager;
@@ -30,6 +31,7 @@ import com.onlineMIS.ORM.entity.headQ.finance.ChainAcctFlowReportItem;
 import com.onlineMIS.ORM.entity.headQ.finance.FinanceBill;
 import com.onlineMIS.ORM.entity.headQ.finance.FinanceBillItem;
 import com.onlineMIS.ORM.entity.headQ.finance.FinanceCategory;
+import com.onlineMIS.ORM.entity.headQ.supplier.finance.FinanceSummaryRptVOEles;
 import com.onlineMIS.ORM.entity.headQ.finance.HeadQAcctFlow;
 import com.onlineMIS.ORM.entity.headQ.finance.HeadQFinanceTrace;
 import com.onlineMIS.ORM.entity.headQ.inventory.InventoryOrder;
@@ -585,49 +587,53 @@ public class FinanceSupplierService {
 	 * @param searchEndTime
 	 * @return
 	 */
+	@Transactional
 	public Response generateFinanceReport(int supplierId, java.sql.Date startDate, java.sql.Date endDate) {
 		Response response = new Response();
-	    List<ChainFinanceReportItem> reportItems = new ArrayList<ChainFinanceReportItem>();
-	    List<ChainFinanceReportItem> footers = new ArrayList<ChainFinanceReportItem>();
+	    List<FinanceSummaryRptVOEles> footers = new ArrayList<FinanceSummaryRptVOEles>();
 	    
-		DetachedCriteria criteria = DetachedCriteria.forClass(SupplierFinanceTrace.class);
-		ProjectionList projList = Projections.projectionList();
-		projList.add(Projections.groupProperty("categoryId"));
-		projList.add(Projections.sum("amount"));
-		criteria.setProjection(projList);
+        //1. 查询数据
+	    DetachedCriteria criteria = DetachedCriteria.forClass(FinanceBillSupplier.class);
+	    criteria.add(Restrictions.eq("status", FinanceBillSupplier.STATUS_COMPLETE));
+	
+		if (supplierId != Common_util.ALL_RECORD_NEW)
+		   criteria.add(Restrictions.eq("supplier.id", supplierId));
+
+		Date startDate1 = Common_util.formStartDate(new Date(startDate.getTime()));
+		Date endDate1 = Common_util.formEndDate(new Date(endDate.getTime()));
+		criteria.add(Restrictions.between("billDate", startDate1, endDate1));
 		
-		criteria.add(Restrictions.between("date", startDate, endDate));
-		if (supplierId != 0){
-			criteria.add(Restrictions.eq("supplierId", supplierId));
+		List<FinanceBillSupplier> billSuppliers = financeBillSupplierDaoImpl.getByCritera(criteria, true);
+		//2. 计算单据
+		Map<Integer, FinanceCategorySupplier> categoryIdMapToItem = financeCategorySupplierImpl.getFinanceCategoryMapWithIDKey();
+		Map<Integer, FinanceSummaryRptVOEles> rptEles = new HashMap<Integer, FinanceSummaryRptVOEles>();
+		for (FinanceBillSupplier bill : billSuppliers){
+			supplierId = bill.getSupplier().getId();
+			FinanceSummaryRptVOEles rptVOEles = rptEles.get(supplierId);
+			
+			if (rptVOEles == null){
+				rptVOEles = new FinanceSummaryRptVOEles();
+				rptVOEles.setSupplier(bill.getSupplier().getName());
+			}
+			rptVOEles.add(bill, categoryIdMapToItem);
+			
+			rptEles.put(supplierId, rptVOEles);
 		}
+		List<FinanceSummaryRptVOEles> financeSummaryRptVOEles =new ArrayList<FinanceSummaryRptVOEles>(rptEles.values());
+		Collections.sort(financeSummaryRptVOEles, new FinanceSummaryRptVOElesSorter());
 		
-		List<Object> result = supplierFinanceTraceImpl.getByCriteriaProjection(criteria,  false);
-		
-		Map<Integer, FinanceCategorySupplier> categoryMap = financeCategorySupplierImpl.getFinanceCategoryMap();
-		ChainFinanceReportItem footer = new ChainFinanceReportItem("- 合计  -", 0);
-		double total = 0;
-		for (int i = 0; i < result.size(); i++){
-			  Object object = result.get(i);
-			  if (object != null){
-				 Object[] recordResult = (Object[])object;
-				 int categoryId = Common_util.getInt(recordResult[0]);
-				 double amount = Common_util.getDouble(recordResult[1]);
-				 
-				 FinanceCategorySupplier category = categoryMap.get(categoryId);
-					if (category != null){
-						ChainFinanceReportItem reportItem = new ChainFinanceReportItem(category.getItemName(), amount);
-						reportItems.add(reportItem);
-						total += amount;
-					}
-			  }
+		//3.汇总和排序
+		FinanceSummaryRptVOEles summaryRptVOEles = new FinanceSummaryRptVOEles();
+		summaryRptVOEles.setSupplier("合计");
+		for (FinanceSummaryRptVOEles eles : financeSummaryRptVOEles){
+			summaryRptVOEles.calculateSum(eles);
 		}
-		
-		footer.setAmount(total);
-		footers.add(footer);
-		
+		footers.add(summaryRptVOEles);
+
 		Map data = new HashMap<String, List>();
-		data.put("rows", reportItems);
+		data.put("rows", financeSummaryRptVOEles);
 		data.put("footer", footers);
+
 		response.setReturnValue(data);
 		response.setReturnCode(Response.SUCCESS);
 		

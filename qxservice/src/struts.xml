@@ -37,6 +37,11 @@
 
     <!--The namespace /action is the headquarter actions-->
     <package name="headQJSPPackage" extends="super-package" namespace="/action">
+         <action name="headqReportJSP" class="com.onlineMIS.action.headQ.report.HeadQReportJSPAction">
+            <result name="createExpenseHeadq">/jsp/headQ/expense/CreateExpense.jsp</result>
+
+         </action>	
+             
          <action name="expenseHeadqJSP" class="com.onlineMIS.action.shared.expense.ExpenseJSPAction">
             <result name="createExpenseHeadq">/jsp/headQ/expense/CreateExpense.jsp</result>
             <result name="searchExpenseHeadq">/jsp/headQ/expense/SearchExpense.jsp</result>
@@ -44,7 +49,6 @@
             <result name="updateExpenseHeadq">/jsp/headQ/expense/UpdateExpense.jsp</result>
          </action>	
         <action name="login" class="com.onlineMIS.action.headQ.user.LoginAction">
-        	
             <result name="myTasks">/jsp/headQ/MyTasks.jsp</result>
             <result name="error">/1.jsp</result>
             <result name="pdaLoginSuccess" type="redirect">/jsp/headQ/PDA/PDACreateOrder.jsp</result>
@@ -299,6 +303,14 @@
     </package>
     
     <package name="headQJSONPackage" extends="json-default" namespace="/action">
+         <action name="headQReportJSON" class="com.onlineMIS.action.headQ.report.HeadQReportJSONAction">
+            <result type="json">
+                 <param name="root">jsonObject</param>
+            </result>
+            <result type="json" name="jsonArray">
+                 <param name="root">jsonArray</param>
+            </result>
+        </action>  
         <action name="expenseHeadqJSON" class="com.onlineMIS.action.shared.expense.ExpenseJSONAction">
             <result type="json">
                  <param name="root">jsonObject</param>
@@ -350,11 +362,7 @@
                  <param name="root">jsonObject</param>
             </result>
         </action>
-        <action name="basicInforJSON" class="com.onlineMIS.action.headQ.inventory.BasicInforJSONAction">
-            <result type="json">
-                 <param name="root">jsonObject</param>
-            </result>
-        </action> 
+
         <action name="hrEvalJSON" class="com.onlineMIS.action.headQ.HR.HREvalJSONAction">
             <result type="json">
                  <param name="root">jsonObject</param>

@@ -63,7 +63,7 @@ import com.onlineMIS.ORM.entity.headQ.barcodeGentor.Quarter;
 import com.onlineMIS.ORM.entity.headQ.barcodeGentor.Size;
 
 import com.onlineMIS.ORM.entity.headQ.barcodeGentor.Year;
-import com.onlineMIS.ORM.entity.headQ.chain.ChainSalesReportActionFormBean;
+
 import com.onlineMIS.ORM.entity.headQ.inventory.HeadQInventoryStore;
 import com.onlineMIS.ORM.entity.headQ.inventory.HeadQSalesHistory;
 import com.onlineMIS.ORM.entity.headQ.inventory.HeadQSalesHistoryId;

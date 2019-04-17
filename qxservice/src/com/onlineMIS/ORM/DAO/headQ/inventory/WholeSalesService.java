@@ -1085,7 +1085,7 @@ public class WholeSalesService {
 		Map<Integer, String> orderStatusMap = InventoryOrder.getOrderStatusMap();
 		Map<Integer, String> orderTypeMap = InventoryOrder.getTypesMap_wholeSaler();
 		
-		List<UserInfor> accounts = userInforService.getUsersByDept(UserInfor.ACCOUNTANT_CODE);
+		List<UserInfor> accounts = userInforService.getAllNormalUsers();
 		
 		uiBean.setTypesMap(typesMap);
 		uiBean.setOrderStatusMap(orderStatusMap);

@@ -37,7 +37,8 @@ public class InventoryOrderProdPrintVO {
 		this.setSelectPrice(Common_util.df2.format(product.getSalePriceSelected()));
 		this.setDiscountRate(Common_util.df.format(product.getDiscount()));
 		this.setWholeSales(Common_util.df2.format(product.getWholeSalePrice()));
-		this.setTotalWholeSales(Common_util.df2.format(product.getWholeSalePrice() * product.getQuantity()));
+		double totalWhole = product.getWholeSalePrice() * product.getQuantity();
+		this.setTotalWholeSales(String.valueOf((int)totalWhole));
 	}
 	
 	public String getBrand() {

@@ -10,6 +10,7 @@ import com.onlineMIS.common.Common_util;
 public class InventoryOrderPrintVO {
 	private int id;
 	private String clientName = "";
+	private String clientArea = "";
 	private String orderTime;
 	private String PDAUserName ="";
 	private String keeperName = "";
@@ -35,6 +36,7 @@ public class InventoryOrderPrintVO {
     public InventoryOrderPrintVO(InventoryOrder order, double preAcctAmt, double postAcctAmt){
     	this.setId(order.getOrder_ID());
     	this.setClientName(order.getCust().getName());
+    	this.setClientArea(order.getCust().getArea());
     	this.setOrderTime(Common_util.dateFormat_f.format(order.getOrder_ComplTime()));
     	if (order.getPdaScanner() != null)
     	    this.setPDAUserName(order.getPdaScanner().getName());
@@ -49,10 +51,10 @@ public class InventoryOrderPrintVO {
     	this.setPreAcctAmt(Common_util.df.format(preAcctAmt));
     	this.setPostAcctAmt(Common_util.df.format(postAcctAmt));
     	this.setDiscount(Common_util.df2.format(order.getTotalDiscount()));
-    	this.setCash(Common_util.df2.format(order.getCash()));
-    	this.setCard(Common_util.df2.format(order.getCard()));
-    	this.setAlipay(Common_util.df2.format(order.getAlipay()));
-    	this.setWechat(Common_util.df2.format(order.getWechat()));
+    	this.setCash(String.valueOf((int)order.getCash()));
+    	this.setCard(String.valueOf((int)order.getCard()));
+    	this.setAlipay(String.valueOf((int)order.getAlipay()));
+    	this.setWechat(String.valueOf((int)order.getWechat()));
     	
     	List<InventoryOrderProduct> orderProducts = order.getProduct_List();
     	for (InventoryOrderProduct product : orderProducts){
@@ -61,6 +63,14 @@ public class InventoryOrderPrintVO {
     	}
     }
     
+	public String getClientArea() {
+		return clientArea;
+	}
+
+	public void setClientArea(String clientArea) {
+		this.clientArea = clientArea;
+	}
+
 	public String getCash() {
 		return cash;
 	}

@@ -61,8 +61,10 @@ public class HeadQSupplierService {
 		int total = Common_util.getProjectionSingleValue(headQSupplierDaoImpl.getByCriteriaProjection(custTotalCriteria, true));
 		
 		//2. 获取当页数据
-		custCriteria.addOrder(Order.asc("status"));
-		custCriteria.addOrder(Order.asc("pinyin"));
+		if (sortOrder.equalsIgnoreCase("asc"))
+		    custCriteria.addOrder(Order.asc(sort));
+		else 
+			custCriteria.addOrder(Order.desc(sort));
 		List<HeadQSupplier> suppliers = headQSupplierDaoImpl.getByCritera(custCriteria, Common_util.getFirstRecord(page, rowPerPage), rowPerPage, true);
 		
 		dataMap.put("rows", suppliers);

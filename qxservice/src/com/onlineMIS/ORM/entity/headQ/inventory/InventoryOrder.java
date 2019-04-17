@@ -59,8 +59,8 @@ public class InventoryOrder implements Serializable {
 	private static Map<Integer, String> orderStatusMap = new LinkedHashMap<Integer, String>();
 	
 	static {
-		typesMap_wholeSaler.put(TYPE_SALES_ORDER_W, "销售出库单");
-		typesMap_wholeSaler.put(TYPE_SALES_RETURN_ORDER_W, "销售退货单");
+		typesMap_wholeSaler.put(TYPE_SALES_ORDER_W, "批发销售单");
+		typesMap_wholeSaler.put(TYPE_SALES_RETURN_ORDER_W, "批发退货单");
 		
 		typesMap_retailer.put(TYPE_SALES_ORDER_W, "采购进库单");
 		typesMap_retailer.put(TYPE_SALES_RETURN_ORDER_W, "采购退货单");

@@ -114,17 +114,17 @@ public class ExportInventoryOrderAction extends BaseAction {
 	 * @return
 	 */
 	public String downloadOrder(){
-		UserInfor loginUserInfor = (UserInfor)ActionContext.getContext().getSession().get(Common_util.LOGIN_USER);
-		loggerLocal.info("InventoryOrderAction - downloadOrder");
-		
-		excelFileName = orderFileName;
-		HttpServletRequest request = (HttpServletRequest)ActionContext.getContext().get(ServletActionContext.HTTP_REQUEST);   
-		String contextPath= request.getRealPath("/"); 
-
-		
-		Map<String,Object> map= inventoryService.generatePDAOrder(formBean.getOrder(),contextPath + "WEB-INF\\template\\" + templatePDAOrderFileName);     
- 
-		excelStream=(InputStream)map.get("stream");   
+//		UserInfor loginUserInfor = (UserInfor)ActionContext.getContext().getSession().get(Common_util.LOGIN_USER);
+//		loggerLocal.info("InventoryOrderAction - downloadOrder");
+//		
+//		excelFileName = orderFileName;
+//		HttpServletRequest request = (HttpServletRequest)ActionContext.getContext().get(ServletActionContext.HTTP_REQUEST);   
+//		String contextPath= request.getRealPath("/"); 
+//
+//		
+//		Map<String,Object> map= inventoryService.generatePDAOrder(formBean.getOrder(),contextPath + "WEB-INF\\template\\" + templatePDAOrderFileName);     
+// 
+//		excelStream=(InputStream)map.get("stream");   
 		return SUCCESS;   
 		
 	}

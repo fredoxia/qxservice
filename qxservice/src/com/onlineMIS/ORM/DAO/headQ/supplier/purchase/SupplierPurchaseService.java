@@ -517,7 +517,14 @@ public class SupplierPurchaseService {
 	}
 
 	public void prepareEditPurchasePage(SupplierPurchaseActionUIBean uiBean) {
-		uiBean.setUsers(userInforDaoImpl.getAllNormalUsers());
+        List<UserInfor> users  = userInforDaoImpl.getAllNormalUsers();	
+        List<UserInfor> newUsers = new ArrayList<UserInfor>();
+        for (UserInfor user: users){
+        	user.setName(user.getPinyin().substring(0, 1) + " " + user.getName());
+        	newUsers.add(user);
+        }
+		
+		uiBean.setUsers(newUsers);
 		
 	}
 

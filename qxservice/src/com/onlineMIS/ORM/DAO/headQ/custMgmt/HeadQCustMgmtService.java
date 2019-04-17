@@ -58,8 +58,10 @@ public class HeadQCustMgmtService {
 		int total = Common_util.getProjectionSingleValue(headQCustDaoImpl.getByCriteriaProjection(custTotalCriteria, true));
 		
 		//2. 获取当页数据
-		custCriteria.addOrder(Order.asc("status"));
-		custCriteria.addOrder(Order.asc("pinyin"));
+		if (sortOrder.equalsIgnoreCase("asc"))
+		    custCriteria.addOrder(Order.asc(sort));
+		else 
+			custCriteria.addOrder(Order.desc(sort));
 		List<HeadQCust> custs = headQCustDaoImpl.getByCritera(custCriteria, Common_util.getFirstRecord(page, rowPerPage), rowPerPage, true);
 		
 		dataMap.put("rows", custs);

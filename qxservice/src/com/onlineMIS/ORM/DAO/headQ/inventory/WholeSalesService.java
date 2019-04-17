@@ -701,26 +701,39 @@ public class WholeSalesService {
 			double alipay = order.getAlipay();
 			double wechat = order.getWechat();
 			
-			
+			String comment = "";
+			if (cash != 0){
+				comment += "现金:" + (int)cash;
+			}
+			if (card != 0){
+				comment += " 银行:" + (int)card;
+			}
+			if (alipay != 0){
+				comment += " 支付宝:" + (int)alipay;
+			}
+			if (wechat != 0){
+				comment += " 微信:" + (int)wechat;
+			}
+
 			if (cash != 0 || card !=0 || alipay!=0 || wechat !=0) {
 				double invoiceTotal = cash + card + alipay+ wechat;
 				HeadQCust cust = order.getCust();
 				UserInfor creator = order.getOrder_Auditor();
 				
 				int inventoryOrderId = order.getOrder_ID();
-				String comment = "";
+
 				double invoiceDiscount = 0;
 				FinanceBill financeBill = null;
 				//收款单
 				if (invoiceTotal >= 0){
 					int billType = FinanceBill.FINANCE_INCOME_HQ;
-					comment = "销售单据" + inventoryOrderId + "收款单";
+					comment = "批发单" + inventoryOrderId + "收款单." + comment;
 					financeBill = new FinanceBill(billType, creator, cust, invoiceTotal, invoiceDiscount, new java.sql.Date(order.getOrder_EndTime().getTime()), comment,inventoryOrderId );
 					
 				} else {
 				//付款单'
 					int billType = FinanceBill.FINANCE_PAID_HQ;
-					comment = "销售单据" + inventoryOrderId + "付款单";
+					comment = "批发单" + inventoryOrderId + "付款单" + comment;
 					financeBill = new FinanceBill(billType, creator, cust, invoiceTotal, invoiceDiscount, new java.sql.Date(order.getOrder_EndTime().getTime()), comment,inventoryOrderId );
 					cash *= -1;
 					card *= -1;
@@ -1049,9 +1062,14 @@ public class WholeSalesService {
     public InventoryOrderActionUIBean prepareUIBean(){
     	//1. prepare the user list
         List<UserInfor> users  = userInforService.getAllNormalUsers();	
+        List<UserInfor> newUsers = new ArrayList<UserInfor>();
+        for (UserInfor user: users){
+        	user.setName(user.getPinyin().substring(0, 1) + " " + user.getName());
+        	newUsers.add(user);
+        }
         
         InventoryOrderActionUIBean uiBean = new InventoryOrderActionUIBean();
-        uiBean.setUsers(users);
+        uiBean.setUsers(newUsers);
         
         return uiBean;
     }

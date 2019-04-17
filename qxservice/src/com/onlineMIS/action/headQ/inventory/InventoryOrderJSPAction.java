@@ -168,6 +168,7 @@ public class InventoryOrderJSPAction  extends InventoryOrderAction {
 		uiBean = inventoryService.prepareUIBean();
 		
 		formBean.getOrder().setOrder_Keeper(loginUserInfor);
+		//formBean.getOrder().setOrder_scanner(loginUserInfor);
 		formBean.getOrder().setOrder_type(InventoryOrder.TYPE_SALES_ORDER_W);
 		formBean.getOrder().setOrder_Status(InventoryOrder.STATUS_INITIAL);
 

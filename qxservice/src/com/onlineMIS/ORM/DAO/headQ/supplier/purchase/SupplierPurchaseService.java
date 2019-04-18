@@ -14,6 +14,7 @@ import java.util.Set;
 import org.apache.catalina.User;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang.StringUtils;
+import org.hibernate.Criteria;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
@@ -638,6 +639,7 @@ public class SupplierPurchaseService {
 					}
 				}
 				
+				criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
 				criteria.addOrder(Order.asc("order.creationTime"));
 			}
 			List<PurchaseOrder> orders = purchaseOrderDaoImpl.getByCritera(criteria, true);

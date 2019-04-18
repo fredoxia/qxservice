@@ -25,6 +25,7 @@ import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.hibernate.Criteria;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
@@ -32,6 +33,7 @@ import org.springframework.aop.ThrowsAdvice;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 
 
 
@@ -355,6 +357,7 @@ public class WholeSalesService {
 				}
 			}
 			
+			criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
 			criteria.addOrder(Order.asc("order.order_StartTime"));
 		}
 		return inventoryOrderDAOImpl.search(criteria);

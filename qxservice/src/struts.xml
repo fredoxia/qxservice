@@ -184,7 +184,7 @@
             <result name="SearchSuccess">/jsp/headQ/inventory/SearchResultOfInventoryOrder.jsp</result>
             <result name="retrieveSuccess">/jsp/headQ/inventory/DisplayInventorySalesOrder.jsp</result>
             <result name="preview">/jsp/headQ/inventory/EditInventorySalesOrder.jsp</result>
-            <result name="inventoryComplete" type="redirect">/jsp/headQ/common/updateSuccess.jsp?location=/action/inventoryOrder!preSearch?formBean.order.order_Status=1</result>
+            <result name="inventoryComplete" type="redirect">/jsp/headQ/common/updateSuccess.jsp?location=/action/inventoryOrder!create</result>
             <result name="input">/jsp/common/error.jsp</result>
             <result name="edit">/jsp/headQ/inventory/EditInventorySalesOrder.jsp</result> 
             <result name="successToSearch" type="redirect">/jsp/headQ/common/updateSuccess.jsp?location=/action/inventoryOrder!preSearch</result>

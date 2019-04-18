@@ -298,9 +298,7 @@ public class FinanceService {
 		}
 		
 		DetachedCriteria criteria2 = buildSearchFHQBills(formBean);
-		criteria2.addOrder(Order.asc("cust.id"));
-		criteria2.addOrder(Order.asc("billDate"));
-		criteria2.addOrder(Order.asc("createDate"));
+		criteria2.addOrder(Order.desc("createDate"));
 		
 		return financeBillImpl.getByCritera(criteria2, pager.getFirstResult(), pager.getRecordPerPage(), cached);
 	}

@@ -307,19 +307,7 @@ public class ChainDailySalesService{
 			
 			Date endDate = Common_util.calcualteDate(today, -interval + 20);
 			endDate = Common_util.formEndDate(endDate);
-			
-			//1.1 如果是4月5好，就要特别处理一些
-			Date specialDate = null;
-			try {
-			    specialDate = Common_util.dateFormat.parse("2017-04-05");
-			    
-			    if (today.getYear() == specialDate.getYear() && today.getMonth()==specialDate.getMonth() && today.getDate() == specialDate.getDate()){
-			    	startDate = Common_util.dateFormat.parse("2016-01-01");
-			    }
-			} catch (ParseException e) {
-				loggerLocal.errorB(e);
-				return;
-			}
+
 			
 			loggerLocal.infoB("DailyOrderCheck: 查找之前单据，日期   " + startDate.toString() + " 到  " + endDate.toString());
 			

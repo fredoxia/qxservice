@@ -44,14 +44,14 @@ public class ChainStore implements Serializable {
 	 */
 	private int status;
 
-	private int printTemplate;
-	private int printCopy;
+	private int printTemplate = 0;
+	private int printCopy = 0;
 	private int allowChangeSalesPrice = 0;
 	private String pinYin;
 	private ChainPriceIncrement priceIncrement;
 	
-	//小票上的抬头。千禧宝贝和嬉乐仓
-	private String printHeader = "千禧宝贝童装连锁";
+	//小票上的抬头。朴与树童装连锁
+	private String printHeader = "朴与树童装连锁";
 	
 	/**
 	 * 0: not allow

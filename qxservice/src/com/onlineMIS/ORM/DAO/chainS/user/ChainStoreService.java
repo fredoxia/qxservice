@@ -1,8 +1,10 @@
 package com.onlineMIS.ORM.DAO.chainS.user;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
+import org.aspectj.weaver.AjAttribute.PrivilegedAttribute;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
@@ -15,12 +17,14 @@ import com.onlineMIS.ORM.DAO.Response;
 import com.onlineMIS.ORM.DAO.chainS.chainMgmt.ChainStoreConfDaoImpl;
 import com.onlineMIS.ORM.DAO.chainS.chainMgmt.ChainStoreGroupDaoImpl;
 import com.onlineMIS.ORM.DAO.headQ.custMgmt.HeadQCustDaoImpl;
+import com.onlineMIS.ORM.DAO.headQ.inventory.InventoryOrderDAOImpl;
 import com.onlineMIS.ORM.entity.base.Pager;
 import com.onlineMIS.ORM.entity.chainS.chainMgmt.ChainStoreConf;
 import com.onlineMIS.ORM.entity.chainS.user.ChainRoleType;
 import com.onlineMIS.ORM.entity.chainS.user.ChainStore;
 import com.onlineMIS.ORM.entity.chainS.user.ChainUserInfor;
 import com.onlineMIS.ORM.entity.headQ.custMgmt.HeadQCust;
+import com.onlineMIS.ORM.entity.headQ.inventory.InventoryOrder;
 import com.onlineMIS.ORM.entity.headQ.user.UserInfor;
 import com.onlineMIS.action.chainS.chainMgmt.ChainMgmtActionUIBean;
 import com.onlineMIS.common.Common_util;
@@ -45,6 +49,9 @@ public class ChainStoreService {
 	@Autowired
 	private HeadQCustDaoImpl headQCustDaoImpl;
 	
+	@Autowired
+	private InventoryOrderDAOImpl inventoryOrderDAOImpl;
+	
 	/**
 	 * get the chain store list by login user information and the correspondig user
 	 * from the Chain UI 
@@ -68,7 +75,8 @@ public class ChainStoreService {
 	 * to save the chain store information
 	 * @param chainStore
 	 */
-	public Response saveChainStore(ChainStore chainStore){
+	@Transactional
+	public Response createChainStore(ChainStore chainStore){
 		Response response = new Response();
 		
 		//if it is new chain store, need check the duplication of the 
@@ -77,18 +85,25 @@ public class ChainStoreService {
 			int clientId = chainStore.getClient_id();
 			if (clientId == 0){
 				response.setReturnCode(Response.FAIL);
-				response.setMessage("精算账户为空");
+				response.setMessage("客户账户为空");
 				return response;
 			} else {
-				String queryString = "select count(chain_id) from ChainStore where client_id = ?";
-				Object[] values = new Object[]{clientId};
-				
-				int count = chainStoreDaoImpl.executeHQLCount(queryString, values, false);
-				
-				if (count > 0){
-					response.setReturnCode(Response.IN_USE);
-					response.setMessage("精算账户(" + clientId + ")已经在使用中");
+				HeadQCust cust = headQCustDaoImpl.get(clientId, true);
+				if (cust == null){
+					response.setReturnCode(Response.FAIL);
+					response.setMessage("无法找到客户账户");
 					return response;
+				} else {
+					String queryString = "select count(chain_id) from ChainStore where client_id = ?";
+					Object[] values = new Object[]{clientId};
+					
+					int count = chainStoreDaoImpl.executeHQLCount(queryString, values, false);
+					
+					if (count > 0){
+						response.setReturnCode(Response.IN_USE);
+						response.setMessage("精算账户(" + clientId + ")已经在使用中");
+						return response;
+					}
 				}
 					
 			}
@@ -103,24 +118,52 @@ public class ChainStoreService {
 			
 			//验证parent store 不是自己，自己和parent store 之间没有循环
 			ChainStore parentStore = chainStore.getParentStore();
-			if (parentStore.getParentStore() != null && parentStore.getParentStore().getChain_id() != 0){
-				response.setFail("父连锁店 上面还有一层连锁店，请检查");
-				return response;
+			if (parentStore != null && parentStore.getChain_id() != 0){
+                parentStore = chainStoreDaoImpl.get(parentStore.getChain_id(), true);
 				
+                if (parentStore.getParentStore() != null && parentStore.getParentStore().getChain_id() != 0){
+    				response.setFail("父连锁店 上面还有一层连锁店，请检查");
+    				return response;
+                } else {
+    				DetachedCriteria criteriaCheck = DetachedCriteria.forClass(ChainStore.class);
+    				criteriaCheck.add(Restrictions.eq("parentStore.chain_id", parentStore.getChain_id()));
+    				
+    				List<ChainStore> stores = chainStoreDaoImpl.getByCritera(criteriaCheck, true);
+
+    				if (stores.size() >0){
+    					response.setFail("你所选择的父连锁店 已经包含一个子连锁店请检查 : " + stores.get(0).getChain_name());
+    					return response;
+    				}
+                }
+
 			//检查选择的父连锁店是否已经存在其他的子连锁店，否则不允许。当前只允许一个子连锁店
 			} else {
-				DetachedCriteria criteriaCheck = DetachedCriteria.forClass(ChainStore.class);
-				criteriaCheck.add(Restrictions.eq("parentStore.chain_id", parentStore.getChain_id()));
-				
-				List<ChainStore> stores = chainStoreDaoImpl.getByCritera(criteriaCheck, true);
-
-				if (stores.size() >0){
-					response.setFail("你所选择的父连锁店 已经包含一个子连锁店请检查 : " + stores.get(0).getChain_name());
-					return response;
-				}
+				chainStore.setParentStore(null);
 			}
 			
+			chainStore.setActiveDate(Common_util.getToday());
 			chainStoreDaoImpl.saveOrUpdate(chainStore, cached);
+			
+			//修改以前的采购单据
+			DetachedCriteria criteria = DetachedCriteria.forClass(InventoryOrder.class,"order");
+			
+			criteria.add(Restrictions.eq("order.order_Status", InventoryOrder.STATUS_ACCOUNT_COMPLETE));
+            criteria.add(Restrictions.eq("order.cust.id", clientId));
+            criteria.add(Restrictions.lt("order.order_StartTime", Common_util.getToday()));
+            
+            List<InventoryOrder> orders = inventoryOrderDAOImpl.getByCritera(criteria, true);
+            for (InventoryOrder order : orders){
+            	if (order.getOrder_Status() == InventoryOrder.STATUS_ACCOUNT_COMPLETE && order.getCust().getId() == clientId){
+					//1. 修改连锁店确认信息
+	            	order.setChainConfirmStatus(InventoryOrder.STATUS_SYSTEM_CONFIRM);
+	            	order.setChainConfirmComment("创建连锁店之前的单据自动确认, " + new Date().toString());
+	            	order.setChainConfirmDate(new Date());
+					inventoryOrderDAOImpl.update(order, true);
+            	}
+            }
+            
+            response.setReturnValue(chainStore);
+			
 		} else {
 			ChainStore storeInDB = chainStoreDaoImpl.get(chainStoreId, true);
 			storeInDB.setAllowChangeSalesPrice(chainStore.getAllowChangeSalesPrice());
@@ -187,8 +230,11 @@ public class ChainStoreService {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
+			
+			response.setReturnValue(storeInDB);
 		}
 
+		
 		response.setReturnCode(Response.SUCCESS);
 		return response;
 	}

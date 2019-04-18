@@ -295,7 +295,7 @@ public class UserInforService {
 		
 		user.setFunctions(SystemFunctionHeadQMapping.getFunctionMapping(functionIds));
 		
-		System.out.println(user.getFunctions());
+//		System.out.println(user.getFunctions());
 	}
 
 	/**

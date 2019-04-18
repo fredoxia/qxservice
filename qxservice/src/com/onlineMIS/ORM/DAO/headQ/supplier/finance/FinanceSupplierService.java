@@ -332,9 +332,7 @@ public class FinanceSupplierService {
 		}
 		
 		DetachedCriteria criteria2 = buildSearchFHQBills(formBean);
-		criteria2.addOrder(Order.asc("supplier.id"));
-		criteria2.addOrder(Order.asc("billDate"));
-		criteria2.addOrder(Order.asc("createDate"));
+		criteria2.addOrder(Order.desc("createDate"));
 		
 		return financeBillSupplierDaoImpl.getByCritera(criteria2, pager.getFirstResult(), pager.getRecordPerPage(), cached);
 	}

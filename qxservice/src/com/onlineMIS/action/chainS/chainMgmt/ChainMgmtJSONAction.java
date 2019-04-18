@@ -52,6 +52,7 @@ public class ChainMgmtJSONAction extends ChainMgmtAction {
 	public void setMessage(String message) {
 		this.message = message;
 	}
+	
 	/**
 	 * in the web page, save the chain store in the headq part
 	 * @return
@@ -63,7 +64,13 @@ public class ChainMgmtJSONAction extends ChainMgmtAction {
 		//set the chain store
 		ChainStore chainStore = formBean.getChainStore();
 
-		Response response = chainStoreService.saveChainStore(chainStore);
+		Response response = new Response();
+		try {
+		   response = chainStoreService.createChainStore(chainStore);
+		} catch (Exception e){
+			e.printStackTrace();
+			response.setFail(e.getMessage());
+		}
 		
 		if (response.getReturnCode() != Response.SUCCESS){
 			jsonMap.put("error", true);
@@ -74,7 +81,10 @@ public class ChainMgmtJSONAction extends ChainMgmtAction {
 		}
 		
 		try{
-			   jsonObject = JSONObject.fromObject(jsonMap);
+			JsonConfig jsonConfig = new JsonConfig();
+			jsonConfig.registerJsonValueProcessor(java.sql.Date.class, new JSONSQLDateConverter());
+			
+			   jsonObject = JSONObject.fromObject(jsonMap,jsonConfig);
 			   System.out.println(jsonObject.toString());
 			} catch (Exception e){
 //				loggerLocal.chainActionError(userInfor,this.getClass().getName()+ "."+"");

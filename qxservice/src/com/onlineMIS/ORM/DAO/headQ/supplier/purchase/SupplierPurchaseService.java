@@ -291,7 +291,7 @@ public class SupplierPurchaseService {
 			if (orderOriginal.getStatus() != PurchaseOrder.STATUS_COMPLETE){
 				response.setFail("单据还未过账无法红冲");
 			} else {
-				orderOriginal.setLastUpdateTime(Common_util.getToday());
+				//orderOriginal.setLastUpdateTime(Common_util.getToday());
 				orderOriginal.setOrderAuditor(loginUser);
 				orderOriginal.setStatus(PurchaseOrder.STATUS_CANCEL);
 				orderOriginal.putListToSet();

@@ -363,14 +363,14 @@ public class FinanceService {
 				if (type == FinanceCategory.PREPAY_ACCT_TYPE)
 					offset *= -1;
 				
-			    HeadQFinanceTrace financeTrace = new HeadQFinanceTrace(clientId, type, billId, amount * offset, bill.getBillDate());
+			    HeadQFinanceTrace financeTrace = new HeadQFinanceTrace(clientId, type, billId, amount * offset, new java.sql.Date(bill.getCreateDate().getTime()));
 			    chainFinanceTraceImpl.save(financeTrace, false);
 			} 
 		}
 		
 		//2. if it is prepaid bill, need insert a prepaid amount
 		if (billType == FinanceBill.FINANCE_PREINCOME_HQ){
-		    HeadQFinanceTrace financeTrace = new HeadQFinanceTrace(clientId, FinanceCategory.PREPAY_ACCT_TYPE, billId, totalAmt * offset , bill.getBillDate());
+		    HeadQFinanceTrace financeTrace = new HeadQFinanceTrace(clientId, FinanceCategory.PREPAY_ACCT_TYPE, billId, totalAmt * offset , new java.sql.Date(bill.getCreateDate().getTime()));
 		    chainFinanceTraceImpl.save(financeTrace, false);
 		}
 		
@@ -422,7 +422,7 @@ public class FinanceService {
     		cust.setCurrentAcctBalance(postAcctAmt);
     		headQCustDaoImpl.update(cust, true);
 			
-			HeadQAcctFlow chainAcctFlow = new HeadQAcctFlow(clientId, netAmt, "F," + bill.getId() + "," + isCancel, bill.getBillDate());
+			HeadQAcctFlow chainAcctFlow = new HeadQAcctFlow(clientId, netAmt, "F," + bill.getId() + "," + isCancel, new java.sql.Date(bill.getCreateDate().getTime()));
 			chainAcctFlowDaoImpl.save(chainAcctFlow, true);
 		}
 		

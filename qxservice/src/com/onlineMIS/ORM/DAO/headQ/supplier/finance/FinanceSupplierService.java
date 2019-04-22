@@ -251,7 +251,7 @@ public class FinanceSupplierService {
 			double amount = billItem.getTotal();
 			
 			if (amount != 0){	
-			    SupplierFinanceTrace financeTrace = new SupplierFinanceTrace(supplierId, type, billId, amount * offset, Common_util.getToday());
+			    SupplierFinanceTrace financeTrace = new SupplierFinanceTrace(supplierId, type, billId, amount * offset, new java.sql.Date(bill.getCreateDate().getTime()));
 			    financeTraceImpl.save(financeTrace, false);
 			} 
 		}
@@ -307,7 +307,7 @@ public class FinanceSupplierService {
 		    headQSupplierDaoImpl.update(supplier, true);
     		
     		//7. 更新acct folow
-			SupplierAcctFlow supplierAcctFlow = new SupplierAcctFlow(supplierId, netAmt, "F," + bill.getId() + "," + isCancel, Common_util.getToday());
+			SupplierAcctFlow supplierAcctFlow = new SupplierAcctFlow(supplierId, netAmt, "F," + bill.getId() + "," + isCancel, new java.sql.Date(bill.getCreateDate().getTime()));
 			supplierAcctFlowDaoImpl.save(supplierAcctFlow, true);
 		}
 	}

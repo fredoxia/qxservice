@@ -8,7 +8,10 @@ import net.sf.json.JSONObject;
 import net.sf.json.JsonConfig;
 
 import com.onlineMIS.ORM.DAO.Response;
+import com.onlineMIS.ORM.entity.chainS.user.ChainUserInfor;
+import com.onlineMIS.common.Common_util;
 import com.onlineMIS.common.loggerLocal;
+import com.opensymphony.xwork2.ActionContext;
 
 public class HeadQReportJSONAction extends HeadQReportAction {
 
@@ -32,6 +35,36 @@ public class HeadQReportJSONAction extends HeadQReportAction {
 		this.jsonObject = jsonObject;
 	}
 
+	/**
+	 * 获取采购统计报表的详细信息
+	 * @return
+	 */
+	public String getPurchaseStatisticReptEles(){
+		loggerLocal.info(this.getClass().getName()+ ".getPurchaseStatisticReptEles");
+		Response response = new Response();
+
+		int supplierId = 0;
+		if (formBean.getOrder().getSupplier() == null)
+			supplierId = 0;
+		else 
+			supplierId = formBean.getOrder().getSupplier().getId();
+		
+		try {
+		    response = headQReportService.getPurchaseStatisticReptEles(formBean.getParentId(), formBean.getStartDate(), formBean.getEndDate(), supplierId, formBean.getYear().getYear_ID(), formBean.getQuarter().getQuarter_ID(), formBean.getBrand().getBrand_ID());
+		} catch (Exception e){
+			e.printStackTrace();
+		}	
+		
+		
+		try{
+			   jsonArray = JSONArray.fromObject(response.getReturnValue());
+//			   System.out.println(jsonArray);
+			} catch (Exception e){
+				e.printStackTrace();
+			}	
+		
+		return "jsonArray";
+	}
 
 	/**
 	 * 冻结某个账户

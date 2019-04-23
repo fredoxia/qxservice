@@ -14,5 +14,13 @@ public class HeadQReportJSPAction extends HeadQReportAction {
 	 */
 	private static final long serialVersionUID = -4965927215338212593L;
 
-
+	/**
+	 * 总部采购报表
+	 * @return
+	 */
+	public String preGeneratePurchaseReport(){
+		loggerLocal.info(this.getClass().getName()+ ".preGeneratePurchaseReport");
+    	
+		return "purchaseReport";
+	}
 }

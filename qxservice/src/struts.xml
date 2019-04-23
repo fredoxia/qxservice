@@ -38,7 +38,7 @@
     <!--The namespace /action is the headquarter actions-->
     <package name="headQJSPPackage" extends="super-package" namespace="/action">
          <action name="headqReportJSP" class="com.onlineMIS.action.headQ.report.HeadQReportJSPAction">
-            <result name="createExpenseHeadq">/jsp/headQ/expense/CreateExpense.jsp</result>
+            <result name="purchaseReport">/jsp/headQ/report/PurchaseReport.jsp</result>
 
          </action>	
              

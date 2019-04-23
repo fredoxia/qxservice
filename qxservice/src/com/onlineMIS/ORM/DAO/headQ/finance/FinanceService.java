@@ -571,7 +571,7 @@ public class FinanceService {
 					invoiceTotal += bill.getInvoiceDiscount();
 				}
 				
-				ChainAcctFlowReportItem acctFlowItem = new ChainAcctFlowReportItem(cust, bill.getBillDate(), billTypeName, ChainAcctFlowReportItem.ITEM_TYPE_FINANCE, acctFlowType, 0, invoiceTotal, bill.getId(), bill.getComment(), 0,0);
+				ChainAcctFlowReportItem acctFlowItem = new ChainAcctFlowReportItem(cust, bill.getCreateDate(), billTypeName, ChainAcctFlowReportItem.ITEM_TYPE_FINANCE, acctFlowType, 0, invoiceTotal, bill.getId(), bill.getComment(), 0,0);
 				rptItems.add(acctFlowItem);
 			}
 		}

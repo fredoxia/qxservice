@@ -23,7 +23,7 @@ public class HeadQReportFormBean {
 	private Date startDate = null;
 	private Date endDate = new Date(new java.util.Date().getTime());;
 	private HeadQSupplier supplier = new HeadQSupplier();
-	private PurchaseOrder order = new PurchaseOrder();
+	private DummyOrder order = new DummyOrder();
 	private HeadQCust cust = new HeadQCust();
 	private int parentId;
 	
@@ -34,10 +34,11 @@ public class HeadQReportFormBean {
     private Pager pager = new Pager();
     
     
-	public PurchaseOrder getOrder() {
+	
+	public DummyOrder getOrder() {
 		return order;
 	}
-	public void setOrder(PurchaseOrder order) {
+	public void setOrder(DummyOrder order) {
 		this.order = order;
 	}
 	public Date getStartDate() {

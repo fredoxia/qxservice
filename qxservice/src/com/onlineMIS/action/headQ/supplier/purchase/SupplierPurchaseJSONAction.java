@@ -19,6 +19,7 @@ import com.onlineMIS.ORM.entity.headQ.finance.FinanceBill;
 import com.onlineMIS.ORM.entity.headQ.finance.FinanceBillItem;
 import com.onlineMIS.ORM.entity.headQ.inventory.InventoryOrder;
 import com.onlineMIS.ORM.entity.headQ.supplier.finance.FinanceBillSupplier;
+import com.onlineMIS.ORM.entity.headQ.supplier.purchase.PurchaseOrder;
 import com.onlineMIS.ORM.entity.headQ.user.UserInfor;
 import com.onlineMIS.common.Common_util;
 import com.onlineMIS.common.loggerLocal;
@@ -172,6 +173,27 @@ public class SupplierPurchaseJSONAction extends SupplierPurchaseAction {
 				loggerLocal.error(e);
 			}
 
+		
+		return SUCCESS;
+	}
+	
+	/**
+	 * 获取单据
+	 * @return
+	 */
+	public String printOrder(){
+	    UserInfor loginUserInfor = (UserInfor)ActionContext.getContext().getSession().get(Common_util.LOGIN_USER);
+		int orderId = formBean.getOrder().getId();
+		loggerLocal.info(loginUserInfor.getUser_name() + " : SupplierPurchaseJSPAction.printOrder , " + orderId);
+		
+		Response response = supplierPurchaseService.getPurchaseOrderForPrint(orderId);
+
+		try{
+			   jsonObject = JSONObject.fromObject(response);
+			   //System.out.println(jsonObject.toString());
+		   } catch (Exception e){
+				loggerLocal.error(e);
+			}
 		
 		return SUCCESS;
 	}

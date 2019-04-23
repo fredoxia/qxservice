@@ -23,4 +23,14 @@ public class HeadQReportJSPAction extends HeadQReportAction {
     	
 		return "purchaseReport";
 	}
+	
+	/**
+	 * 总部销售报表
+	 * @return
+	 */
+	public String preGenerateSalesReport(){
+		loggerLocal.info(this.getClass().getName()+ ".preGenerateSalesReport");
+    	
+		return "salesReport";		
+	}
 }

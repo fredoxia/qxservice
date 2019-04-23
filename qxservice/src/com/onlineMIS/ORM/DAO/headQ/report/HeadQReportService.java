@@ -19,11 +19,13 @@ import com.onlineMIS.ORM.DAO.headQ.barCodeGentor.BrandDaoImpl;
 import com.onlineMIS.ORM.DAO.headQ.barCodeGentor.ProductBarcodeDaoImpl;
 import com.onlineMIS.ORM.DAO.headQ.barCodeGentor.QuarterDaoImpl;
 import com.onlineMIS.ORM.DAO.headQ.barCodeGentor.YearDaoImpl;
+import com.onlineMIS.ORM.DAO.headQ.custMgmt.HeadQCustDaoImpl;
+import com.onlineMIS.ORM.DAO.headQ.inventory.InventoryOrderProductDAOImpl;
 import com.onlineMIS.ORM.DAO.headQ.supplier.purchase.PurchaseOrderProductDaoImpl;
 import com.onlineMIS.ORM.DAO.headQ.supplier.purchase.SupplierPurchaseService;
 import com.onlineMIS.ORM.DAO.headQ.supplier.supplierMgmt.HeadQSupplierDaoImpl;
-import com.onlineMIS.ORM.entity.chainS.report.ChainPurchaseStatisticReportItemVO;
 import com.onlineMIS.ORM.entity.chainS.user.ChainStore;
+import com.onlineMIS.ORM.entity.chainS.user.ChainUserInfor;
 import com.onlineMIS.ORM.entity.headQ.barcodeGentor.Brand;
 import com.onlineMIS.ORM.entity.headQ.barcodeGentor.Category;
 import com.onlineMIS.ORM.entity.headQ.barcodeGentor.Color;
@@ -31,10 +33,14 @@ import com.onlineMIS.ORM.entity.headQ.barcodeGentor.Product;
 import com.onlineMIS.ORM.entity.headQ.barcodeGentor.ProductBarcode;
 import com.onlineMIS.ORM.entity.headQ.barcodeGentor.Quarter;
 import com.onlineMIS.ORM.entity.headQ.barcodeGentor.Year;
+import com.onlineMIS.ORM.entity.headQ.custMgmt.HeadQCust;
 import com.onlineMIS.ORM.entity.headQ.inventory.InventoryOrder;
 import com.onlineMIS.ORM.entity.headQ.report.HeadQPurchaseStatisticReportItemVO;
+import com.onlineMIS.ORM.entity.headQ.report.HeadQReportItemVO;
+import com.onlineMIS.ORM.entity.headQ.report.HeadQSalesStatisticReportItemVO;
 import com.onlineMIS.ORM.entity.headQ.supplier.purchase.PurchaseOrder;
 import com.onlineMIS.ORM.entity.headQ.supplier.supplierMgmt.HeadQSupplier;
+import com.onlineMIS.ORM.entity.headQ.user.UserInfor;
 import com.onlineMIS.common.Common_util;
 import com.onlineMIS.filter.SystemParm;
 import com.onlineMIS.sorter.ChainStatisticReportItemVOSorter;
@@ -57,6 +63,9 @@ public class HeadQReportService {
 	private ChainStoreDaoImpl chainStoreDaoImpl;
 	
 	@Autowired
+	private HeadQCustDaoImpl headQCustDaoImpl;
+	
+	@Autowired
 	private QuarterDaoImpl quarterDaoImpl;
 	
 	@Autowired
@@ -64,6 +73,9 @@ public class HeadQReportService {
 	
 	@Autowired
 	private ProductBarcodeDaoImpl productBarcodeDaoImpl;
+	
+	@Autowired
+	private InventoryOrderProductDAOImpl inventoryOrderProductDAOImpl;
 	/**
 	 * 获取总部的采购报表数据
 	 * @param parentId
@@ -112,7 +124,7 @@ public class HeadQReportService {
 			List<Object> values = purchaseOrderProductDaoImpl.executeHQLSelect(sql.toString(), value_sale.toArray(), null, true);
 
 			name = supplier.getName();
-			HeadQPurchaseStatisticReportItemVO rootItem = new HeadQPurchaseStatisticReportItemVO(name, 1, supplierId, yearId, quarterId, brandId,0, ChainPurchaseStatisticReportItemVO.STATE_CLOSED);
+			HeadQPurchaseStatisticReportItemVO rootItem = new HeadQPurchaseStatisticReportItemVO(name, 1, supplierId, yearId, quarterId, brandId,0, HeadQReportItemVO.STATE_CLOSED);
 			
 			if (values != null){
 				for (Object record : values ){
@@ -154,7 +166,7 @@ public class HeadQReportService {
 					Year year = yearDaoImpl.get(yearIdDB, true);
 					name = year.getYear() + "年";
 					
-					levelOneItem = new HeadQPurchaseStatisticReportItemVO(name, parentId, supplierId, yearIdDB, quarterId, brandId,0, ChainPurchaseStatisticReportItemVO.STATE_CLOSED);
+					levelOneItem = new HeadQPurchaseStatisticReportItemVO(name, parentId, supplierId, yearIdDB, quarterId, brandId,0, HeadQReportItemVO.STATE_CLOSED);
 					levelOneItem.putValue(type, quantity, cost);
 					
 					dataMap.put(yearIdDB, levelOneItem);
@@ -198,7 +210,7 @@ public class HeadQReportService {
 					Quarter quarter = quarterDaoImpl.get(quarterIdDB, true);
 					name = year.getYear() + "年 " + quarter.getQuarter_Name();
 					
-					levelOneItem = new HeadQPurchaseStatisticReportItemVO(name, parentId, supplierId, yearId, quarterIdDB, brandId,0, ChainPurchaseStatisticReportItemVO.STATE_CLOSED);
+					levelOneItem = new HeadQPurchaseStatisticReportItemVO(name, parentId, supplierId, yearId, quarterIdDB, brandId,0, HeadQReportItemVO.STATE_CLOSED);
 					levelOneItem.putValue(type, quantity, amount);
 					
 					dataMap.put(quarterIdDB, levelOneItem);
@@ -246,7 +258,7 @@ public class HeadQReportService {
 					
 					 name += brand.getBrand_Name();
 					
-					levelOneItem = new HeadQPurchaseStatisticReportItemVO(name, parentId, supplierId, yearId, quarterId, brandIdDB,0, ChainPurchaseStatisticReportItemVO.STATE_CLOSED);
+					levelOneItem = new HeadQPurchaseStatisticReportItemVO(name, parentId, supplierId, yearId, quarterId, brandIdDB,0, HeadQReportItemVO.STATE_CLOSED);
 					levelOneItem.putValue(type, quantity, amount);
 					
 					dataMap.put(brandIdDB, levelOneItem);
@@ -301,7 +313,7 @@ public class HeadQReportService {
 					
 					name = Common_util.cutProductCode(pb.getProduct().getProductCode()) + colorName  + " " + gender + sizeRange +  category.getCategory_Name();
 					
-					levelOneItem = new HeadQPurchaseStatisticReportItemVO(name, parentId, supplierId, yearId, quarterId, brandId, pbId, ChainPurchaseStatisticReportItemVO.STATE_OPEN);
+					levelOneItem = new HeadQPurchaseStatisticReportItemVO(name, parentId, supplierId, yearId, quarterId, brandId, pbId, HeadQReportItemVO.STATE_OPEN);
 					levelOneItem.putValue(type, quantity, amount);
 					
 					dataMap.put(pbId, levelOneItem);
@@ -321,6 +333,258 @@ public class HeadQReportService {
 			}
 		}
 
+		Collections.sort(reportItems, new HeadQStatisticReportItemVOSorter());
+	    response.setReturnValue(reportItems);
+	    return response;
+	}
+	
+	
+	/**
+	 * 获取销售统计报表的信息
+	 * @param parentId
+	 * @param chain_id
+	 * @param year_ID
+	 * @param quarter_ID
+	 * @param brand_ID
+	 * @param userInfor
+	 * @return
+	 */
+	public Response getSalesStatisticReptEles(int parentId,Date startDate, Date endDate, int custId, int yearId, int quarterId, int brandId) {
+		Response response = new Response();
+		List<HeadQSalesStatisticReportItemVO> reportItems = new ArrayList<HeadQSalesStatisticReportItemVO>();
+		
+		if (startDate == null){
+			response.setReturnValue(reportItems);
+			return response;
+		}
+		
+		List<Object> value_sale = new ArrayList<Object>();
+		value_sale.add(InventoryOrder.STATUS_ACCOUNT_COMPLETE);
+		value_sale.add(Common_util.formStartDate(startDate));
+		value_sale.add(Common_util.formEndDate(endDate));
+
+		String whereClause = "";
+		
+		HeadQCust cust = headQCustDaoImpl.getAllCustObj();
+		if (custId != Common_util.ALL_RECORD_NEW){
+			cust = headQCustDaoImpl.get(custId, true);
+			whereClause = " AND p.order.cust.id = " + cust.getId();
+		}
+
+		
+		String name = "";
+	 
+		
+		if (parentId == 0){
+			//@2. 根节点
+			name = cust.getName();
+			String criteria = "SELECT SUM(quantity), SUM(recCost * quantity), SUM(wholeSalePrice * quantity), p.order.order_type FROM InventoryOrderProduct p WHERE p.order.order_Status = ? AND p.order.order_EndTime BETWEEN ? AND ? "+ whereClause + " GROUP BY p.order.order_type";
+			
+			List<Object> values = inventoryOrderProductDAOImpl.executeHQLSelect(criteria, value_sale.toArray(), null, true);
+			
+			HeadQSalesStatisticReportItemVO rootItem = new HeadQSalesStatisticReportItemVO(name, 1, custId, yearId, quarterId, brandId,0, HeadQSalesStatisticReportItemVO.STATE_CLOSED);
+			
+			if (values != null){
+				for (Object record : values ){
+					Object[] records = (Object[])record;
+					int quantity = Common_util.getInt(records[0]);
+					double cost = Common_util.getDouble(records[1]);
+					double wholeSale = Common_util.getDouble(records[2]);
+					int type = Common_util.getInt(records[3]);
+					
+					rootItem.putValue(quantity, type, wholeSale, cost);
+				}
+				
+				rootItem.reCalculate();
+			}
+			
+			reportItems.add(rootItem);
+		} else if (yearId == 0){
+			//@2. 展开所有年份的库存信息
+			String criteria = "SELECT SUM(quantity), SUM(recCost * quantity), SUM(wholeSalePrice * quantity), p.productBarcode.product.year.year_ID, p.order.order_type FROM InventoryOrderProduct p WHERE p.order.order_Status = ? AND p.order.order_EndTime BETWEEN ? AND ?  "+ whereClause + " GROUP BY p.productBarcode.product.year.year_ID, p.order.order_type";
+			List<Object> values = inventoryOrderProductDAOImpl.executeHQLSelect(criteria, value_sale.toArray(), null, true);
+			
+			
+			if (values != null){
+				Map<Integer, HeadQSalesStatisticReportItemVO> dataMap = new HashMap<Integer, HeadQSalesStatisticReportItemVO>();
+				for (Object record : values ){
+					Object[] records = (Object[])record;
+					int quantity = Common_util.getInt(records[0]);
+					double cost = Common_util.getDouble(records[1]);
+					double wholeSale = Common_util.getDouble(records[2]);
+					int yearIdDB = Common_util.getInt(records[3]);
+					int type = Common_util.getInt(records[4]);
+					
+					HeadQSalesStatisticReportItemVO levelFour = dataMap.get(yearIdDB);
+					if (levelFour != null){
+						levelFour.putValue(quantity, type, wholeSale, cost);
+					} else {
+						Year year = yearDaoImpl.get(yearIdDB, true);
+						
+						name = year.getYear() + "年";
+						
+						levelFour = new HeadQSalesStatisticReportItemVO(name, parentId, custId, yearIdDB, quarterId, brandId,0, HeadQSalesStatisticReportItemVO.STATE_CLOSED);
+
+						levelFour.putValue(quantity, type, wholeSale, cost);
+					}
+					
+					dataMap.put(yearIdDB, levelFour);
+				}
+				
+				List<Integer> yearIds = new ArrayList<Integer>(dataMap.keySet());
+				
+				//1. 把基本对象放入
+				for (Integer id : yearIds){
+					HeadQSalesStatisticReportItemVO levelFourItem = dataMap.get(id);
+					levelFourItem.reCalculate();
+
+					reportItems.add(levelFourItem);
+				}	
+			}
+			
+			
+		} else if (quarterId == 0){
+			//@2. 展开所有季的库存信息
+			String criteria = "SELECT SUM(quantity), SUM(recCost * quantity), SUM(wholeSalePrice * quantity), p.productBarcode.product.quarter.quarter_ID, p.order.order_type FROM InventoryOrderProduct p WHERE p.order.order_Status = ? AND p.order.order_EndTime BETWEEN ? AND ?  AND p.productBarcode.product.year.year_ID = " + yearId + whereClause + " GROUP BY p.productBarcode.product.quarter.quarter_ID, p.order.order_type";
+			List<Object> values = inventoryOrderProductDAOImpl.executeHQLSelect(criteria, value_sale.toArray(), null, true);
+			
+			
+			if (values != null){
+				Map<Integer, HeadQSalesStatisticReportItemVO> dataMap = new HashMap<Integer, HeadQSalesStatisticReportItemVO>();
+				for (Object record : values ){
+					Object[] records = (Object[])record;
+					int quantity = Common_util.getInt(records[0]);
+					double cost = Common_util.getDouble(records[1]);
+					double wholeSale = Common_util.getDouble(records[2]);
+					int quarterIdDB = Common_util.getInt(records[3]);
+					int type = Common_util.getInt(records[4]);
+					
+					HeadQSalesStatisticReportItemVO levelFour = dataMap.get(quarterIdDB);
+					if (levelFour != null){
+						levelFour.putValue(quantity, type, wholeSale, cost);
+					} else {
+						Year year = yearDaoImpl.get(yearId, true);
+						Quarter quarter = quarterDaoImpl.get(quarterIdDB, true);
+						name = year.getYear() + "年" + quarter.getQuarter_Name();
+						
+						levelFour = new HeadQSalesStatisticReportItemVO(name, parentId, custId, yearId, quarterIdDB, brandId,0,  HeadQSalesStatisticReportItemVO.STATE_CLOSED);
+
+						levelFour.putValue(quantity, type, wholeSale, cost);
+					}
+					
+					dataMap.put(quarterIdDB, levelFour);
+				}
+				
+				List<Integer> quarterIds = new ArrayList<Integer>(dataMap.keySet());
+				
+				//1. 把基本对象放入
+				for (Integer id : quarterIds){
+					HeadQSalesStatisticReportItemVO levelFourItem = dataMap.get(id);
+					levelFourItem.reCalculate();
+
+					reportItems.add(levelFourItem);
+				}	
+			}
+		} else if (brandId == 0){
+			//@2. 展开所有品牌的库存信息
+			String criteria = "SELECT SUM(quantity), SUM(recCost * quantity), SUM(wholeSalePrice * quantity),  p.productBarcode.product.brand.brand_ID, p.order.order_type FROM InventoryOrderProduct p WHERE p.order.order_Status = ? AND p.order.order_EndTime BETWEEN ? AND ?  AND p.productBarcode.product.year.year_ID = " + yearId + " AND p.productBarcode.product.quarter.quarter_ID = " + quarterId + whereClause + " GROUP BY p.productBarcode.product.brand.brand_ID, p.order.order_type";
+			List<Object> values = inventoryOrderProductDAOImpl.executeHQLSelect(criteria, value_sale.toArray(), null, true);
+			
+			
+			if (values != null){
+				Map<Integer, HeadQSalesStatisticReportItemVO> dataMap = new HashMap<Integer, HeadQSalesStatisticReportItemVO>();
+				for (Object record : values ){
+					Object[] records = (Object[])record;
+					int quantity = Common_util.getInt(records[0]);
+					double cost = Common_util.getDouble(records[1]);
+					double wholeSale = Common_util.getDouble(records[2]);
+					int brandIdDB = Common_util.getInt(records[3]);
+					int type = Common_util.getInt(records[4]);
+					
+					HeadQSalesStatisticReportItemVO levelFour = dataMap.get(brandIdDB);
+					if (levelFour != null){
+						levelFour.putValue(quantity, type, wholeSale, cost);
+					} else {
+						Brand brand = brandDaoImpl.get(brandIdDB, true);
+
+						String pinyin = brand.getPinyin();
+						if (!StringUtils.isEmpty(pinyin)){
+							name = pinyin.substring(0, 1) + " ";
+						}
+						
+						 name += brand.getBrand_Name();
+						
+						levelFour = new HeadQSalesStatisticReportItemVO(name, parentId, custId, yearId, quarterId, brandIdDB,0, HeadQSalesStatisticReportItemVO.STATE_CLOSED);
+						levelFour.putValue(quantity, type, wholeSale, cost);
+					}
+					
+					dataMap.put(brandIdDB, levelFour);
+				}
+				
+				List<Integer> brandIds = new ArrayList<Integer>(dataMap.keySet());
+				
+				//1. 把基本对象放入
+				for (Integer id : brandIds){
+					HeadQSalesStatisticReportItemVO levelFourItem = dataMap.get(id);
+					levelFourItem.reCalculate();
+
+					reportItems.add(levelFourItem);
+				}	
+
+			}
+		} else if (brandId != 0) {
+			//@2. 展开所有品牌的库存信息
+			String criteria = "SELECT SUM(quantity), SUM(recCost * quantity), SUM(wholeSalePrice * quantity), p.productBarcode.id, p.order.order_type FROM InventoryOrderProduct p WHERE p.order.order_Status = ? AND p.order.order_EndTime BETWEEN ? AND ? AND p.productBarcode.product.year.year_ID = " + yearId + " AND p.productBarcode.product.quarter.quarter_ID = " + quarterId + whereClause + " AND p.productBarcode.product.brand.brand_ID = " + brandId + " GROUP BY p.productBarcode.id, p.order.order_type";
+			List<Object> values = inventoryOrderProductDAOImpl.executeHQLSelect(criteria, value_sale.toArray(), null, true);
+
+			if (values != null){
+				Map<Integer, HeadQSalesStatisticReportItemVO> dataMap = new HashMap<Integer, HeadQSalesStatisticReportItemVO>();
+				for (Object record : values ){
+					Object[] records = (Object[])record;
+					int quantity = Common_util.getInt(records[0]);
+					double cost = Common_util.getDouble(records[1]);
+					double wholeSale = Common_util.getDouble(records[2]);
+					int pbId = Common_util.getInt(records[3]);
+					int type = Common_util.getInt(records[4]);
+					
+					HeadQSalesStatisticReportItemVO levelFour = dataMap.get(pbId);
+					if (levelFour != null){
+						levelFour.putValue(quantity, type, wholeSale, cost);
+					} else {
+						ProductBarcode pb = productBarcodeDaoImpl.get(pbId, true);
+						String barcode = pb.getBarcode();
+						Color color = pb.getColor();
+						String colorName = "";
+						if (color != null)
+							colorName = color.getName();
+						
+						Product product = pb.getProduct();
+						
+						String gender = product.getGenderS();
+						String sizeRange = product.getSizeRangeS();
+						
+						Category category = product.getCategory();
+						name = Common_util.cutProductCode(pb.getProduct().getProductCode()) + colorName + " "  + gender + sizeRange +  category.getCategory_Name();
+						
+						levelFour = new HeadQSalesStatisticReportItemVO(name, parentId, custId, yearId, quarterId, brandId, pbId, HeadQSalesStatisticReportItemVO.STATE_OPEN);
+						levelFour.putValue(quantity, type, wholeSale, cost);
+						levelFour.setBarcode(barcode);
+					}
+					
+					dataMap.put(pbId, levelFour);
+				}
+				
+				List<Integer> pbIds = new ArrayList<Integer>(dataMap.keySet());
+				
+				//1. 把基本对象放入
+				for (Integer id : pbIds){
+					HeadQSalesStatisticReportItemVO levelFourItem = dataMap.get(id);
+					levelFourItem.reCalculate();
+
+					reportItems.add(levelFourItem);
+				}	
+			}
+		}
 		Collections.sort(reportItems, new HeadQStatisticReportItemVOSorter());
 	    response.setReturnValue(reportItems);
 	    return response;

@@ -37,9 +37,11 @@ import com.onlineMIS.ORM.entity.headQ.inventory.HeadQInventoryStore;
 import com.onlineMIS.ORM.entity.headQ.inventory.HeadQSalesHistory;
 import com.onlineMIS.ORM.entity.headQ.inventory.HeadQSalesHistoryId;
 import com.onlineMIS.ORM.entity.headQ.inventory.InventoryOrder;
+import com.onlineMIS.ORM.entity.headQ.inventory.InventoryOrderVO;
 import com.onlineMIS.ORM.entity.headQ.supplier.finance.SupplierAcctFlow;
 import com.onlineMIS.ORM.entity.headQ.supplier.purchase.HeadqPurchaseHistory;
 import com.onlineMIS.ORM.entity.headQ.supplier.purchase.PurchaseOrder;
+import com.onlineMIS.ORM.entity.headQ.supplier.purchase.PurchaseOrderPrintVO;
 import com.onlineMIS.ORM.entity.headQ.supplier.purchase.PurchaseOrderProduct;
 import com.onlineMIS.ORM.entity.headQ.supplier.purchase.PurchaseOrderVO;
 import com.onlineMIS.ORM.entity.headQ.supplier.supplierMgmt.HeadQSupplier;
@@ -598,6 +600,11 @@ public class SupplierPurchaseService {
 		PurchaseOrder searchBean = formBean.getOrder();
 		List<PurchaseOrderVO> orderVOs = new ArrayList<PurchaseOrderVO>();
 		
+		List<PurchaseOrderVO> footers = new ArrayList<PurchaseOrderVO>();
+		PurchaseOrderVO footer = new PurchaseOrderVO();
+		int totalQ = 0;
+		double totalCost = 0;
+		double totalWholeSales = 0;
 		try {
 			if (searchBean.getId() != 0){
 				criteria.add(Restrictions.eq("order.id", searchBean.getId()));
@@ -648,7 +655,27 @@ public class SupplierPurchaseService {
 			for (PurchaseOrder order : orders){
 				PurchaseOrderVO purchaseOrderVO = new PurchaseOrderVO(order);
 				orderVOs.add(purchaseOrderVO);
+				
+				if (order.getStatus() != PurchaseOrder.STATUS_CANCEL && order.getStatus() != PurchaseOrder.STATUS_DELETED ){
+					int orderType = order.getType();
+					switch (orderType) {
+						case PurchaseOrder.TYPE_PURCHASE:
+							totalQ += order.getTotalQuantity();
+							totalCost += order.getTotalRecCost();
+							totalWholeSales += order.getTotalWholePrice();
+							break;
+						case PurchaseOrder.TYPE_RETURN:
+							totalQ -= order.getTotalQuantity();
+							totalCost -= order.getTotalRecCost();
+							totalWholeSales -= order.getTotalWholePrice();
+							break;
+						default:
+							break;
+					}
+				}
 			}
+			
+			
 		} catch (Exception exception ){
 			exception.printStackTrace();
 			response.setFail(exception.getMessage());
@@ -658,7 +685,36 @@ public class SupplierPurchaseService {
 		Map<String, Object> data = new HashMap<String, Object>();
 		data.put("rows", orderVOs);
 		
+		footer.setTotalQuantity(totalQ);
+		footer.setTotalWholePrice(totalWholeSales);
+		footer.setTotalRecCost(totalCost);
+		footer.setSupplier("合计");
+		footers.add(footer);
+		data.put("footer", footers);
+		
 		response.setReturnValue(data);
+		
+		return response;
+	}
+
+	/**
+	 * 获取单据准备打印
+	 * @param orderId
+	 * @return
+	 */
+	@Transactional
+	public Response getPurchaseOrderForPrint(int orderId) {
+		Response response = new Response();
+		
+		PurchaseOrder order = purchaseOrderDaoImpl.get(orderId, true);
+		if (order == null){
+			response.setFail("单据无法找到");
+		} else {
+			order.putSetToList();
+			
+			PurchaseOrderPrintVO printVO = new PurchaseOrderPrintVO(order);
+			response.setReturnValue(printVO);
+		}
 		
 		return response;
 	}

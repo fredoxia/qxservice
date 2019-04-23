@@ -24,8 +24,6 @@ public class HeadQReportItemVO implements Serializable{
 	private String name;
 	private String id;
 
-	private Date startDate = new Date();
-	private Date endDate = new Date();
 	private String barcode = "";
 	
 	public HeadQReportItemVO(){
@@ -112,18 +110,6 @@ public class HeadQReportItemVO implements Serializable{
 	}
 	public void setId(String id) {
 		this.id = id;
-	}
-	public Date getStartDate() {
-		return startDate;
-	}
-	public void setStartDate(Date startDate) {
-		this.startDate = startDate;
-	}
-	public Date getEndDate() {
-		return endDate;
-	}
-	public void setEndDate(Date endDate) {
-		this.endDate = endDate;
 	}
 	
 	public String generateKeys(){

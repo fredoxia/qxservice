@@ -39,7 +39,7 @@
     <package name="headQJSPPackage" extends="super-package" namespace="/action">
          <action name="headqReportJSP" class="com.onlineMIS.action.headQ.report.HeadQReportJSPAction">
             <result name="purchaseReport">/jsp/headQ/report/PurchaseReport.jsp</result>
-
+			<result name="salesReport">/jsp/headQ/report/SalesReport.jsp</result>
          </action>	
              
          <action name="expenseHeadqJSP" class="com.onlineMIS.action.shared.expense.ExpenseJSPAction">

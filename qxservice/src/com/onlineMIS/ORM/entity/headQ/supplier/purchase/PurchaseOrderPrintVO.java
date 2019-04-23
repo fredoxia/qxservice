@@ -1,11 +1,15 @@
 package com.onlineMIS.ORM.entity.headQ.supplier.purchase;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.onlineMIS.common.Common_util;
 
 import sun.nio.cs.ext.TIS_620;
 
-public class PurchaseOrderVO {
+public class PurchaseOrderPrintVO {
 	private int id;
+	private String store;
 	private String comment;
 	private String creationTime;
 	private String lastUpdateTime;
@@ -23,11 +27,13 @@ public class PurchaseOrderVO {
 	private String typeS;
 	private String statusS;
 	
-	public PurchaseOrderVO(){
+	private List<PurchaseOrderProductPrintVO> products = new ArrayList<PurchaseOrderProductPrintVO>();
+	
+	public PurchaseOrderPrintVO(){
 		
 	}
 	
-	public PurchaseOrderVO(PurchaseOrder order){
+	public PurchaseOrderPrintVO(PurchaseOrder order){
 		this.setId(order.getId());
 		this.setComment(order.getComment());
 		this.setCreationTime(Common_util.dateFormat_f.format(order.getCreationTime()));
@@ -43,8 +49,25 @@ public class PurchaseOrderVO {
 		this.setStatus(order.getStatus());
 		this.setType(order.getType());
 		this.setTypeS(order.getTypeS());
+		this.setPreAcctAmt(order.getPreAcctAmt());
+		this.setPostAcctAmt(order.getPostAcctAmt());
+		
+		List<PurchaseOrderProduct> orderProducts = order.getProductList();
+		for (PurchaseOrderProduct product : orderProducts){
+			PurchaseOrderProductPrintVO printVO = new PurchaseOrderProductPrintVO(product);
+			products.add(printVO);
+		}
 	}
 	
+	
+	public List<PurchaseOrderProductPrintVO> getProducts() {
+		return products;
+	}
+
+	public void setProducts(List<PurchaseOrderProductPrintVO> products) {
+		this.products = products;
+	}
+
 	public int getType() {
 		return type;
 	}
@@ -67,7 +90,12 @@ public class PurchaseOrderVO {
 	public void setId(int id) {
 		this.id = id;
 	}
-
+	public String getStore() {
+		return store;
+	}
+	public void setStore(String store) {
+		this.store = store;
+	}
 	public String getComment() {
 		return comment;
 	}

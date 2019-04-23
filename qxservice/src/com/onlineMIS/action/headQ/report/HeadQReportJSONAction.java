@@ -67,6 +67,37 @@ public class HeadQReportJSONAction extends HeadQReportAction {
 	}
 
 	/**
+	 * 获取销售统计报表的详细信息
+	 * @return
+	 */
+	public String getSalesStatisticReptEles(){
+		loggerLocal.info(this.getClass().getName()+ ".getSalesStatisticReptEles");
+		Response response = new Response();
+
+		int custId = 0;
+		if (formBean.getOrder().getCust() == null)
+			custId = 0;
+		else 
+			custId = formBean.getOrder().getCust().getId();
+		
+		try {
+		    response = headQReportService.getSalesStatisticReptEles(formBean.getParentId(), formBean.getStartDate(), formBean.getEndDate(), custId, formBean.getYear().getYear_ID(), formBean.getQuarter().getQuarter_ID(), formBean.getBrand().getBrand_ID());
+		} catch (Exception e){
+			e.printStackTrace();
+		}	
+
+		try{
+			   jsonArray = JSONArray.fromObject(response.getReturnValue());
+//			   System.out.println(jsonArray);
+			} catch (Exception e){
+				e.printStackTrace();
+			}	
+		
+		return "jsonArray";
+	}
+
+	
+	/**
 	 * 冻结某个账户
 	 * @return
 	 */

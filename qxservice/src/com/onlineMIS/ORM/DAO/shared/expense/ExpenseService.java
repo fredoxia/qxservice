@@ -137,6 +137,7 @@ public class ExpenseService {
 		int firstRecord = Common_util.getFirstRecord(page, rowPerPage);
 		
 		DetachedCriteria selectCriteria = createGetExpenseCriteria(null, startDate, endDate);
+		selectCriteria.addOrder(Order.asc("expenseDate"));
         List<Expense> resultList = expenseDaoImpl.getByCritera(selectCriteria, firstRecord, rowPerPage, true);
         List<ExpenseVO> resultVOList = new ArrayList<ExpenseVO>();
         

@@ -118,23 +118,23 @@ public class FinanceSupplierJSONAction extends FinanceSupplierAction {
 		return SUCCESS;
 	}
 	
-	/**
-	 * 红冲单据
-	 * @return
-	 */
-	public String cancelFB(){
-		
-		return SUCCESS;
-	}
-	
-	/**
-	 * 删除单据
-	 * @return
-	 */
-	public String deleteFB(){
-		
-		return SUCCESS;
-	}
+//	/**
+//	 * 红冲单据
+//	 * @return
+//	 */
+//	public String cancelFB(){
+//		
+//		return SUCCESS;
+//	}
+//	
+//	/**
+//	 * 删除单据
+//	 * @return
+//	 */
+//	public String deleteFB(){
+//		
+//		return SUCCESS;
+//	}
 	
 	/**
 	 * search the finance bills 

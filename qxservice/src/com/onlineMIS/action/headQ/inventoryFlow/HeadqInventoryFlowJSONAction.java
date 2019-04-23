@@ -65,7 +65,7 @@ public class HeadqInventoryFlowJSONAction extends HeadqInventoryFlowAction{
 		
 		try{
 			   jsonArray = JSONArray.fromObject(response.getReturnValue());
-			   System.out.println(jsonArray);
+			   //System.out.println(jsonArray);
 			} catch (Exception e){
 				e.printStackTrace();
 			}	

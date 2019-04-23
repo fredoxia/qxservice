@@ -67,6 +67,7 @@ public class HeadqInventoryService {
 	 */
 	@Transactional
 	public Response getHeadqInventory(int parentId, int storeId, int yearId, int quarterId, int brandId) {
+		System.out.println(yearId + "," + quarterId + "," + brandId);
 		Response response = new Response();
 		List<HeadqInventoryVO> headqInventoryVOList = new ArrayList<HeadqInventoryVO>();
 		

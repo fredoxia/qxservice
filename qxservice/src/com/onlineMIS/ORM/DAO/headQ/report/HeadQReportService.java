@@ -1,6 +1,8 @@
 package com.onlineMIS.ORM.DAO.headQ.report;
 
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -9,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,15 +38,19 @@ import com.onlineMIS.ORM.entity.headQ.barcodeGentor.Quarter;
 import com.onlineMIS.ORM.entity.headQ.barcodeGentor.Year;
 import com.onlineMIS.ORM.entity.headQ.custMgmt.HeadQCust;
 import com.onlineMIS.ORM.entity.headQ.inventory.InventoryOrder;
+import com.onlineMIS.ORM.entity.headQ.report.HeadQPurchaseStatisticReportItem;
 import com.onlineMIS.ORM.entity.headQ.report.HeadQPurchaseStatisticReportItemVO;
+import com.onlineMIS.ORM.entity.headQ.report.HeadQPurchaseStatisticsReportTemplate;
 import com.onlineMIS.ORM.entity.headQ.report.HeadQReportItemVO;
 import com.onlineMIS.ORM.entity.headQ.report.HeadQSalesStatisticReportItemVO;
 import com.onlineMIS.ORM.entity.headQ.supplier.purchase.PurchaseOrder;
 import com.onlineMIS.ORM.entity.headQ.supplier.supplierMgmt.HeadQSupplier;
 import com.onlineMIS.ORM.entity.headQ.user.UserInfor;
 import com.onlineMIS.common.Common_util;
+import com.onlineMIS.common.ExcelUtil;
 import com.onlineMIS.filter.SystemParm;
 import com.onlineMIS.sorter.ChainStatisticReportItemVOSorter;
+import com.onlineMIS.sorter.HeadQPurchaseStatisticReportItemSorter;
 import com.onlineMIS.sorter.HeadQStatisticReportItemVOSorter;
 
 @Service
@@ -588,6 +595,108 @@ public class HeadQReportService {
 		Collections.sort(reportItems, new HeadQStatisticReportItemVOSorter());
 	    response.setReturnValue(reportItems);
 	    return response;
+	}
+
+
+	/**
+	 * 下
+	 * @param parentId
+	 * @param supplier
+	 * @param year_ID
+	 * @param quarter_ID
+	 * @param brand_ID
+	 * @param string
+	 * @return
+	 */
+	@Transactional
+	public Response downloadPurchaseExcelReport(int parentId, int supplierId, int yearId,
+			int quarterId, int brandId, Date startDate,Date endDate,String excelPath) {
+		Response response = new Response();
+		
+		List<Object> value_sale = new ArrayList<Object>();
+		value_sale.add(PurchaseOrder.STATUS_COMPLETE);
+		value_sale.add(Common_util.formStartDate(startDate));
+		value_sale.add(Common_util.formEndDate(endDate));
+
+		String whereClause = "";
+		String rptDesp = "";
+
+		
+		StringBuffer sql = new StringBuffer("SELECT SUM(quantity), SUM(recCost * quantity), p.pb.id, p.order.type FROM PurchaseOrderProduct p WHERE p.order.status = ? AND p.order.creationTime BETWEEN ? AND ?") ;
+
+		if (yearId != Common_util.ALL_RECORD_NEW){
+			sql.append(" AND p.pb.product.year.year_ID =" + yearId);
+			Year year = yearDaoImpl.get(yearId, true);
+			
+			rptDesp += " " + year.getYear();
+		}
+		
+		if (quarterId != Common_util.ALL_RECORD_NEW){
+			sql.append(" AND p.pb.product.quarter.quarter_ID =" + quarterId);
+			Quarter quarter = quarterDaoImpl.get(quarterId, true);
+			
+			rptDesp += " " + quarter.getQuarter_Name();
+		}
+		
+		if (brandId != Common_util.ALL_RECORD_NEW){
+			sql.append(" AND p.pb.product.brand.brand_ID =" + brandId);
+			Brand brand = brandDaoImpl.get(brandId, true);
+			
+			rptDesp += " " + brand.getBrand_Name();
+		}
+
+		HeadQSupplier supplier = headQSupplierDaoImpl.getAllSupplierObj();
+		if (supplierId != Common_util.ALL_RECORD_NEW){
+			supplier = headQSupplierDaoImpl.get(supplierId, true);
+			whereClause = " AND p.order.supplier.id = " + supplier.getId();
+		}
+		rptDesp = supplier.getName() + " " + rptDesp;
+		
+		sql.append(whereClause);
+		sql.append(" GROUP BY p.pb.id, p.order.type");
+		
+		List<Object> values = purchaseOrderProductDaoImpl.executeHQLSelect(sql.toString(), value_sale.toArray(), null, true);
+		
+		Map<Integer, HeadQPurchaseStatisticReportItem> dataMap = new HashMap<Integer, HeadQPurchaseStatisticReportItem>();
+		HeadQPurchaseStatisticReportItem totalItem = new HeadQPurchaseStatisticReportItem();
+		for (Object record : values ){
+			Object[] records = (Object[])record;
+			int quantity = Common_util.getInt(records[0]);
+			double amount = Common_util.getDouble(records[1]);
+			int pbId = Common_util.getInt(records[2]);
+			int type = Common_util.getInt(records[3]);
+			
+			totalItem.add(type, quantity, amount);
+			
+			HeadQPurchaseStatisticReportItem levelOneItem = dataMap.get(pbId);
+			if (levelOneItem != null){
+				levelOneItem.add(type, quantity, amount);
+			} else {
+				ProductBarcode pb = productBarcodeDaoImpl.get(pbId, true);
+				
+				levelOneItem = new HeadQPurchaseStatisticReportItem(type, quantity, amount, pb);
+				
+				dataMap.put(pbId, levelOneItem);
+			}
+		}
+		
+		List<HeadQPurchaseStatisticReportItem> items = new ArrayList<HeadQPurchaseStatisticReportItem>(dataMap.values());
+		
+		Collections.sort(items, new HeadQPurchaseStatisticReportItemSorter());
+		//2. 准备excel 报表
+		try {
+		    HeadQPurchaseStatisticsReportTemplate rptTemplate = new HeadQPurchaseStatisticsReportTemplate(items, totalItem, rptDesp, excelPath, startDate, endDate);
+			HSSFWorkbook wb = rptTemplate.process();
+			
+			ByteArrayInputStream byteArrayInputStream = ExcelUtil.convertExcelToInputStream(wb);
+			
+			response.setReturnValue(byteArrayInputStream);
+			response.setReturnCode(Response.SUCCESS);
+		} catch (IOException e){
+			e.printStackTrace();
+			response.setFail(e.getMessage());
+		}
+		return response;
 	}
 
 }

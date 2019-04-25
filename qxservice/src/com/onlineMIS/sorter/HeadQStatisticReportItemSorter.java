@@ -6,12 +6,13 @@ import com.onlineMIS.ORM.entity.chainS.report.ChainReportItemVO;
 import com.onlineMIS.ORM.entity.headQ.barcodeGentor.Brand;
 import com.onlineMIS.ORM.entity.headQ.barcodeGentor.ProductBarcode;
 import com.onlineMIS.ORM.entity.headQ.report.HeadQPurchaseStatisticReportItem;
+import com.onlineMIS.ORM.entity.headQ.report.HeadQStatisticReportItem;
 
-public class HeadQPurchaseStatisticReportItemSorter  implements
-Comparator<HeadQPurchaseStatisticReportItem> {
+public class HeadQStatisticReportItemSorter  implements
+Comparator<HeadQStatisticReportItem> {
 
 	@Override
-	public int compare(HeadQPurchaseStatisticReportItem arg0, HeadQPurchaseStatisticReportItem arg1) {
+	public int compare(HeadQStatisticReportItem arg0, HeadQStatisticReportItem arg1) {
 		ProductBarcode pb0 = arg0.getPb();
 		ProductBarcode pb1 = arg1.getPb();
 		

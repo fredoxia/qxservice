@@ -70,7 +70,7 @@ public class HeadQReportJSPAction extends HeadQReportAction {
 
 		Response response = new Response();
 		try {
-		     response = headQReportService.downloadPurchaseExcelReport(formBean.getParentId(), formBean.getSupplier().getId(), formBean.getYear().getYear_ID(), formBean.getQuarter().getQuarter_ID(), formBean.getBrand().getBrand_ID(), formBean.getStartDate(), formBean.getEndDate(),contextPath + "WEB-INF\\template\\headQ");
+		     response = headQReportService.downloadPurchaseExcelReport(formBean.getParentId(), formBean.getOrder().getSupplier().getId(), formBean.getYear().getYear_ID(), formBean.getQuarter().getQuarter_ID(), formBean.getBrand().getBrand_ID(), formBean.getStartDate(), formBean.getEndDate(),contextPath + "WEB-INF\\template\\headQ");
 		} catch (Exception e) {
 			response.setReturnCode(Response.FAIL);
 			response.setMessage(e.getMessage());
@@ -80,6 +80,32 @@ public class HeadQReportJSPAction extends HeadQReportAction {
 		    InputStream excelStream= (InputStream)response.getReturnValue();
 		    this.setExcelStream(excelStream);
 		    this.setExcelFileName("CaiGouTongJiBaoBiao.xls");
+		    return "report"; 
+		} else 
+			return ERROR;	
+	}
+	
+	/**
+	 * 下载 销售统计报表
+	 * @return
+	 */
+	public String downloadSalesExcelReport(){
+		loggerLocal.info(this.getClass().getName()+ ".downloadSalesExcelReport");
+		HttpServletRequest request = (HttpServletRequest)ActionContext.getContext().get(ServletActionContext.HTTP_REQUEST);   
+		String contextPath= request.getRealPath("/"); 
+
+		Response response = new Response();
+		try {
+		     response = headQReportService.downloadSalesExcelReport(formBean.getParentId(), formBean.getOrder().getCust().getId(), formBean.getYear().getYear_ID(), formBean.getQuarter().getQuarter_ID(), formBean.getBrand().getBrand_ID(), formBean.getStartDate(), formBean.getEndDate(),contextPath + "WEB-INF\\template\\headQ");
+		} catch (Exception e) {
+			response.setReturnCode(Response.FAIL);
+			response.setMessage(e.getMessage());
+		}
+		 
+		if (response.getReturnCode() == Response.SUCCESS){
+		    InputStream excelStream= (InputStream)response.getReturnValue();
+		    this.setExcelStream(excelStream);
+		    this.setExcelFileName("XiaoShouTongJiBaoBiao.xls");
 		    return "report"; 
 		} else 
 			return ERROR;	

@@ -665,19 +665,16 @@ public class FinanceService {
 	@Transactional
 	public Response printFinanceBill(int financeBillId){
 		Response response = new Response();
-		Map<String, Object> dataMap = new HashMap<String, Object>();
-		
+
 		if (financeBillId != 0){
 	    	FinanceBill financeBill = this.getFinanceBillById(financeBillId);
 	    	if (financeBill != null){
 	    		FinanceBillPrintVO financeBillPrintVO = new FinanceBillPrintVO(financeBill);
-	    		dataMap.put("finance", financeBillPrintVO);
+	    		response.setReturnValue(financeBillPrintVO);
 	    	} else {
 	    		response.setFail("无法找到单据, 单据号  : " + financeBillId);
 	    	}
 	    }
-		    
-		response.setReturnValue(dataMap);
 
 		return response;
 	}

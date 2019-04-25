@@ -5,11 +5,13 @@ import java.util.List;
 
 import com.onlineMIS.ORM.entity.headQ.inventory.InventoryOrderProduct;
 import com.onlineMIS.common.Common_util;
+import com.sun.jndi.toolkit.ctx.StringHeadTail;
 
 public class FinanceBillPrintVO {
 	private int id;
 	private String creator;
 	private String cust;
+	private String area;
 	private String invoiceTotal;
 	private String invoiceDiscount;
 	private String billDate;
@@ -17,6 +19,7 @@ public class FinanceBillPrintVO {
 	private String comment;
     private String preAcctAmt;
     private String postAcctAmt;
+    private String type;
     private List<FinanceBillItemPrintVO> items = new ArrayList<FinanceBillItemPrintVO>();
     
     
@@ -28,6 +31,7 @@ public class FinanceBillPrintVO {
     	this.setId(financeBill.getId());
     	this.setCreator(financeBill.getCreatorHq().getName());
     	this.setCust(financeBill.getCust().getName());
+    	this.setArea(financeBill.getCust().getArea());
     	this.setInvoiceTotal(Common_util.df.format(financeBill.getInvoiceTotal()));
     	this.setInvoiceDiscount(Common_util.df.format(financeBill.getInvoiceDiscount()));
     	this.setBillDate(Common_util.dateFormat.format(financeBill.getBillDate()));
@@ -35,6 +39,7 @@ public class FinanceBillPrintVO {
     	this.setComment(financeBill.getComment());
     	this.setPreAcctAmt(Common_util.df.format(financeBill.getPreAcctAmt()));
     	this.setPostAcctAmt(Common_util.df.format(financeBill.getPostAcctAmt()));
+    	this.setType(financeBill.getTypeHQS());
     	
     	List<FinanceBillItem> financeBillItems = financeBill.getFinanceBillItemList();
     	for (FinanceBillItem item : financeBillItems){
@@ -43,6 +48,22 @@ public class FinanceBillPrintVO {
     	}
     }
     
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public String getArea() {
+		return area;
+	}
+
+	public void setArea(String area) {
+		this.area = area;
+	}
+
 	public List<FinanceBillItemPrintVO> getItems() {
 		return items;
 	}

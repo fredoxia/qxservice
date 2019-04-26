@@ -718,5 +718,40 @@ public class SupplierPurchaseService {
 		
 		return response;
 	}
+	
+	/**
+	 * 复制purchase order
+	 * @param order
+	 * @return
+	 */
+	@Transactional
+	public Response copyPurchaseOrder(PurchaseOrder order, UserInfor orderAuditor){
+		Response response = new Response();
+		int orderId = order.getId();
+		
+		if (orderId > 0){
+			PurchaseOrder orderInDB = purchaseOrderDaoImpl.get(orderId, true);
+			purchaseOrderDaoImpl.initialize(orderInDB);
+			purchaseOrderDaoImpl.evict(orderInDB);
+			
+			order = orderInDB;
+			order.setId(0);
+			
+            String comment = order.getComment();
+            
+            order.setComment(comment + "\n 复制于单据" + orderId);
+			order.setLastUpdateTime(Common_util.getToday());
+			order.setOrderAuditor(orderAuditor);
+			order.setStatus(PurchaseOrder.STATUS_DRAFT);
+			
+			purchaseOrderDaoImpl.save(order, true);
+
+			response.setReturnCode(Response.SUCCESS);
+			response.setReturnValue(order.getId());
+		} else 
+			response.setReturnCode(Response.FAIL);
+		
+		return response;
+	}
 
 }

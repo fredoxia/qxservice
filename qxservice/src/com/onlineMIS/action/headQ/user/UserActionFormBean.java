@@ -1,6 +1,9 @@
 package com.onlineMIS.action.headQ.user;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.onlineMIS.ORM.entity.headQ.user.UserInfor;
 
 public class UserActionFormBean {
@@ -8,6 +11,8 @@ public class UserActionFormBean {
 
 	protected String password2;
 	protected String password3;
+
+
 
 
 	public String getPassword2() {

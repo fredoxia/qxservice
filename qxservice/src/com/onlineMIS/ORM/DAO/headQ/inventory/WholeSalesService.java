@@ -234,7 +234,17 @@ public class WholeSalesService {
 		}
 		
 		/**
-		 * 4. rebuild the product list
+		 * 4. 计算单据的总成本
+		 */
+		Collection<InventoryOrderProduct> OrderProducts = orderProductMap.values();
+		double totalRecCost = 0;
+		for (InventoryOrderProduct product : OrderProducts){
+			totalRecCost += product.getRecCost() * product.getQuantity();
+		}
+		order.setTotalRecCost(totalRecCost);
+		
+		/**
+		 * 5. rebuild the product list
 		 */
 		if (sorting.equalsIgnoreCase("true")){
 			Collection<InventoryOrderProduct> OrderProducts_c = orderProductMap.values();

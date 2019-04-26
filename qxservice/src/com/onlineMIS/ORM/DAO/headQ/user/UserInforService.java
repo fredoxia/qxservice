@@ -38,6 +38,8 @@ import com.onlineMIS.ORM.entity.chainS.user.ChainUserInfor;
 import com.onlineMIS.ORM.entity.headQ.HR.PeopleEvaluation;
 import com.onlineMIS.ORM.entity.headQ.user.UserFunctionality;
 import com.onlineMIS.ORM.entity.headQ.user.UserInfor;
+import com.onlineMIS.action.headQ.user.UserActionFormBean;
+import com.onlineMIS.action.headQ.user.UserActionUIBean;
 import com.onlineMIS.common.Common_util;
 import com.onlineMIS.common.HttpUtil;
 import com.onlineMIS.common.loggerLocal;
@@ -377,6 +379,12 @@ public class UserInforService {
 		}
 		
 		return functionRoleType;
+	}
+
+	public void prepareEditUI(UserActionUIBean uiBean) {
+		List<UserInfor> users = userInforDaoImpl.getAll(true);
+		
+		uiBean.setUsers(users);
 	}
 
 //	@Transactional

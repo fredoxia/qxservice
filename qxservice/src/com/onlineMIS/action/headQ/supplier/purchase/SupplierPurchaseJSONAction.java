@@ -198,4 +198,35 @@ public class SupplierPurchaseJSONAction extends SupplierPurchaseAction {
 		return SUCCESS;
 	}
 	
+	/**
+	 * copy the 
+	 * @return
+	 */
+	public String copyPurchaseOrder(){
+		UserInfor loginUserInfor = (UserInfor)ActionContext.getContext().getSession().get(Common_util.LOGIN_USER);
+		
+		String uuid = Common_util.getUUID();
+		loggerLocal.info(loginUserInfor.getUser_name() + "copyPurchaseOrder " +  formBean.getOrder().getId());
+
+		Response response = new Response();
+		try {
+		    response = supplierPurchaseService.copyPurchaseOrder(formBean.getOrder(),loginUserInfor);
+		} catch (Exception e) {
+			loggerLocal.error(e);
+			response.setReturnCode(Response.FAIL);
+			response.setMessage(e.getMessage());
+		}
+
+		
+		//loggerLocal.infoR(log +"," + response.getReturnCode());
+		
+
+		try{
+		    jsonObject = JSONObject.fromObject(response);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return SUCCESS;
+	}
+	
 }

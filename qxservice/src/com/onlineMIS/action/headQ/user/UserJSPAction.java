@@ -60,8 +60,8 @@ public class UserJSPAction extends UserAction implements ServletContextAware{
 	public String preEdit(){
 
 	    loggerLocal.info("UserJSPAction - preEdit");
-		List<UserInfor> users = userInforService.getAllUsers();
-		ActionContext.getContext().put(Common_util.ALL_USER, users);
+		
+	    userInforService.prepareEditUI(uiBean);
 
 		return SUCCESS;
 	}

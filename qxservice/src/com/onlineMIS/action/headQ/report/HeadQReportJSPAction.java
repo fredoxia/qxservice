@@ -110,4 +110,56 @@ public class HeadQReportJSPAction extends HeadQReportAction {
 		} else 
 			return ERROR;	
 	}
+	
+	/**
+	 * 下载 客户信息 成excel
+	 * @return
+	 */
+	public String downloadCustExcelReport(){
+		loggerLocal.info(this.getClass().getName()+ ".downloadCustExcelReport");
+		HttpServletRequest request = (HttpServletRequest)ActionContext.getContext().get(ServletActionContext.HTTP_REQUEST);   
+		String contextPath= request.getRealPath("/"); 
+
+		Response response = new Response();
+		try {
+		     response = headQReportService.downloadCustInforExcelReport(contextPath + "WEB-INF\\template\\headQ");
+		} catch (Exception e) {
+			response.setReturnCode(Response.FAIL);
+			response.setMessage(e.getMessage());
+		}
+		 
+		if (response.getReturnCode() == Response.SUCCESS){
+		    InputStream excelStream= (InputStream)response.getReturnValue();
+		    this.setExcelStream(excelStream);
+		    this.setExcelFileName("KeHuXinXi.xls");
+		    return "report"; 
+		} else 
+			return ERROR;	
+	}
+	
+	/**
+	 * 下载 供应砂锅内信息 成excel
+	 * @return
+	 */
+	public String downloadSupplierExcelReport(){
+		loggerLocal.info(this.getClass().getName()+ ".downloadSupplierExcelReport");
+		HttpServletRequest request = (HttpServletRequest)ActionContext.getContext().get(ServletActionContext.HTTP_REQUEST);   
+		String contextPath= request.getRealPath("/"); 
+
+		Response response = new Response();
+		try {
+		     response = headQReportService.downloadSupplierInforExcelReport(contextPath + "WEB-INF\\template\\headQ");
+		} catch (Exception e) {
+			response.setReturnCode(Response.FAIL);
+			response.setMessage(e.getMessage());
+		}
+		 
+		if (response.getReturnCode() == Response.SUCCESS){
+		    InputStream excelStream= (InputStream)response.getReturnValue();
+		    this.setExcelStream(excelStream);
+		    this.setExcelFileName("GongYinShangXinXi.xls");
+		    return "report"; 
+		} else 
+			return ERROR;	
+	}
 }

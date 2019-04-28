@@ -38,6 +38,7 @@ import com.onlineMIS.ORM.entity.headQ.barcodeGentor.Quarter;
 import com.onlineMIS.ORM.entity.headQ.barcodeGentor.Year;
 import com.onlineMIS.ORM.entity.headQ.custMgmt.HeadQCust;
 import com.onlineMIS.ORM.entity.headQ.inventory.InventoryOrder;
+import com.onlineMIS.ORM.entity.headQ.report.HeadQCustInforTemplate;
 import com.onlineMIS.ORM.entity.headQ.report.HeadQPurchaseStatisticReportItem;
 import com.onlineMIS.ORM.entity.headQ.report.HeadQPurchaseStatisticReportItemVO;
 import com.onlineMIS.ORM.entity.headQ.report.HeadQPurchaseStatisticsReportTemplate;
@@ -45,6 +46,7 @@ import com.onlineMIS.ORM.entity.headQ.report.HeadQReportItemVO;
 import com.onlineMIS.ORM.entity.headQ.report.HeadQSalesStatisticReportItem;
 import com.onlineMIS.ORM.entity.headQ.report.HeadQSalesStatisticReportItemVO;
 import com.onlineMIS.ORM.entity.headQ.report.HeadQSalesStatisticsReportTemplate;
+import com.onlineMIS.ORM.entity.headQ.report.HeadQSupplierInforTemplate;
 import com.onlineMIS.ORM.entity.headQ.supplier.purchase.PurchaseOrder;
 import com.onlineMIS.ORM.entity.headQ.supplier.supplierMgmt.HeadQSupplier;
 import com.onlineMIS.ORM.entity.headQ.user.UserInfor;
@@ -802,5 +804,58 @@ public class HeadQReportService {
 		}
 		return response;
 	}
+	
+	/**
+	 * 下在客户信息成excel
 
+	 * @return
+	 */
+	@Transactional
+	public Response downloadCustInforExcelReport(String excelPath) {
+		Response response = new Response();
+
+		List<HeadQCust> custs = headQCustDaoImpl.getAll(true);
+
+		//2. 准备excel 报表
+		try {
+		    HeadQCustInforTemplate rptTemplate = new HeadQCustInforTemplate(custs, excelPath);
+			HSSFWorkbook wb = rptTemplate.process();
+			
+			ByteArrayInputStream byteArrayInputStream = ExcelUtil.convertExcelToInputStream(wb);
+			
+			response.setReturnValue(byteArrayInputStream);
+			response.setReturnCode(Response.SUCCESS);
+		} catch (IOException e){
+			e.printStackTrace();
+			response.setFail(e.getMessage());
+		}
+		return response;
+	}
+
+	/**
+	 * 下在供应商信息成excel
+
+	 * @return
+	 */
+	@Transactional
+	public Response downloadSupplierInforExcelReport(String excelPath) {
+		Response response = new Response();
+
+		List<HeadQSupplier> suppliers = headQSupplierDaoImpl.getAll(true);
+
+		//2. 准备excel 报表
+		try {
+		    HeadQSupplierInforTemplate rptTemplate = new HeadQSupplierInforTemplate(suppliers, excelPath);
+			HSSFWorkbook wb = rptTemplate.process();
+			
+			ByteArrayInputStream byteArrayInputStream = ExcelUtil.convertExcelToInputStream(wb);
+			
+			response.setReturnValue(byteArrayInputStream);
+			response.setReturnCode(Response.SUCCESS);
+		} catch (IOException e){
+			e.printStackTrace();
+			response.setFail(e.getMessage());
+		}
+		return response;
+	}
 }

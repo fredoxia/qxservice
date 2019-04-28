@@ -16,6 +16,8 @@
         <property name="comment" column="comment" type="string"/>
         <property name="status" column="status" type="integer"/>
         <property name="pinyin" column="pinyin" type="string"/>
+        <property name="creationDate" column="creation_date" type="timestamp"/>
+        
     </class>
   
 </hibernate-mapping>

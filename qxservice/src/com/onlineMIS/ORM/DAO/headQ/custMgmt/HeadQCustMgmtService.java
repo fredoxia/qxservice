@@ -117,6 +117,8 @@ public class HeadQCustMgmtService {
 		try {
 			//创建新的
 			if (headQCust.getId() == 0){
+				headQCust.setPinyin(Common_util.getPinyinCode(headQCust.getName(), false));
+				headQCust.setCreationDate(Common_util.getToday());
 				headQCustDaoImpl.save(headQCust, true);
 				response.setSuccess("成功创建新的客户");
 			} else {

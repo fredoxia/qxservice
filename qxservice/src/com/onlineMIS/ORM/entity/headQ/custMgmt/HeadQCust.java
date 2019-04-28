@@ -1,6 +1,7 @@
 package com.onlineMIS.ORM.entity.headQ.custMgmt;
 
 import java.io.Serializable;
+import java.util.Date;
 
 public class HeadQCust  implements Serializable{
 	/**
@@ -16,6 +17,7 @@ public class HeadQCust  implements Serializable{
 	private double currentAcctBalance;
 	private String comment;
 	private String pinyin;
+	private Date creationDate;
 	
 	//0:正常, 1:删除
 	private int status;
@@ -46,6 +48,14 @@ public class HeadQCust  implements Serializable{
 	    }
 	}
 	
+	public Date getCreationDate() {
+		return creationDate;
+	}
+
+	public void setCreationDate(Date creationDate) {
+		this.creationDate = creationDate;
+	}
+
 	public String getPinyin() {
 		return pinyin;
 	}

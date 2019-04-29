@@ -241,10 +241,10 @@ public class ProductJSONAction extends ProductAction {
 		
 		if (returnCode == Response.WARNING){
 			List<Product> products = (List<Product>)response.getReturnValue();
-			tip = response.getMessage() + "\n";
+			tip = response.getMessage() + "<br>";
 			
 			for (int i =0; i < products.size() ; i++)
-			       tip += "          " + products.get(i).toString() + "\n";
+			       tip += "          " + products.get(i).toString() + "<br>";
 		} else if (returnCode == Response.FAIL){
 			tip = response.getMessage();
 		}

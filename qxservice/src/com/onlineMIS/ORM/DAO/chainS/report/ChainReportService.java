@@ -415,6 +415,8 @@ public class ChainReportService {
 		//3。 计算 vip prepaid desposit
 		double vipPrepaidDepositCash = 0;
 		double vipPrepaidDepositCard = 0;
+		double vipPrepaidDepositAlipay = 0;
+		double vipPrepaidDepositWechat = 0;
 
 		String hql = "SELECT c.depositType, sum(amount) FROM ChainVIPPrepaidFlow c WHERE c.operationType = ? AND c.status="+ ChainVIPPrepaidFlow.STATUS_SUCCESS +" AND "+ chainCriteriaPrepaid +" AND c.dateD BETWEEN ? AND ? GROUP BY c.depositType";
 	    Object[] values = new Object[]{ChainVIPPrepaidFlow.OPERATION_TYPE_DEPOSIT, startDate, endDate };
@@ -432,6 +434,10 @@ public class ChainReportService {
 				  vipPrepaidDepositCard += amount;
 			  else if (depositType.equalsIgnoreCase(ChainVIPPrepaidFlow.DEPOSIT_TYPE_CASH))
 				  vipPrepaidDepositCash += amount;
+			  else if (depositType.equalsIgnoreCase(ChainVIPPrepaidFlow.DEPOSIT_TYPE_ALIPAY))
+				  vipPrepaidDepositAlipay += amount;
+			  else if (depositType.equalsIgnoreCase(ChainVIPPrepaidFlow.DEPOSIT_TYPE_WECHAT))
+				  vipPrepaidDepositWechat += amount;
 		   }
 	    
 	    //4. 计算累计还有多少预存款
@@ -449,7 +455,7 @@ public class ChainReportService {
 		chainStore.setChain_id(chainId);
 		ChainSalesReport chainReport = new ChainSalesReport(ChainReport.TYPE_SALES_REPORT, totalQ, totalQR,
 				totalQF, netAmt,totalSalesDiscountAmt, netAmtR,totalCost, totalCostF, discountAmt,
-				coupon, cardAmt, cashAmt, vipScoreAmt, qxQuantity,qxAmount, qxCost, myQuantity, myAmount, myCost,vipQ, vipAmt,vipPrepaidAmt,vipPrepaidDepositCash, vipPrepaidDepositCard,prepaidTotal, wechatAmt, alipayAmt);
+				coupon, cardAmt, cashAmt, vipScoreAmt, qxQuantity,qxAmount, qxCost, myQuantity, myAmount, myCost,vipQ, vipAmt,vipPrepaidAmt,vipPrepaidDepositCash, vipPrepaidDepositCard,vipPrepaidDepositAlipay, vipPrepaidDepositWechat,prepaidTotal, wechatAmt, alipayAmt);
 		chainReport.setChainStore(chainStore);
 		
 		return chainReport;
@@ -558,7 +564,7 @@ public class ChainReportService {
 			
 			ChainSalesReport chainReport2 = new ChainSalesReport(ChainReport.TYPE_SALES_REPORT, totalQ2, totalQR2,
 					totalQF2, netAmt2,totalSalesDiscountAmt2, netAmtR2,totalCost2, totalCostF2, discountAmt2,
-					coupon2, cardAmt2, cashAmt2, vipScoreAmt2, qxQuantity,qxAmount, qxCost, myQuantity, myAmount, myCost, 0, 0,vipPrepaidAmt,0,0,0,store,wechatAmt, alipayAmt);
+					coupon2, cardAmt2, cashAmt2, vipScoreAmt2, qxQuantity,qxAmount, qxCost, myQuantity, myAmount, myCost, 0, 0,0,0,vipPrepaidAmt,0,0,0,store,wechatAmt, alipayAmt);
 			reports.add(chainReport2);
 		}
 		
@@ -1233,7 +1239,7 @@ public class ChainReportService {
 			
 			ChainSalesReport chainReport2 = new ChainSalesReport(ChainReport.TYPE_SALES_REPORT, totalQ2, totalQR2,
 					totalQF2, netAmt2,totalSalesDiscountAmt2, netAmtR2,totalCost2, totalCostF2, discountAmt2,
-					coupon2, cardAmt2, cashAmt2, vipScoreAmt2, qxQuantity,qxAmount, qxCost, myQuantity, myAmount, myCost,0 ,0,vipPrepaidAmt,0,0,0, store,user, wechatAmt, alipayAmt);
+					coupon2, cardAmt2, cashAmt2, vipScoreAmt2, qxQuantity,qxAmount, qxCost, myQuantity, myAmount, myCost,0 ,0,0,0,vipPrepaidAmt,0,0,0, store,user, wechatAmt, alipayAmt);
 			
 			if (!ChainUserInforService.isMgmtFromHQ(loginUser) && loginUser.getRoleType().getChainRoleTypeId() != ChainRoleType.CHAIN_OWNER){
 				chainReport2.setFreeCostSum(0);

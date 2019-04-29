@@ -543,7 +543,7 @@ public class ChainUserInforService {
 		purchaseOrderCriteria.add(Restrictions.eq("cust.id", clientId));
 		purchaseOrderCriteria.setProjection(Projections.rowCount());
 		int purchaseOrderCount = Common_util.getProjectionSingleValue(chainStoreSalesOrderDaoImpl.getByCriteriaProjection(purchaseOrderCriteria, true));
-		ChainLoginStatisticInforVO purchaseOrderVO = new ChainLoginStatisticInforVO("千禧宝贝未确认收货的采购单", purchaseOrderCount);
+		ChainLoginStatisticInforVO purchaseOrderVO = new ChainLoginStatisticInforVO("朴与素未确认收货的总部采购单", purchaseOrderCount);
 		statisEle.add(purchaseOrderVO);
 		
 		//3. 子账户的采购单
@@ -563,7 +563,7 @@ public class ChainUserInforService {
 			purchaseClientOrderCriteria.setProjection(Projections.rowCount());
 			purchaseClientOrderCount = Common_util.getProjectionSingleValue(chainStoreSalesOrderDaoImpl.getByCriteriaProjection(purchaseClientOrderCriteria, true));
 		} 
-		ChainLoginStatisticInforVO purchaseClientOrderVO = new ChainLoginStatisticInforVO("禧乐仓未确认收货的采购单", purchaseClientOrderCount);
+		ChainLoginStatisticInforVO purchaseClientOrderVO = new ChainLoginStatisticInforVO("子账户未确认收货的总部采购单", purchaseClientOrderCount);
 		statisEle.add(purchaseClientOrderVO);
 		
 	    //4. 获取三方调货单

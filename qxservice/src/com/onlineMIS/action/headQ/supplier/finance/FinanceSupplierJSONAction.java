@@ -176,7 +176,7 @@ public class FinanceSupplierJSONAction extends FinanceSupplierAction {
 		Response response = new Response();
 		
 		try {
-			response = financeSupplierService.searchAcctFlow(startDate, endDate, supplierId, false);
+			response = financeSupplierService.searchAcctFlow(startDate, endDate, supplierId);
 		} catch (Exception e) {
 			response.setQuickValue(Response.FAIL, e.getMessage());
 		}

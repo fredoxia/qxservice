@@ -678,27 +678,43 @@ public class ChainStoreSalesService {
 		//3. 验证所有的quantity 都是大于0
 	      List<ChainStoreSalesOrderProduct> products2 = salesOrder.getProductList();
 	      List<ChainStoreSalesOrderProduct> productsR2 = salesOrder.getProductListR();
-	      String errorMsg2 = "";
+
 	      boolean quantityError = false;
+	      int salesTotalQ = 0;
 	      for (ChainStoreSalesOrderProduct product : products2){
 	    	  if (product == null || product.getProductBarcode() == null|| product.getProductBarcode().getBarcode() == null || product.getProductBarcode().getBarcode().equals(""))
 	    		  continue;
 	    	  
 	    	  if (product.getQuantity() <= 0 && quantityError == false)
 	    	      quantityError = true;
+	    	  else 
+	    		  salesTotalQ += product.getQuantity();
 	      }
 	      
+	      int returnTotalQ = 0;
 	      for (ChainStoreSalesOrderProduct product : productsR2){
 	    	  if (product == null || product.getProductBarcode() == null|| product.getProductBarcode().getBarcode() == null || product.getProductBarcode().getBarcode().equals(""))
 	    		  continue;
 	    	  
 	    	  if (product.getQuantity() <= 0 && quantityError == false)
 	    	      quantityError = true;
+	    	  else 
+	    		  returnTotalQ += product.getQuantity();
 	      }
 	      if (quantityError){
-				String errorMsg = "所有数量必须是大于零的数字";
+				String errorMsg2 = "所有数量必须是大于零的数字";
 				response.setQuickValue(Response.ERROR, errorMsg2);
 				return response;
+	      } else {
+	    	  if (salesTotalQ != salesOrder.getTotalQuantity()){
+					response.setQuickValue(Response.ERROR, "销售货品总数和明细数量无法匹配，请检查再保存单据");
+					return response;  
+	    	  }
+	    	  
+	    	  if (returnTotalQ != salesOrder.getTotalQuantityR()){
+					response.setQuickValue(Response.ERROR, "退货货品总数和明细数量无法匹配，请检查再保存单据");
+					return response;  
+	    	  }
 	      }
 		
 		if (conf != null ){

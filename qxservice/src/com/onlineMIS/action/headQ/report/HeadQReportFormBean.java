@@ -21,7 +21,9 @@ import com.onlineMIS.ORM.entity.headQ.supplier.supplierMgmt.HeadQSupplier;
 
 public class HeadQReportFormBean {
 	private Date startDate = null;
-	private Date endDate = new Date(new java.util.Date().getTime());;
+	private Date endDate = new Date(new java.util.Date().getTime());
+	private Date searchStartTime = null;
+	private Date searchEndTime = null;
 	private HeadQSupplier supplier = new HeadQSupplier();
 	private DummyOrder order = new DummyOrder();
 	private HeadQCust cust = new HeadQCust();
@@ -35,6 +37,18 @@ public class HeadQReportFormBean {
     
     
 	
+	public Date getSearchStartTime() {
+		return searchStartTime;
+	}
+	public void setSearchStartTime(Date searchStartTime) {
+		this.searchStartTime = searchStartTime;
+	}
+	public Date getSearchEndTime() {
+		return searchEndTime;
+	}
+	public void setSearchEndTime(Date searchEndTime) {
+		this.searchEndTime = searchEndTime;
+	}
 	public DummyOrder getOrder() {
 		return order;
 	}

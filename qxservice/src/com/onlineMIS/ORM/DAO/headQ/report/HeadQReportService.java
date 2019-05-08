@@ -23,7 +23,9 @@ import com.onlineMIS.ORM.DAO.headQ.barCodeGentor.ProductBarcodeDaoImpl;
 import com.onlineMIS.ORM.DAO.headQ.barCodeGentor.QuarterDaoImpl;
 import com.onlineMIS.ORM.DAO.headQ.barCodeGentor.YearDaoImpl;
 import com.onlineMIS.ORM.DAO.headQ.custMgmt.HeadQCustDaoImpl;
+import com.onlineMIS.ORM.DAO.headQ.finance.FinanceService;
 import com.onlineMIS.ORM.DAO.headQ.inventory.InventoryOrderProductDAOImpl;
+import com.onlineMIS.ORM.DAO.headQ.supplier.finance.FinanceSupplierService;
 import com.onlineMIS.ORM.DAO.headQ.supplier.purchase.PurchaseOrderProductDaoImpl;
 import com.onlineMIS.ORM.DAO.headQ.supplier.purchase.SupplierPurchaseService;
 import com.onlineMIS.ORM.DAO.headQ.supplier.supplierMgmt.HeadQSupplierDaoImpl;
@@ -37,7 +39,9 @@ import com.onlineMIS.ORM.entity.headQ.barcodeGentor.ProductBarcode;
 import com.onlineMIS.ORM.entity.headQ.barcodeGentor.Quarter;
 import com.onlineMIS.ORM.entity.headQ.barcodeGentor.Year;
 import com.onlineMIS.ORM.entity.headQ.custMgmt.HeadQCust;
+import com.onlineMIS.ORM.entity.headQ.finance.ChainAcctFlowReportItem;
 import com.onlineMIS.ORM.entity.headQ.inventory.InventoryOrder;
+import com.onlineMIS.ORM.entity.headQ.report.HeadQCustAcctFlowTemplate;
 import com.onlineMIS.ORM.entity.headQ.report.HeadQCustInforTemplate;
 import com.onlineMIS.ORM.entity.headQ.report.HeadQPurchaseStatisticReportItem;
 import com.onlineMIS.ORM.entity.headQ.report.HeadQPurchaseStatisticReportItemVO;
@@ -46,7 +50,9 @@ import com.onlineMIS.ORM.entity.headQ.report.HeadQReportItemVO;
 import com.onlineMIS.ORM.entity.headQ.report.HeadQSalesStatisticReportItem;
 import com.onlineMIS.ORM.entity.headQ.report.HeadQSalesStatisticReportItemVO;
 import com.onlineMIS.ORM.entity.headQ.report.HeadQSalesStatisticsReportTemplate;
+import com.onlineMIS.ORM.entity.headQ.report.HeadQSupplierAcctFlowTemplate;
 import com.onlineMIS.ORM.entity.headQ.report.HeadQSupplierInforTemplate;
+import com.onlineMIS.ORM.entity.headQ.supplier.finance.SupplierAcctFlowReportItem;
 import com.onlineMIS.ORM.entity.headQ.supplier.purchase.PurchaseOrder;
 import com.onlineMIS.ORM.entity.headQ.supplier.supplierMgmt.HeadQSupplier;
 import com.onlineMIS.ORM.entity.headQ.user.UserInfor;
@@ -87,6 +93,12 @@ public class HeadQReportService {
 	
 	@Autowired
 	private InventoryOrderProductDAOImpl inventoryOrderProductDAOImpl;
+	
+	@Autowired
+	private FinanceSupplierService financeSupplierService;
+	
+	@Autowired
+	private FinanceService financeService;
 	/**
 	 * 获取总部的采购报表数据
 	 * @param parentId
@@ -847,6 +859,68 @@ public class HeadQReportService {
 		try {
 		    HeadQSupplierInforTemplate rptTemplate = new HeadQSupplierInforTemplate(suppliers, excelPath);
 			HSSFWorkbook wb = rptTemplate.process();
+			
+			ByteArrayInputStream byteArrayInputStream = ExcelUtil.convertExcelToInputStream(wb);
+			
+			response.setReturnValue(byteArrayInputStream);
+			response.setReturnCode(Response.SUCCESS);
+		} catch (IOException e){
+			e.printStackTrace();
+			response.setFail(e.getMessage());
+		}
+		return response;
+	}
+	
+	/**
+	 * 下在供应商往来账目成excel
+
+	 * @return
+	 */
+	@Transactional
+	public Response downloadSupplierAcctFlowReport(String excelPath, Date startDate, Date endDate, int supplierId) {
+		Response response = new Response();
+
+		response = financeSupplierService.searchAcctFlow(startDate, endDate, supplierId);
+	
+		Map<String, List> data = (Map)response.getReturnValue();
+		List<SupplierAcctFlowReportItem> items = (List<SupplierAcctFlowReportItem>)data.get("rows");
+		
+		HeadQSupplier supplier = headQSupplierDaoImpl.get(supplierId, true);
+		//2. 准备excel 报表
+		try {
+		    HeadQSupplierAcctFlowTemplate rptTemplate = new HeadQSupplierAcctFlowTemplate(items, excelPath, supplier, startDate, endDate);
+		    HSSFWorkbook wb = rptTemplate.process();
+			
+			ByteArrayInputStream byteArrayInputStream = ExcelUtil.convertExcelToInputStream(wb);
+			
+			response.setReturnValue(byteArrayInputStream);
+			response.setReturnCode(Response.SUCCESS);
+		} catch (IOException e){
+			e.printStackTrace();
+			response.setFail(e.getMessage());
+		}
+		return response;
+	}
+	
+	/**
+	 * 下在客户往来账目成excel
+
+	 * @return
+	 */
+	@Transactional
+	public Response downloadCustAcctFlowReport(String excelPath, Date startDate, Date endDate, int custId) {
+		Response response = new Response();
+
+		response = financeService.searchAcctFlow(startDate, endDate, custId, false);
+		
+		Map<String, List> data = (Map)response.getReturnValue();
+		List<ChainAcctFlowReportItem> items = (List<ChainAcctFlowReportItem>)data.get("rows");
+		
+		HeadQCust cust = headQCustDaoImpl.get(custId, true);
+		//2. 准备excel 报表
+		try {
+		    HeadQCustAcctFlowTemplate rptTemplate = new HeadQCustAcctFlowTemplate(items, excelPath, cust, startDate, endDate);
+		    HSSFWorkbook wb = rptTemplate.process();
 			
 			ByteArrayInputStream byteArrayInputStream = ExcelUtil.convertExcelToInputStream(wb);
 			

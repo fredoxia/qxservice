@@ -25,6 +25,7 @@ import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.tools.ant.types.Quantifier;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Order;
@@ -33,6 +34,7 @@ import org.springframework.aop.ThrowsAdvice;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 
 
 
@@ -223,6 +225,7 @@ public class WholeSalesService {
 			} else {
 				orderProduct.setProductBarcode(pb);
 				orderProduct.setRecCost(product.getRecCost());
+				orderProduct.setSalesPrice(product.getSalesPrice());
 			}
 			
 			if (q >= numPerHand*2){
@@ -238,10 +241,13 @@ public class WholeSalesService {
 		 */
 		Collection<InventoryOrderProduct> OrderProducts = orderProductMap.values();
 		double totalRecCost = 0;
+		double totalSalesPrice = 0;
 		for (InventoryOrderProduct product : OrderProducts){
 			totalRecCost += product.getRecCost() * product.getQuantity();
+			totalSalesPrice += product.getSalesPrice() * product.getQuantity();
 		}
 		order.setTotalRecCost(totalRecCost);
+		order.setTotalRetailPrice(totalSalesPrice);
 		
 		/**
 		 * 5. rebuild the product list

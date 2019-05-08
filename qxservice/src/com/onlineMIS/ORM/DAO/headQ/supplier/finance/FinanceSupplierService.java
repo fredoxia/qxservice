@@ -446,7 +446,7 @@ public class FinanceSupplierService {
 		return response;
 	}
 
-	public Response searchAcctFlow(Date startDate, Date endDate, int supplierId, boolean b) {
+	public Response searchAcctFlow(Date startDate, Date endDate, int supplierId) {
 		Response response = new Response();
 		List<SupplierAcctFlowReportItem> rptItems = new ArrayList<SupplierAcctFlowReportItem>();
 		

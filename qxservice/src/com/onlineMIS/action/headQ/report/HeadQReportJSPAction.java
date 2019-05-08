@@ -162,4 +162,56 @@ public class HeadQReportJSPAction extends HeadQReportAction {
 		} else 
 			return ERROR;	
 	}
+	
+	/**
+	 * 下载 供应商acct flow 成excel
+	 * @return
+	 */
+	public String downloadSupplierAcctFlowExcelReport(){
+		loggerLocal.info(this.getClass().getName()+ ".downloadSupplierAcctFlowExcelReport");
+		HttpServletRequest request = (HttpServletRequest)ActionContext.getContext().get(ServletActionContext.HTTP_REQUEST);   
+		String contextPath= request.getRealPath("/"); 
+
+		Response response = new Response();
+		try {
+		     response = headQReportService.downloadSupplierAcctFlowReport(contextPath + "WEB-INF\\template\\headQ", formBean.getSearchStartTime(), formBean.getSearchEndTime(), formBean.getOrder().getSupplier().getId());
+		} catch (Exception e) {
+			response.setReturnCode(Response.FAIL);
+			response.setMessage(e.getMessage());
+		}
+		 
+		if (response.getReturnCode() == Response.SUCCESS){
+		    InputStream excelStream= (InputStream)response.getReturnValue();
+		    this.setExcelStream(excelStream);
+		    this.setExcelFileName("GongYinShangWangLaiZhang.xls");
+		    return "report"; 
+		} else 
+			return ERROR;	
+	}
+	
+	/**
+	 * 下载 客户acct flow 成excel
+	 * @return
+	 */
+	public String downloadCustAcctFlowExcelReport(){
+		loggerLocal.info(this.getClass().getName()+ ".downloadCustAcctFlowExcelReport");
+		HttpServletRequest request = (HttpServletRequest)ActionContext.getContext().get(ServletActionContext.HTTP_REQUEST);   
+		String contextPath= request.getRealPath("/"); 
+
+		Response response = new Response();
+		try {
+		     response = headQReportService.downloadCustAcctFlowReport(contextPath + "WEB-INF\\template\\headQ", formBean.getSearchStartTime(), formBean.getSearchEndTime(), formBean.getOrder().getCust().getId());
+		} catch (Exception e) {
+			response.setReturnCode(Response.FAIL);
+			response.setMessage(e.getMessage());
+		}
+		 
+		if (response.getReturnCode() == Response.SUCCESS){
+		    InputStream excelStream= (InputStream)response.getReturnValue();
+		    this.setExcelStream(excelStream);
+		    this.setExcelFileName("KeHuWangLaiZhang.xls");
+		    return "report"; 
+		} else 
+			return ERROR;	
+	}
 }

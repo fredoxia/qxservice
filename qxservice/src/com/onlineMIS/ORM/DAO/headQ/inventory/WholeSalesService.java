@@ -224,7 +224,7 @@ public class WholeSalesService {
 				loggerLocal.error("Could not get the product from Map. Order Id :" + order.getOrder_ID() +", barcode :" + barcode);
 			} else {
 				orderProduct.setProductBarcode(pb);
-				orderProduct.setRecCost(product.getRecCost());
+				orderProduct.setRecCost(ProductBarcodeDaoImpl.getRecCost(pb));
 				orderProduct.setSalesPrice(product.getSalesPrice());
 			}
 			
@@ -1147,7 +1147,7 @@ public class WholeSalesService {
                 Product product = productBarcode.getProduct();
                 
 				orderProduct.setProductBarcode(productBarcode);
-				orderProduct.setRecCost(product.getRecCost());
+				orderProduct.setRecCost(ProductBarcodeDaoImpl.getRecCost(productBarcode));
 	            orderProduct.setSalesPrice(product.getSalesPrice());
 	            
 	            //check whether the whole price is changed manually
@@ -1276,7 +1276,7 @@ public class WholeSalesService {
 					
 					int quantity = orderProduct.getQuantity();
 					double wholePrice = selectedPrice * discount;
-					double cost = product.getRecCost();
+					double cost = ProductBarcodeDaoImpl.getRecCost(productBarcode);
 					double salePrice = product.getSalesPrice();
 					
 					orderProduct.setDiscount(discount);

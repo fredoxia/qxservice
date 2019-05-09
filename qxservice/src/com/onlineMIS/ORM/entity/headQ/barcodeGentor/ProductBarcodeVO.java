@@ -2,6 +2,8 @@ package com.onlineMIS.ORM.entity.headQ.barcodeGentor;
 
 import java.util.Date;
 
+import com.onlineMIS.ORM.DAO.headQ.barCodeGentor.ProductBarcodeDaoImpl;
+
 public class ProductBarcodeVO {
 	private int id;
 	private String barcode = "";
@@ -52,7 +54,7 @@ public class ProductBarcodeVO {
 			this.factorySalesPrice = product.getSalesPriceFactory();
 			this.discount = product.getDiscount();
 			this.salesPrice = product.getSalesPrice();
-			this.cost = product.getRecCost();
+			this.cost = ProductBarcodeDaoImpl.getRecCost(pb);
 			this.wholePrice1 = product.getWholeSalePrice();
 			this.wholePrice2 = product.getWholeSalePrice2();
 			this.wholePrice3 = product.getWholeSalePrice3();

@@ -531,6 +531,7 @@ public class ProductBarcodeService {
         	product.setProductCode(newProduct.getProductCode());
         	product.setSalesPrice(newProduct.getSalesPrice());
         	product.setRecCost(newProduct.getRecCost());
+        	product.setRecCost2(newProduct.getRecCost2());
         	product.setWholeSalePrice(newProduct.getWholeSalePrice());
         	product.setWholeSalePrice2(newProduct.getWholeSalePrice2());
         	product.setWholeSalePrice3(newProduct.getWholeSalePrice3());

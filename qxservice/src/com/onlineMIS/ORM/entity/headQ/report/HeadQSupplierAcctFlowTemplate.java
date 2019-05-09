@@ -31,7 +31,7 @@ import com.onlineMIS.common.loggerLocal;
 import com.sun.jndi.toolkit.ctx.StringHeadTail;
 
 public class HeadQSupplierAcctFlowTemplate extends ExcelTemplate{
-	private final static String TEMPLATE_FILE_NAME = "HeadQSupplierAcctFlowReportTemplate.xls";
+	private final static String TEMPLATE_FILE_NAME = "HeadQSupplierAcctFlowTemplate.xls";
 	private List<SupplierAcctFlowReportItem> items = new ArrayList<SupplierAcctFlowReportItem>();
 	private HeadQSupplier supplier = null;
 	private Date startDate = null;

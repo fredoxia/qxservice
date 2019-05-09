@@ -182,6 +182,22 @@ public class ProductBarcodeDaoImpl  extends BaseDAO<ProductBarcode> {
 		else 
 			return factoryPrice * discount;
 	}
+	
+	/**
+	 * to get the expected whole sale price
+	 * @param productBarcode
+	 * @return
+	 */
+	public static double getRecCost(ProductBarcode productBarcode) {
+		Product product = productBarcode.getProduct();
+		double recCost2 = product.getRecCost2();
+		double recCost = product.getRecCost();
+
+		if (recCost2 != 0)
+			return recCost2;
+		else 
+			return recCost;
+	}
 
 	public int getNumOfProductsUnderYQB(int yearId, int quarterId, int brandId) {
 		DetachedCriteria criteria = DetachedCriteria.forClass(ProductBarcode.class,"pb");

@@ -398,7 +398,7 @@ public class IpadService {
 				
 				int quantity = orderProduct.getQuantity();
 				double wholePrice = selectedPrice * discount;
-				double cost = product.getRecCost();
+				double cost = ProductBarcodeDaoImpl.getRecCost(productBarcode);
 				double salePrice = product.getSalesPrice();
 				
 				orderProduct.setDiscount(discount);

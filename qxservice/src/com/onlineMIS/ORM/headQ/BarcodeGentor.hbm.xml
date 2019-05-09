@@ -95,6 +95,7 @@
         <property name="wholeSalePrice2" column="whole_sale_price2" type="double"/>
         <property name="wholeSalePrice3" column="whole_sale_price3" type="double"/>
         <property name="recCost" column="rec_cost" type="double"/>
+        <property name="recCost2" column="rec_cost2" type="double"/>
         <many-to-one name="chainStore" fetch="select" column="chain_id" class="com.onlineMIS.ORM.entity.chainS.user.ChainStore" not-null="false" lazy="false"/>
         <many-to-one name="area" column="area_ID" class="com.onlineMIS.ORM.entity.headQ.barcodeGentor.Area" lazy="false"/>
         <many-to-one name="year" column="year_ID" class="com.onlineMIS.ORM.entity.headQ.barcodeGentor.Year" lazy="false"/>

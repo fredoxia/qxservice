@@ -60,6 +60,16 @@ public class HeadQReportJSPAction extends HeadQReportAction {
 	}
 	
 	/**
+	 * 总部销售报表
+	 * @return
+	 */
+	public String preGenerateCustAcctFlowReport(){
+		loggerLocal.info(this.getClass().getName()+ ".preGenerateCustAcctFlowReport");
+    	
+		return "CustAcctFlowReport";		
+	}
+	
+	/**
 	 * 下载 采购统计报表
 	 * @return
 	 */

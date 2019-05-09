@@ -13,6 +13,7 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Row;
 
+import com.onlineMIS.ORM.DAO.headQ.barCodeGentor.ProductBarcodeDaoImpl;
 import com.onlineMIS.common.Common_util;
 import com.onlineMIS.common.ExcelTemplate;
 
@@ -139,8 +140,8 @@ public class BarcodeTemplate extends ExcelTemplate{
 				row.createCell(material_column).setCellValue(product.getCategory().getMaterial());
 				row.createCell(filler_column).setCellValue(product.getCategory().getFiller());
 				
-				row.createCell(wholePrice_column).setCellValue(product.getWholeSalePrice());
-				row.createCell(recCost_column).setCellValue(product.getRecCost());
+				row.createCell(wholePrice_column).setCellValue(ProductBarcodeDaoImpl.getWholeSalePrice(productBarcode));
+				row.createCell(recCost_column).setCellValue(ProductBarcodeDaoImpl.getRecCost(productBarcode));
 				row.createCell(salePrice_column).setCellValue(product.getSalesPrice());
 			}
 

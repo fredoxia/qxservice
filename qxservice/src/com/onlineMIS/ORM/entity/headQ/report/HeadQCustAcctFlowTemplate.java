@@ -15,7 +15,7 @@ import com.onlineMIS.common.Common_util;
 import com.onlineMIS.common.ExcelTemplate;
 
 public class HeadQCustAcctFlowTemplate extends ExcelTemplate{
-	private final static String TEMPLATE_FILE_NAME = "HeadQCustAcctFlowReportTemplate.xls";
+	private final static String TEMPLATE_FILE_NAME = "HeadQCustAcctFlowTemplate.xls";
 	private List<ChainAcctFlowReportItem> items = new ArrayList<ChainAcctFlowReportItem>();
 	private HeadQCust cust = null;
 	private Date startDate = null;

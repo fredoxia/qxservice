@@ -71,6 +71,10 @@ public class Product  implements Serializable{
      */
     private double recCost;
     /**
+     * the whole saler's cost price批发商进价2
+     */
+    private double recCost2;
+    /**
      * the price decided by factory 厂家零售价
      */
     private double salesPriceFactory;
@@ -316,6 +320,16 @@ public class Product  implements Serializable{
 	public void setLastChoosePrice(double lastChoosePrice) {
 		this.lastChoosePrice = lastChoosePrice;
 	}
+
+	public double getRecCost2() {
+		return recCost2;
+	}
+
+
+	public void setRecCost2(double recCost2) {
+		this.recCost2 = recCost2;
+	}
+
 
 	@Override
 	public int hashCode() {

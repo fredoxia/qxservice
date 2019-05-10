@@ -18,9 +18,12 @@ public class HeadQCustAcctFlowReportTemplate extends ExcelTemplate{
 	private final static String TEMPLATE_FILE_NAME = "HeadQCustAcctFlowReportTemplate.xls";
 	private List<HeadQCustAcctFlowReportItem> items = new ArrayList<HeadQCustAcctFlowReportItem>();
 
+	
+	private String curretnYearQuarter = "";
+	private String lastQuarter = "";
 	private Date startDate = null;
 	private Date endDate = null;
-	protected int data_row = 4;
+	protected int data_row = 5;
 
 	protected final int INDEX = 0;
 	protected final int CUSTOMER_NAME = 1;
@@ -37,10 +40,10 @@ public class HeadQCustAcctFlowReportTemplate extends ExcelTemplate{
     	super(file);
     }
 	
-	public HeadQCustAcctFlowReportTemplate(List<HeadQCustAcctFlowReportItem> items, String templateWorkbookPath, Date startDate, Date endDate) throws IOException{
+	public HeadQCustAcctFlowReportTemplate(List<HeadQCustAcctFlowReportItem> items, String templateWorkbookPath, Date startDate, Date endDate, String curretnYearQuarter) throws IOException{
 		super(templateWorkbookPath + "\\" + TEMPLATE_FILE_NAME);	
 		this.items = items;
-
+		this.curretnYearQuarter = curretnYearQuarter;
 		this.startDate = startDate;
 		this.endDate = endDate;
 	}
@@ -56,7 +59,11 @@ public class HeadQCustAcctFlowReportTemplate extends ExcelTemplate{
 		dateRow.createCell(1).setCellValue(Common_util.dateFormat.format(startDate));
 		dateRow.createCell(3).setCellValue(Common_util.dateFormat.format(endDate));
 
-		Row reportDateRow = sheet.getRow(2);
+		Row currentYQRow = sheet.getRow(2);
+		currentYQRow.createCell(1).setCellValue(curretnYearQuarter);
+
+		
+		Row reportDateRow = sheet.getRow(3);
 		reportDateRow.createCell(1).setCellValue(Common_util.dateFormat_f.format(Common_util.getToday()));
 
 		//write cust infmration

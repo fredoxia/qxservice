@@ -40,6 +40,7 @@
          <action name="headqReportJSP" class="com.onlineMIS.action.headQ.report.HeadQReportJSPAction">
             <result name="purchaseReport">/jsp/headQ/report/PurchaseReport.jsp</result>
 			<result name="salesReport">/jsp/headQ/report/SalesReport.jsp</result>
+			<result name="CustAcctFlowReport">/jsp/headQ/report/CustAcctFlowReport.jsp</result>
 			<result type="stream" name="report">  
                  <param name="contentType">  
                      application/vnd.ms-excel   

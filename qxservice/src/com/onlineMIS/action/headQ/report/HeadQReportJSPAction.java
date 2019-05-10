@@ -65,6 +65,8 @@ public class HeadQReportJSPAction extends HeadQReportAction {
 	 */
 	public String preGenerateCustAcctFlowReport(){
 		loggerLocal.info(this.getClass().getName()+ ".preGenerateCustAcctFlowReport");
+		
+		headQReportService.prepareAcctFlowReportUI(formBean, uiBean);
     	
 		return "CustAcctFlowReport";		
 	}
@@ -177,14 +179,14 @@ public class HeadQReportJSPAction extends HeadQReportAction {
 	 * 下载 供应商acct flow 成excel
 	 * @return
 	 */
-	public String downloadSupplierAcctFlowExcelReport(){
+	public String downloadSupplierAcctFlowExcel(){
 		loggerLocal.info(this.getClass().getName()+ ".downloadSupplierAcctFlowExcelReport");
 		HttpServletRequest request = (HttpServletRequest)ActionContext.getContext().get(ServletActionContext.HTTP_REQUEST);   
 		String contextPath= request.getRealPath("/"); 
 
 		Response response = new Response();
 		try {
-		     response = headQReportService.downloadSupplierAcctFlowReport(contextPath + "WEB-INF\\template\\headQ", formBean.getSearchStartTime(), formBean.getSearchEndTime(), formBean.getOrder().getSupplier().getId());
+		     response = headQReportService.downloadSupplierAcctFlow(contextPath + "WEB-INF\\template\\headQ", formBean.getSearchStartTime(), formBean.getSearchEndTime(), formBean.getOrder().getSupplier().getId());
 		} catch (Exception e) {
 			response.setReturnCode(Response.FAIL);
 			response.setMessage(e.getMessage());
@@ -203,6 +205,32 @@ public class HeadQReportJSPAction extends HeadQReportAction {
 	 * 下载 客户acct flow 成excel
 	 * @return
 	 */
+	public String downloadCustAcctFlowExcel(){
+		loggerLocal.info(this.getClass().getName()+ ".downloadCustAcctFlowExcelReport");
+		HttpServletRequest request = (HttpServletRequest)ActionContext.getContext().get(ServletActionContext.HTTP_REQUEST);   
+		String contextPath= request.getRealPath("/"); 
+
+		Response response = new Response();
+		try {
+		     response = headQReportService.downloadCustAcctFlow(contextPath + "WEB-INF\\template\\headQ", formBean.getSearchStartTime(), formBean.getSearchEndTime(), formBean.getOrder().getCust().getId());
+		} catch (Exception e) {
+			response.setReturnCode(Response.FAIL);
+			response.setMessage(e.getMessage());
+		}
+		 
+		if (response.getReturnCode() == Response.SUCCESS){
+		    InputStream excelStream= (InputStream)response.getReturnValue();
+		    this.setExcelStream(excelStream);
+		    this.setExcelFileName("KeHuWangLaiZhang.xls");
+		    return "report"; 
+		} else 
+			return ERROR;	
+	}
+
+	/**
+	 * 下载 客户acct flow 成excel report
+	 * @return
+	 */
 	public String downloadCustAcctFlowExcelReport(){
 		loggerLocal.info(this.getClass().getName()+ ".downloadCustAcctFlowExcelReport");
 		HttpServletRequest request = (HttpServletRequest)ActionContext.getContext().get(ServletActionContext.HTTP_REQUEST);   
@@ -210,7 +238,7 @@ public class HeadQReportJSPAction extends HeadQReportAction {
 
 		Response response = new Response();
 		try {
-		     response = headQReportService.downloadCustAcctFlowReport(contextPath + "WEB-INF\\template\\headQ", formBean.getSearchStartTime(), formBean.getSearchEndTime(), formBean.getOrder().getCust().getId());
+		     response = headQReportService.downloadCustAcctFlowReport(contextPath + "WEB-INF\\template\\headQ", formBean.getStartDate(), formBean.getEndDate(), formBean.getYear().getYear_ID(), formBean.getQuarter().getQuarter_ID());
 		} catch (Exception e) {
 			response.setReturnCode(Response.FAIL);
 			response.setMessage(e.getMessage());

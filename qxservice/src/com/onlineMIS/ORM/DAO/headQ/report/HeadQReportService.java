@@ -9,9 +9,16 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import javax.xml.parsers.DocumentBuilder;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.ProjectionList;
+import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +30,10 @@ import com.onlineMIS.ORM.DAO.headQ.barCodeGentor.ProductBarcodeDaoImpl;
 import com.onlineMIS.ORM.DAO.headQ.barCodeGentor.QuarterDaoImpl;
 import com.onlineMIS.ORM.DAO.headQ.barCodeGentor.YearDaoImpl;
 import com.onlineMIS.ORM.DAO.headQ.custMgmt.HeadQCustDaoImpl;
+import com.onlineMIS.ORM.DAO.headQ.finance.FinanceBillImpl;
 import com.onlineMIS.ORM.DAO.headQ.finance.FinanceService;
+import com.onlineMIS.ORM.DAO.headQ.finance.HeadQAcctFlowDaoImpl;
+import com.onlineMIS.ORM.DAO.headQ.inventory.InventoryOrderDAOImpl;
 import com.onlineMIS.ORM.DAO.headQ.inventory.InventoryOrderProductDAOImpl;
 import com.onlineMIS.ORM.DAO.headQ.supplier.finance.FinanceSupplierService;
 import com.onlineMIS.ORM.DAO.headQ.supplier.purchase.PurchaseOrderProductDaoImpl;
@@ -40,7 +50,12 @@ import com.onlineMIS.ORM.entity.headQ.barcodeGentor.Quarter;
 import com.onlineMIS.ORM.entity.headQ.barcodeGentor.Year;
 import com.onlineMIS.ORM.entity.headQ.custMgmt.HeadQCust;
 import com.onlineMIS.ORM.entity.headQ.finance.ChainAcctFlowReportItem;
+import com.onlineMIS.ORM.entity.headQ.finance.FinanceBill;
+import com.onlineMIS.ORM.entity.headQ.finance.HeadQAcctFlow;
 import com.onlineMIS.ORM.entity.headQ.inventory.InventoryOrder;
+import com.onlineMIS.ORM.entity.headQ.inventory.InventoryOrderProduct;
+import com.onlineMIS.ORM.entity.headQ.report.HeadQCustAcctFlowReportItem;
+import com.onlineMIS.ORM.entity.headQ.report.HeadQCustAcctFlowReportTemplate;
 import com.onlineMIS.ORM.entity.headQ.report.HeadQCustAcctFlowTemplate;
 import com.onlineMIS.ORM.entity.headQ.report.HeadQCustInforTemplate;
 import com.onlineMIS.ORM.entity.headQ.report.HeadQPurchaseStatisticReportItem;
@@ -56,6 +71,8 @@ import com.onlineMIS.ORM.entity.headQ.supplier.finance.SupplierAcctFlowReportIte
 import com.onlineMIS.ORM.entity.headQ.supplier.purchase.PurchaseOrder;
 import com.onlineMIS.ORM.entity.headQ.supplier.supplierMgmt.HeadQSupplier;
 import com.onlineMIS.ORM.entity.headQ.user.UserInfor;
+import com.onlineMIS.action.headQ.report.HeadQReportFormBean;
+import com.onlineMIS.action.headQ.report.HeadQReportUIBean;
 import com.onlineMIS.common.Common_util;
 import com.onlineMIS.common.ExcelUtil;
 import com.onlineMIS.filter.SystemParm;
@@ -95,10 +112,19 @@ public class HeadQReportService {
 	private InventoryOrderProductDAOImpl inventoryOrderProductDAOImpl;
 	
 	@Autowired
+	private InventoryOrderDAOImpl inventoryOrderDAOImpl;
+	
+	@Autowired
 	private FinanceSupplierService financeSupplierService;
 	
 	@Autowired
 	private FinanceService financeService;
+	
+	@Autowired
+	private HeadQAcctFlowDaoImpl headQAcctFlowDaoImpl;
+	
+	@Autowired
+	private FinanceBillImpl financeBillImpl;
 	/**
 	 * 获取总部的采购报表数据
 	 * @param parentId
@@ -877,7 +903,7 @@ public class HeadQReportService {
 	 * @return
 	 */
 	@Transactional
-	public Response downloadSupplierAcctFlowReport(String excelPath, Date startDate, Date endDate, int supplierId) {
+	public Response downloadSupplierAcctFlow(String excelPath, Date startDate, Date endDate, int supplierId) {
 		Response response = new Response();
 
 		response = financeSupplierService.searchAcctFlow(startDate, endDate, supplierId);
@@ -908,7 +934,7 @@ public class HeadQReportService {
 	 * @return
 	 */
 	@Transactional
-	public Response downloadCustAcctFlowReport(String excelPath, Date startDate, Date endDate, int custId) {
+	public Response downloadCustAcctFlow(String excelPath, Date startDate, Date endDate, int custId) {
 		Response response = new Response();
 
 		response = financeService.searchAcctFlow(startDate, endDate, custId, false);
@@ -932,4 +958,173 @@ public class HeadQReportService {
 		}
 		return response;
 	}
+
+	/**
+	 * 准备 acct flow report的ui
+	 * @param uiBean
+	 */
+	public void prepareAcctFlowReportUI(HeadQReportFormBean formBean,HeadQReportUIBean uiBean) {
+		List<Year> years = yearDaoImpl.getAll(true);
+		List<Quarter> quarters = quarterDaoImpl.getAll(true);
+		
+		uiBean.setQuarters(quarters);
+		uiBean.setYears(years);
+		
+		formBean.setStartDate(Common_util.getToday());
+		
+	}
+
+
+	/**
+	 * 
+	 * @param path
+	 * @param startDate
+	 * @param endDate
+	 * @param year_ID
+	 * @param quarter_ID
+	 * @return
+	 */
+	@Transactional
+	public Response downloadCustAcctFlowReport(String path, Date startDate, Date endDate, int yearId,int quarterId) {
+		Response response = new Response();
+
+		List<HeadQCustAcctFlowReportItem> items = new ArrayList<HeadQCustAcctFlowReportItem>();
+		
+		Year year = yearDaoImpl.get(yearId, true);
+		Quarter quarter = quarterDaoImpl.get(quarterId, true);
+		String curretnYearQuarter = year.getYear() + " " + quarter.getQuarter_Name();
+		
+		//1. 准备客户名单
+		List<ChainStore> chainStores = chainStoreDaoImpl.getAllChainStoreList();
+		Set<Integer> chainStoreClientIds = chainStoreDaoImpl.getAllClientIds();
+		
+		//2. 准备日期
+		java.util.Date startDate1 = Common_util.formStartDate(startDate);
+		java.util.Date enDate1 = Common_util.formEndDate(endDate);
+		
+		//3.获取上期欠款
+		Map<Integer, Double> lastPeriodAcctBalance = headQAcctFlowDaoImpl.getAccumulateAcctFlowBefore(chainStoreClientIds, startDate);
+		
+		//4.获取当期期末欠款
+		Map<Integer, Double> currentPeriodAcctBalance = headQAcctFlowDaoImpl.getAccumulateAcctFlowBefore(chainStoreClientIds, endDate);
+		
+		//5.获取本期付款
+		DetachedCriteria financeCriteria = DetachedCriteria.forClass(FinanceBill.class);
+		
+		financeCriteria.add(Restrictions.in("cust.id", chainStoreClientIds));
+		financeCriteria.add(Restrictions.between("billDate", startDate, endDate));
+		
+		ProjectionList projList = Projections.projectionList();
+		projList.add(Projections.groupProperty("cust.id"));
+		projList.add(Projections.sum("invoiceTotal"));
+		financeCriteria.setProjection(projList);
+		
+		List<Object> result = financeBillImpl.getByCriteriaProjection(financeCriteria, false);
+		Map<Integer, Double> stockMap = new HashMap<Integer, Double>();
+
+		for (Object object : result)
+		  if (object != null){
+			Object[] recordResult = (Object[])object;
+			int clientId = Common_util.getInt(recordResult[0]);
+			double amount =  Common_util.getDouble(recordResult[1]);
+			stockMap.put(clientId, amount);
+		  } 
+		
+		//6. 获取本期发生 这段时间的销售金额
+		DetachedCriteria inventoryCriteria = DetachedCriteria.forClass(InventoryOrder.class);
+		
+		inventoryCriteria.add(Restrictions.in("cust.id", chainStoreClientIds));
+		inventoryCriteria.add(Restrictions.between("order_EndTime", startDate, endDate));
+		inventoryCriteria.add(Restrictions.eq("order_Status", InventoryOrder.STATUS_ACCOUNT_COMPLETE));
+		
+		ProjectionList inventoryProjList = Projections.projectionList();
+		inventoryProjList.add(Projections.groupProperty("cust.id"));
+		inventoryProjList.add(Projections.groupProperty("order_type"));
+		inventoryProjList.add(Projections.sum("totalWholePrice"));
+		inventoryCriteria.setProjection(inventoryProjList);
+		
+		List<Object> inventoryResult = inventoryOrderDAOImpl.getByCriteriaProjection(inventoryCriteria, false);
+		Map<Integer, Double> inventoryMap = new HashMap<Integer, Double>();
+
+		for (Object object : inventoryResult)
+		  if (object != null){
+			Object[] recordResult = (Object[])object;
+			int clientId = Common_util.getInt(recordResult[0]);
+			int type = Common_util.getInt(recordResult[1]);
+			double amount =  Common_util.getDouble(recordResult[2]);
+			
+			Double amountInMap = inventoryMap.get(clientId);
+			if (amountInMap == null){
+				amountInMap = new Double(0);
+			}
+			
+			switch (type) {
+				case InventoryOrder.TYPE_SALES_ORDER_W:
+					amountInMap += amount;
+					break;
+				case InventoryOrder.TYPE_SALES_RETURN_ORDER_W:
+					amountInMap -= amount;
+					break;
+				default:
+					break;
+			}
+			
+			inventoryMap.put(clientId, amountInMap);
+		  } 
+		
+		//7. 获取当前季度的采购
+		List<Object> value_sale = new ArrayList<Object>();
+		value_sale.add(InventoryOrder.STATUS_ACCOUNT_COMPLETE);
+
+		String criteria = "SELECT SUM(wholeSalePrice * quantity),  p.order.cust.id, p.order.order_type FROM InventoryOrderProduct p WHERE p.order.order_Status = ?  AND p.productBarcode.product.year.year_ID = " + yearId + " AND p.productBarcode.product.quarter.quarter_ID = " + quarterId + " GROUP BY p.order.cust.id, p.order.order_type";
+		List<Object> values = inventoryOrderProductDAOImpl.executeHQLSelect(criteria, value_sale.toArray(), null, true);
+		
+		Map<Integer, Double> inventoryOrderProductMap = new HashMap<Integer, Double>();
+		if (values != null){
+			for (Object record : values ){
+				Object[] records = (Object[])record;
+
+				double amount = Common_util.getDouble(records[0]);
+				int clientId = Common_util.getInt(records[1]);
+				int type = Common_util.getInt(records[2]);
+				
+				Double amountInMap = inventoryMap.get(clientId);
+				if (amountInMap == null){
+					amountInMap = new Double(0);
+				}
+				
+				switch (type) {
+					case InventoryOrder.TYPE_SALES_ORDER_W:
+						amountInMap += amount;
+						break;
+					case InventoryOrder.TYPE_SALES_RETURN_ORDER_W:
+						amountInMap -= amount;
+						break;
+					default:
+						break;
+				}
+				
+				inventoryOrderProductMap.put(clientId, amountInMap);
+			}
+		}
+
+		
+		//2. 准备excel 报表
+		try {
+		    HeadQCustAcctFlowReportTemplate rptTemplate = new HeadQCustAcctFlowReportTemplate(items, path, startDate, endDate, curretnYearQuarter);
+		    HSSFWorkbook wb = rptTemplate.process();
+			
+			ByteArrayInputStream byteArrayInputStream = ExcelUtil.convertExcelToInputStream(wb);
+			
+			response.setReturnValue(byteArrayInputStream);
+			response.setReturnCode(Response.SUCCESS);
+		} catch (IOException e){
+			e.printStackTrace();
+			response.setFail(e.getMessage());
+		}
+		return response;
+	}
+	
+
+
 }

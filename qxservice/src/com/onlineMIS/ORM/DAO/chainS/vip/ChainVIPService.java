@@ -1241,6 +1241,8 @@ public class ChainVIPService {
 		
 		totalPrepaid.setDepositCard("0");
 		totalPrepaid.setDepositCash("0");
+		totalPrepaid.setDepositAlipay("0");
+		totalPrepaid.setDepositWechat("0");
 		totalPrepaid.setConsump("0");
 		
 		double totalCalculatedAmt = 0;

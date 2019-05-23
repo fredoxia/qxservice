@@ -995,23 +995,25 @@ public class HeadQReportService {
 		String curretnYearQuarter = year.getYear() + " " + quarter.getQuarter_Name();
 		
 		//1. 准备客户名单
-		List<ChainStore> chainStores = chainStoreDaoImpl.getAllChainStoreList();
 		Set<Integer> chainStoreClientIds = chainStoreDaoImpl.getAllClientIds();
+		chainStoreClientIds.remove(SystemParm.getTestClientId());
 		
 		//2. 准备日期
 		java.util.Date startDate1 = Common_util.formStartDate(startDate);
-		java.util.Date enDate1 = Common_util.formEndDate(endDate);
+		java.util.Date endDate1 = Common_util.formEndDate(endDate);
 		
 		//3.获取上期欠款
-		Map<Integer, Double> lastPeriodAcctBalance = headQAcctFlowDaoImpl.getAccumulateAcctFlowBefore(chainStoreClientIds, startDate);
+		Map<Integer, Double> lastPeriodAcctBalance = headQAcctFlowDaoImpl.getAccumulateAcctFlowBefore(chainStoreClientIds, startDate1);
 		
 		//4.获取当期期末欠款
-		Map<Integer, Double> currentPeriodAcctBalance = headQAcctFlowDaoImpl.getAccumulateAcctFlowBefore(chainStoreClientIds, endDate);
+		Map<Integer, Double> currentPeriodAcctBalance = headQAcctFlowDaoImpl.getAccumulateAcctFlowBefore(chainStoreClientIds, endDate1);
 		
 		//5.获取本期付款
 		DetachedCriteria financeCriteria = DetachedCriteria.forClass(FinanceBill.class);
 		
 		financeCriteria.add(Restrictions.in("cust.id", chainStoreClientIds));
+		financeCriteria.add(Restrictions.eq("status", FinanceBill.STATUS_COMPLETE));
+		financeCriteria.add(Restrictions.eq("type", FinanceBill.FINANCE_INCOME_HQ));
 		financeCriteria.add(Restrictions.between("billDate", startDate, endDate));
 		
 		ProjectionList projList = Projections.projectionList();
@@ -1034,7 +1036,7 @@ public class HeadQReportService {
 		DetachedCriteria inventoryCriteria = DetachedCriteria.forClass(InventoryOrder.class);
 		
 		inventoryCriteria.add(Restrictions.in("cust.id", chainStoreClientIds));
-		inventoryCriteria.add(Restrictions.between("order_EndTime", startDate, endDate));
+		inventoryCriteria.add(Restrictions.between("order_EndTime", startDate1, endDate1));
 		inventoryCriteria.add(Restrictions.eq("order_Status", InventoryOrder.STATUS_ACCOUNT_COMPLETE));
 		
 		ProjectionList inventoryProjList = Projections.projectionList();
@@ -1108,6 +1110,19 @@ public class HeadQReportService {
 			}
 		}
 
+		//8.获取数据
+		List<ChainStore> chainStores = chainStoreDaoImpl.getAllChainStoreList();
+		for (ChainStore store : chainStores){
+			int custId = store.getClient_id();
+			
+			if (custId == SystemParm.getTestClientId())
+				continue;
+			
+			HeadQCustAcctFlowReportItem item = new HeadQCustAcctFlowReportItem(lastPeriodAcctBalance.get(custId), inventoryMap.get(custId), currentPeriodAcctBalance.get(custId), stockMap.get(custId), inventoryOrderProductMap.get(custId));
+			item.setChainStore(store);
+			
+			items.add(item);
+		}
 		
 		//2. 准备excel 报表
 		try {

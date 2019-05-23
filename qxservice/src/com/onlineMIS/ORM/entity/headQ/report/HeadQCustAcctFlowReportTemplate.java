@@ -14,6 +14,11 @@ import com.onlineMIS.ORM.entity.headQ.finance.ChainAcctFlowReportItem;
 import com.onlineMIS.common.Common_util;
 import com.onlineMIS.common.ExcelTemplate;
 
+/**
+ * 连锁店acct flow report
+ * @author Administrator
+ *
+ */
 public class HeadQCustAcctFlowReportTemplate extends ExcelTemplate{
 	private final static String TEMPLATE_FILE_NAME = "HeadQCustAcctFlowReportTemplate.xls";
 	private List<HeadQCustAcctFlowReportItem> items = new ArrayList<HeadQCustAcctFlowReportItem>();
@@ -75,14 +80,14 @@ public class HeadQCustAcctFlowReportTemplate extends ExcelTemplate{
 			HeadQCustAcctFlowReportItem item = items.get(i);
 			
 			row.createCell(INDEX).setCellValue(i + 1);
-			row.createCell(CUSTOMER_NAME).setCellValue(item.getCust().getName() + " " +item.getCust().getArea());
+			row.createCell(CUSTOMER_NAME).setCellValue(item.getChainStore().getChain_name());
 			row.createCell(LAST_ACCT_BALANCE).setCellValue(item.getLastAcctBalance());
 			row.createCell(CURRENT_ACCT_FLOW).setCellValue(item.getCurrentAcctFlow());
 			row.createCell(CURRENT_ACCT_BALANCE).setCellValue(item.getCurrentAcctBalance());
 			row.createCell(CURRENT_PAY).setCellValue(item.getCurrentPay());
-			row.createCell(CURRENT_DISCOUNT).setCellValue(item.getCurrentDiscount());
+			//row.createCell(CURRENT_DISCOUNT).setCellValue(item.getCurrentDiscount());
 			row.createCell(CURRENT_QUARTER_PURCHASE).setCellValue(item.getCurrentQuarterPurchase());
-			row.createCell(LAST_QUARTER_ACCT_BALANCE).setCellValue(item.getLastQuarterAcctBalance());
+			//row.createCell(LAST_QUARTER_ACCT_BALANCE).setCellValue(item.getLastQuarterAcctBalance());
 		}
 
 		return templateWorkbook;

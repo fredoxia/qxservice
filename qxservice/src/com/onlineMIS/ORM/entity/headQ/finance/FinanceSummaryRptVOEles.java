@@ -31,7 +31,10 @@ public class FinanceSummaryRptVOEles {
 				offset = 1;
 				prepay += bill.getInvoiceTotal();
 				break;
-				
+			case FinanceBill.FINANCE_PREINCOME_HQ_R:
+				offset = -1;
+				prepay -= bill.getInvoiceTotal();
+				break;				
 			case FinanceBill.FINANCE_PAID_HQ:
 			case FinanceBill.FINANCE_DECREASE_HQ:
 				offset = -1;

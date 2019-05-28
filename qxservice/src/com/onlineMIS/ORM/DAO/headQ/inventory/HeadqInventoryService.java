@@ -30,7 +30,9 @@ import com.onlineMIS.ORM.entity.chainS.inventoryFlow.ChainInvenTraceInfoVO;
 import com.onlineMIS.ORM.entity.chainS.inventoryFlow.ChainInventoryReportTemplate;
 import com.onlineMIS.ORM.entity.chainS.user.ChainStore;
 import com.onlineMIS.ORM.entity.headQ.barcodeGentor.Brand;
+import com.onlineMIS.ORM.entity.headQ.barcodeGentor.Category;
 import com.onlineMIS.ORM.entity.headQ.barcodeGentor.Color;
+import com.onlineMIS.ORM.entity.headQ.barcodeGentor.Product;
 import com.onlineMIS.ORM.entity.headQ.barcodeGentor.ProductBarcode;
 import com.onlineMIS.ORM.entity.headQ.barcodeGentor.Quarter;
 import com.onlineMIS.ORM.entity.headQ.barcodeGentor.Year;
@@ -164,8 +166,13 @@ public class HeadqInventoryService {
 						String colorName = "";
 						if (color != null)
 							colorName = color.getName();
+						Product product = pb.getProduct();
+						String gender = product.getGenderS();
+						String sizeRange = product.getSizeRangeS();
 						
-						String name = pb.getProduct().getProductCode() + colorName;
+						Category category = product.getCategory();
+						String name = Common_util.cutProductCode(pb.getProduct().getProductCode()) + colorName + " "  + gender + sizeRange +  category.getCategory_Name();
+						
 						
 						HeadqInventoryVO headqInventoryVO = new HeadqInventoryVO(parentId, name, quantity, costTotal, HeadqInventoryVO.STATE_OPEN, storeId, yearId, quarterId, brandId);
 						headqInventoryVO.setPbId(pbId);

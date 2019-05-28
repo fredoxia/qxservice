@@ -177,9 +177,12 @@ public class HeadQInventoryStock implements Serializable {
 		return true;
 	}
 
+	public void add(int quantity2, double costTotal2, double wholeSalesTotal) {
+		this.quantity += quantity2;
+		this.costTotal += costTotal2;
+		this.salePriceTotal += wholeSalesTotal;
+		this.salePrice = this.salePriceTotal / this.quantity;
+		
+	}
 
-
-
-
-    
 }

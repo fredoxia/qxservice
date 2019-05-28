@@ -229,4 +229,25 @@ public class SupplierPurchaseJSONAction extends SupplierPurchaseAction {
 		return SUCCESS;
 	}
 	
+	/**
+	 * 更新单据的备注
+	 * @return
+	 */
+	public String updateOrderComment(){
+		UserInfor loginUserInfor = (UserInfor)ActionContext.getContext().getSession().get(Common_util.LOGIN_USER);
+
+		loggerLocal.info(loginUserInfor.getUser_name() + " " + this.getClass().getName() + ".updateOrderComment ");
+		
+		Response response = supplierPurchaseService.updateOrderComment(formBean.getOrder());
+		try{
+			   jsonObject = JSONObject.fromObject(response);
+			   //System.out.println(jsonObject.toString());
+		   } catch (Exception e){
+				loggerLocal.error(e);
+			}
+
+		
+		return SUCCESS;
+	}
+	
 }

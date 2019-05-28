@@ -30,12 +30,14 @@ public class FinanceBill extends BaseOrder implements Serializable {
 		typeHQMap.put(FINANCE_INCOME_HQ, "收款单");
 		typeHQMap.put(FINANCE_PAID_HQ, "付款单");
 		typeHQMap.put(FINANCE_PREINCOME_HQ, "预收款单");
+		typeHQMap.put(FINANCE_PREINCOME_HQ_R, "预收款退单");
 		typeHQMap.put(FINANCE_DECREASE_HQ, "应收减少单据");
 		typeHQMap.put(FINANCE_INCREASE_HQ, "应收增加单据");
 		
 		typeChainMap.put(FINANCE_INCOME_HQ, "付款单");
 		typeChainMap.put(FINANCE_PAID_HQ, "收款单");
 		typeChainMap.put(FINANCE_PREINCOME_HQ, "预付款单");
+		typeChainMap.put(FINANCE_PREINCOME_HQ_R, "预付款退单");
 		typeChainMap.put(FINANCE_DECREASE_HQ, "应付减少单据");
 		typeChainMap.put(FINANCE_INCREASE_HQ, "应付增加单据");
 	}
@@ -45,6 +47,7 @@ public class FinanceBill extends BaseOrder implements Serializable {
 	public static final int FINANCE_DECREASE_HQ = 3;
 	public static final int FINANCE_INCREASE_HQ = 4;
 	public static final int FINANCE_PREINCOME_HQ = 5;
+	public static final int FINANCE_PREINCOME_HQ_R = 6;
 	
 	private int id;
 	private UserInfor creatorHq;

@@ -753,5 +753,30 @@ public class SupplierPurchaseService {
 		
 		return response;
 	}
+	
+	/**
+	 * 更新order 的 comment
+	 * @param order
+	 * @return
+	 */
+	public Response updateOrderComment(PurchaseOrder order) {
+	       Response response = new Response();
+			
+	       if (order!= null && order.getId() != 0){
+				String hql_order = "UPDATE PurchaseOrder i set i.comment = ? where id = ?";
+				Object[] values = {order.getComment(),order.getId()};
+				try {
+					purchaseOrderDaoImpl.executeHQLUpdateDelete(hql_order, values, true);
+				   response.setSuccess("成功更新备注");
+				} catch (Exception e){
+				   response.setFail(e.getMessage());
+				}
+				
+	        } else {
+	        	response.setQuickValue(Response.FAIL, "无法找到当前订单号");
+	        }
+	        
+	        return response;
+	}
 
 }

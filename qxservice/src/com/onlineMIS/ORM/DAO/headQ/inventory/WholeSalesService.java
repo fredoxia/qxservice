@@ -823,23 +823,34 @@ public class WholeSalesService {
 			inventoryStockId += HeadQInventoryStock.RETAIL_SALES + orderId;
 		} else 
 			inventoryStockId += HeadQInventoryStock.RETAIL_RETURN + orderId;
+
 		
-		 Iterator<InventoryOrderProduct> orderProducts = order.getProduct_Set().iterator();
-		 while (orderProducts.hasNext()){
-			 InventoryOrderProduct orderProduct = orderProducts.next();
+		HashMap<Integer,HeadQInventoryStock> headqInventoryMap = new HashMap<Integer,HeadQInventoryStock>();
+		 for (InventoryOrderProduct orderProduct: order.getProduct_Set()){
+
 			 int pbId = orderProduct.getProductBarcode().getId();
 			 double cost = orderProduct.getRecCost();
 			 double wholeSalePrice = orderProduct.getWholeSalePrice();
 			 int quantity = orderProduct.getQuantity() * offset;
 			 double costTotal = cost * quantity;
 			 double wholeSalesTotal = wholeSalePrice * quantity;
-
-			 ProductBarcode pb = productBarcodeDaoImpl.get(pbId, true);
 			 
-			 HeadQInventoryStock stock = new HeadQInventoryStock(storeId, inventoryStockId, cost, costTotal, wholeSalePrice, wholeSalesTotal, quantity, pb);
-			 headQInventoryStockDAOImpl.save(stock, true);
-		 }
+			 if (headqInventoryMap.containsKey(pbId)){
+				 HeadQInventoryStock stockOriginal = headqInventoryMap.get(pbId);
+				 
+				 stockOriginal.add(quantity, costTotal, wholeSalesTotal);
+				 headqInventoryMap.put(pbId, stockOriginal);
+			 } else {
+				 ProductBarcode pb = productBarcodeDaoImpl.get(pbId, true);
+				 HeadQInventoryStock stock = new HeadQInventoryStock(storeId, inventoryStockId, cost, costTotal, wholeSalePrice, wholeSalesTotal, quantity, pb);
+				 headqInventoryMap.put(pbId, stock);
+			 }
 
+		 }
+		 
+		 for (HeadQInventoryStock stock: headqInventoryMap.values()){
+		     headQInventoryStockDAOImpl.save(stock, true);
+		 }
 	}
 
 	/**

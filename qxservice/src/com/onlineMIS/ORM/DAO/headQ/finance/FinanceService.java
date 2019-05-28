@@ -200,10 +200,19 @@ public class FinanceService {
 			if (itemType == FinanceCategory.PREPAY_ACCT_TYPE && amount >0){
 				double prepaySum = chainFinanceTraceImpl.getSumOfFinanceCategory(FinanceCategory.PREPAY_ACCT_TYPE, clientId);
 			    if (amount > prepaySum){
-			    	response.setQuickValue(Response.FAIL, "预付款超过以前总和");
+			    	response.setQuickValue(Response.FAIL, "预存款项目 超过当前客户的总额 : " + prepaySum);
 			    	return false;
 			    }
 			}
+		}
+		
+		if (financeBill.getType() ==  FinanceBill.FINANCE_PREINCOME_HQ_R){
+			double amount = financeBill.getInvoiceTotal();
+			double prepaySum = chainFinanceTraceImpl.getSumOfFinanceCategory(FinanceCategory.PREPAY_ACCT_TYPE, clientId);
+		    if (amount > prepaySum){
+		    	response.setQuickValue(Response.FAIL, "预存款退款 超过当前客户的总额 : " + prepaySum);
+		    	return false;
+		    }
 		}
 		
 		return true;
@@ -347,7 +356,7 @@ public class FinanceService {
 		int billType = bill.getType();
 		
 		//if it is 总部的付款单需要*-1
-		if (billType == FinanceBill.FINANCE_PAID_HQ || billType == FinanceBill.FINANCE_INCREASE_HQ)
+		if (billType == FinanceBill.FINANCE_PAID_HQ || billType == FinanceBill.FINANCE_INCREASE_HQ || billType == FinanceBill.FINANCE_PREINCOME_HQ_R)
 			offset *= -1;
 		
 		double totalAmt = 0;
@@ -369,7 +378,7 @@ public class FinanceService {
 		}
 		
 		//2. if it is prepaid bill, need insert a prepaid amount
-		if (billType == FinanceBill.FINANCE_PREINCOME_HQ){
+		if (billType == FinanceBill.FINANCE_PREINCOME_HQ || billType == FinanceBill.FINANCE_PREINCOME_HQ_R){
 		    HeadQFinanceTrace financeTrace = new HeadQFinanceTrace(clientId, FinanceCategory.PREPAY_ACCT_TYPE, billId, totalAmt * offset , new java.sql.Date(bill.getCreateDate().getTime()));
 		    chainFinanceTraceImpl.save(financeTrace, false);
 		}
@@ -737,6 +746,34 @@ public class FinanceService {
 		Response response = new Response();
 		response.setReturnValue(data);
 		response.setReturnCode(Response.SUCCESS);
+		
+		return response;
+	}
+
+	/**
+	 * 更新财务单据备注
+	 * @param order
+	 * @param loginUserInfor
+	 * @return
+	 */
+	@Transactional
+	public Response updateFinanceBillComment(FinanceBill financeBill, UserInfor loginUserInfor) {
+		Response response = new Response();
+		int billId = financeBill.getId();
+		FinanceBill originalBill = financeBillImpl.get(billId, true);
+		
+		if (originalBill != null){
+			originalBill.setComment(financeBill.getComment());
+			
+			//1. change the bill status
+			financeBillImpl.saveOrUpdate(originalBill, true);
+			
+			response.setReturnCode(Response.SUCCESS);
+			response.setMessage("单据备注 成功修改");
+		} else {
+			response.setReturnCode(Response.ERROR);
+			response.setMessage("无法找到当前单据 : " + billId);
+		}
 		
 		return response;
 	}

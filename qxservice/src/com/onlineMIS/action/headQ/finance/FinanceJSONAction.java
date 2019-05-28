@@ -206,6 +206,7 @@ public class FinanceJSONAction extends FinanceAction {
 	 * @return
 	 */
 	public String generateFinanceReport(){
+		loggerLocal.info( this.getClass().getName() + "." + "generateFinanceReport");
 		Response response = new Response();
 		try {
 			//ChainReport chainReport = chainReportService.generateFinanceReport(formBean.getOrder().getCust().getId(), formBean.getSearchStartTime(), formBean.getSearchEndTime());
@@ -219,6 +220,32 @@ public class FinanceJSONAction extends FinanceAction {
 			jsonMap = (Map<String, Object>)response.getReturnValue();
 
 			jsonObject = JSONObject.fromObject(jsonMap);
+		} catch (Exception e){
+
+			loggerLocal.error(e);
+		}
+		
+		return SUCCESS;
+	}
+	
+	/**
+	 * 修改财务单据的备注
+	 * @return
+	 */
+	public String updateFinanceBillComment(){
+		UserInfor loginUserInfor = (UserInfor)ActionContext.getContext().getSession().get(Common_util.LOGIN_USER);
+		loggerLocal.info( this.getClass().getName() + "." + "updateFinanceBillComment");
+		Response response = new Response();
+		try {
+			
+			response = financeService.updateFinanceBillComment(formBean.getOrder(),loginUserInfor);
+		} catch (Exception e) {
+			loggerLocal.error(e);
+			response.setReturnCode(Response.FAIL);
+		}
+		try{
+
+			jsonObject = JSONObject.fromObject(response);
 		} catch (Exception e){
 
 			loggerLocal.error(e);

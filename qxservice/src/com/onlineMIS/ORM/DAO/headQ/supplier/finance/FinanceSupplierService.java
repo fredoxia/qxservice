@@ -445,6 +445,34 @@ public class FinanceSupplierService {
 		
 		return response;
 	}
+	
+	/**
+	 * 更新财务单据备注
+	 * @param order
+	 * @param loginUserInfor
+	 * @return
+	 */
+	@Transactional
+	public Response updateFinanceBillComment(FinanceBillSupplier financeBill, UserInfor loginUserInfor) {
+		Response response = new Response();
+		int billId = financeBill.getId();
+		FinanceBillSupplier originalBill = financeBillSupplierDaoImpl.get(billId, true);
+		
+		if (originalBill != null){
+			originalBill.setComment(financeBill.getComment());
+			
+			//1. change the bill status
+			financeBillSupplierDaoImpl.saveOrUpdate(originalBill, true);
+			
+			response.setReturnCode(Response.SUCCESS);
+			response.setMessage("单据备注 成功修改");
+		} else {
+			response.setReturnCode(Response.ERROR);
+			response.setMessage("无法找到当前单据 : " + billId);
+		}
+		
+		return response;
+	}
 
 	public Response searchAcctFlow(Date startDate, Date endDate, int supplierId) {
 		Response response = new Response();

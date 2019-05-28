@@ -219,4 +219,30 @@ public class FinanceSupplierJSONAction extends FinanceSupplierAction {
 		
 		return SUCCESS;
 	}
+	
+	/**
+	 * 修改财务单据的备注
+	 * @return
+	 */
+	public String updateFinanceBillComment(){
+		UserInfor loginUserInfor = (UserInfor)ActionContext.getContext().getSession().get(Common_util.LOGIN_USER);
+		loggerLocal.info( this.getClass().getName() + "." + "updateFinanceBillComment");
+		Response response = new Response();
+		try {
+			
+			response = financeSupplierService.updateFinanceBillComment(formBean.getOrder(),loginUserInfor);
+		} catch (Exception e) {
+			loggerLocal.error(e);
+			response.setReturnCode(Response.FAIL);
+		}
+		try{
+
+			jsonObject = JSONObject.fromObject(response);
+		} catch (Exception e){
+
+			loggerLocal.error(e);
+		}
+		
+		return SUCCESS;
+	}
 }

@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.crypto.interfaces.PBEKey;
+
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Row;
@@ -31,11 +33,16 @@ public class HeadqInventoryReportTemplate extends ExcelTemplate{
 	private int productCode_column = 3;
 	private int colour_column = 4;
 	private int unit_column = 5;
-	private int barcode_column =6;
+
+	private int barcode_column = 6;
 	private int category_column = 7;
-	private int quantity_column = 8;
-	private int totalCost_column = 9;
-	private int totalSales_column = 10;
+	private int gender_column = 8;
+	private int sizeRange_column = 9;
+	private int minSize_column = 10;
+	private int maxSize_column = 11;
+	private int quantity_column = 12;
+	private int totalCost_column = 13;
+	private int totalSales_column = 14;
 	private int data_row = 3;
 
 
@@ -87,8 +94,6 @@ public class HeadqInventoryReportTemplate extends ExcelTemplate{
 			row.createCell(brand_column).setCellValue(brand.getBrand_Name());
 			
 			row.createCell(productCode_column).setCellValue(product.getProductCode());
-
-			row.createCell(barcode_column).setCellValue(levelFourItem.getProductBarcode().getBarcode());
 			
 			Color color = levelFourItem.getProductBarcode().getColor();
 			if (color == null)
@@ -98,10 +103,19 @@ public class HeadqInventoryReportTemplate extends ExcelTemplate{
 			
 			row.createCell(unit_column).setCellValue(product.getUnit());
 			
+			row.createCell(barcode_column).setCellValue(levelFourItem.getProductBarcode().getBarcode());
 			row.createCell(category_column).setCellValue(product.getCategory().getCategory_Name());
 
-			row.createCell(quantity_column).setCellValue(levelFourItem.getTotalQuantity());
+			row.createCell(gender_column).setCellValue(product.getGenderS());
+			row.createCell(sizeRange_column).setCellValue(product.getSizeRangeS());
 			
+			if (product.getSizeMin() != null)
+			     row.createCell(minSize_column).setCellValue(product.getSizeMin());
+			
+			if (product.getSizeMax() != null)
+			    row.createCell(maxSize_column).setCellValue(product.getSizeMax());
+			
+			row.createCell(quantity_column).setCellValue(levelFourItem.getTotalQuantity());
 			row.createCell(totalCost_column).setCellValue(levelFourItem.getTotalCostAmt());
 			row.createCell(totalSales_column).setCellValue(levelFourItem.getTotalWholeSalesAmt());
 			

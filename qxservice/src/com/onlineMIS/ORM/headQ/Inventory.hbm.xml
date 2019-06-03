@@ -97,5 +97,42 @@
         <property name="salePriceTotal" column="sale_price_total" type="double"/>
         <property name="quantity" column="quantity" type="integer"/>
         <property name="date" column="date" type="timestamp"/>
-      </class>        
+      </class>   
+      
+      <class name="HeadqInventoryFlowOrder" table="headq_inven_flow_order">
+        <id name="id" column="id">
+            <generator class="identity" />
+        </id>
+        <many-to-one name="creator" fetch="join" column="creator" class="com.onlineMIS.ORM.entity.headQ.user.UserInfor" not-null="true"/>
+        <property name="totalQuantity" column="total_quantity" type="integer"/>
+        <property name="totalInventoryQ" column="total_inventory_Q" type="integer"/>
+        <property name="totalQuantityDiff" column="total_quantity_diff" type="integer"/>
+        <property name="type" column="order_type" type="integer"/>
+        <property name="status" column="status" type="integer"/>
+        <property name="comment" column="comment" type="string"/>
+		<property name="orderDate" column="order_date" type="timestamp"/>
+		<property name="totalWholePrice" column="total_whole_price" type="double"/> 
+		<property name="totalCost" column="total_cost" type="double"/> 
+        <set name="productSet" cascade="all-delete-orphan" inverse="true" lazy="true" fetch="subselect" batch-size="15">
+             <key column="order_Id"/>
+             <one-to-many class="HeadqInventoryFlowOrderProduct"/>
+        </set>
+      </class>  
+      
+      <class name="HeadqInventoryFlowOrderProduct" table="headq_inven_flow_order_product">
+        <composite-id>
+             <key-many-to-one name="productBarcode" column="product_id" class="com.onlineMIS.ORM.entity.headQ.barcodeGentor.ProductBarcode"  lazy="false"/>
+             <key-many-to-one name="flowOrder" column="order_id" class="com.onlineMIS.ORM.entity.chainS.inventoryFlow.ChainInventoryFlowOrder"/>
+        </composite-id>
+        <property name="quantity" column="quantity" type="integer"/>    
+        <property name="inventoryQ" column="inventory_quantity" type="integer"/> 
+        <property name="quantityDiff" column="quantity_diff" type="integer"/> 
+        <property name="wholePrice" column="whole_price" type="double"/> 
+        <property name="totalWholePrice" column="total_whole_price" type="double"/> 
+        <property name="cost" column="cost" type="double"/> 
+        <property name="totalCost" column="total_cost" type="double"/>         
+
+        <property name="comment" column="comment" type="string"/>
+		<property name="index" column="index_num" type="integer"/>   
+      </class>      
 </hibernate-mapping>

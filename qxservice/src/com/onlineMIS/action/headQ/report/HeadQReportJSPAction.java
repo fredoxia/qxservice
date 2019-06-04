@@ -72,6 +72,18 @@ public class HeadQReportJSPAction extends HeadQReportAction {
 	}
 	
 	/**
+	 * 总部销售报表
+	 * @return
+	 */
+	public String preGenerateHQExpenseReport(){
+		loggerLocal.info(this.getClass().getName()+ ".preGenerateHQExpenseReport");
+		
+		headQReportService.prepareHQExpenseReportUI(formBean);
+    	
+		return "HQExpenseReport";		
+	}
+	
+	/**
 	 * 下载 采购统计报表
 	 * @return
 	 */

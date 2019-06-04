@@ -79,6 +79,7 @@ import com.onlineMIS.ORM.entity.chainS.report.rptTemplate.ChainPurchaseStatistic
 import com.onlineMIS.ORM.entity.chainS.report.rptTemplate.ChainSalesReportTemplate;
 import com.onlineMIS.ORM.entity.chainS.report.rptTemplate.ChainSalesReportVIPPercentageTemplate;
 import com.onlineMIS.ORM.entity.chainS.report.rptTemplate.ChainSalesStatisticsReportTemplate;
+import com.onlineMIS.ORM.entity.chainS.report.rptTemplate.ChainVIPConsumptionRptTemplate;
 import com.onlineMIS.ORM.entity.chainS.sales.ChainDailySales;
 import com.onlineMIS.ORM.entity.chainS.sales.ChainStoreSalesOrder;
 import com.onlineMIS.ORM.entity.chainS.sales.PurchaseOrderTemplate;
@@ -1584,7 +1585,7 @@ public class ChainReportService {
 
 		String hql_sale = "select sum(totalQuantity), sum(netAmount),  sum(totalQuantityR), " +
 				"sum(netAmountR), sum(totalQuantityF), sum(discountAmount), " +
-				"sum(coupon), sum (cardAmount + cashAmount - returnAmount) from ChainStoreSalesOrder where vipCard IS NOT NULL and  orderDate between ? and ? and status = ? and " + chainCriteria;
+				"sum(coupon), sum (cardAmount + cashAmount + wechatAmount + alipayAmount - returnAmount), sum(chainPrepaidAmt), count(id) from ChainStoreSalesOrder where vipCard IS NOT NULL and  orderDate between ? and ? and status = ? and " + chainCriteria;
 
 		Object[] sales = (Object[])chainSalesOrderDaoImpl.executeHQLSelect(hql_sale, value_sale,null, true).get(0);
 
@@ -1596,8 +1597,10 @@ public class ChainReportService {
 		double discountAmt = Common_util.getDouble(sales[5]);
 		double coupon = Common_util.getDouble(sales[6]);
 		double receiveAmt = Common_util.getDouble(sales[7]);
+		double prepaidAmt = Common_util.getDouble(sales[8]);
+		int countSum  = Common_util.getInt(sales[9]);
 				
-		VIPReportVO totalVO = new VIPReportVO(saleQ, returnQ, freeQ, saleAmt, returnAmt, coupon, receiveAmt, discountAmt, null);
+		VIPReportVO totalVO = new VIPReportVO(saleQ, returnQ, freeQ, saleAmt, returnAmt, coupon, receiveAmt, discountAmt, null,prepaidAmt, countSum);
 		
 		//添加一个dummy的chainStore
 		ChainVIPCard vip = new ChainVIPCard();
@@ -1624,12 +1627,12 @@ public class ChainReportService {
 
 		criteria += " GROUP BY  vipCard.id ";
 	
-		String orderBy = generateVIPConsumpOrderBy(sort, order);
+		String orderBy = generateVIPConsumpOrderBy();
 		criteria += orderBy;
 		
 		String hql_sale2 = "select sum(totalQuantity), sum(netAmount),  sum(totalQuantityR), " +
 				"sum(netAmountR), sum(totalQuantityF), sum(discountAmount), " +
-				"sum(coupon), sum (cardAmount + cashAmount - returnAmount), vipCard.id " + criteria;
+				"sum(coupon), sum (cardAmount + cashAmount + wechatAmount + alipayAmount - returnAmount), sum(chainPrepaidAmt), vipCard.id, count(id) " + criteria;
 
 		Integer[] pagerArray = null;
 		if (page != null && rowPerPage != null)
@@ -1647,11 +1650,13 @@ public class ChainReportService {
 			double discountAmt2 = Common_util.getDouble(sales3[5]);
 			double coupon2 = Common_util.getDouble(sales3[6]);
 			double receiveAmt2 = Common_util.getDouble(sales3[7]);
-			int vipId = Common_util.getInt(sales3[8]);
+			double prepaidAmt2 = Common_util.getDouble(sales3[8]);
+			int vipId = Common_util.getInt(sales3[9]);
+			int countSum2  = Common_util.getInt(sales3[10]);
 					
 			ChainVIPCard vipCard = chainVIPCardImpl.get(vipId, true);
 
-			VIPReportVO rptVo = new VIPReportVO(saleQ2, returnQ2, freeQ2, saleAmt2, returnAmt2, coupon2, receiveAmt2, discountAmt2, vipCard);
+			VIPReportVO rptVo = new VIPReportVO(saleQ2, returnQ2, freeQ2, saleAmt2, returnAmt2, coupon2, receiveAmt2, discountAmt2, vipCard, prepaidAmt2, countSum2);
 			
 			reports.add(rptVo);
 		}
@@ -1666,7 +1671,7 @@ public class ChainReportService {
 		return response;
 	}
 
-	private String generateVIPConsumpOrderBy(String sort, String order) {
+	private String generateVIPConsumpOrderBy() {
 		String orderBy = " ORDER BY sum(netAmount - netAmountR) desc";
 
 		return orderBy;
@@ -1686,6 +1691,74 @@ public class ChainReportService {
 	    return chainSalesOrderDaoImpl.executeHQLCount(criteria2, value_sale, true);
 	}
 
+	/**
+	 * 下载vip消费报表
+	 * @param formBean
+	 * @return
+	 */
+	public Response downloadVIPConsumpReport(ChainReportActionFormBean formBean,String excelPath) {
+		Response response = new Response();
+		Date startDate = formBean.getStartDate();
+		Date endDate = formBean.getEndDate();
+		int chainId = formBean.getChainStore().getChain_id();
+		
+		List<VIPReportVO> reports = new ArrayList<VIPReportVO>();
+		String criteria = "";
+		if (chainId == Common_util.ALL_RECORD)
+			criteria = " FROM ChainStoreSalesOrder WHERE vipCard IS NOT NULL and  orderDate BETWEEN ? AND ? AND status = ?";
+		else 
+			criteria = "FROM ChainStoreSalesOrder WHERE vipCard IS NOT NULL and  orderDate BETWEEN ? AND ? AND status = ? AND chainStore.chain_id = " + chainId;
+
+		criteria += " GROUP BY  vipCard.id ";
+	
+		String orderBy = generateVIPConsumpOrderBy();
+		criteria += orderBy;
+		
+		String hql_sale2 = "select sum(totalQuantity), sum(netAmount),  sum(totalQuantityR), " +
+				"sum(netAmountR), sum(totalQuantityF), sum(discountAmount), " +
+				"sum(coupon), sum (cardAmount + cashAmount + wechatAmount + alipayAmount - returnAmount), sum(chainPrepaidAmt), vipCard.id, count(id) " + criteria;
+
+		Object[] value_sale = new Object[]{startDate, endDate, ChainStoreSalesOrder.STATUS_COMPLETE};
+		List<Object> sales2 = (List<Object>)chainSalesOrderDaoImpl.executeHQLSelect(hql_sale2, value_sale,null, true);
+
+		for (Object resultObject : sales2){
+			Object[] sales3 = (Object[])resultObject;
+			int saleQ2 = Common_util.getInt(sales3[0]);
+			double saleAmt2 = Common_util.getDouble(sales3[1]);
+			int returnQ2 = Common_util.getInt(sales3[2]);
+			double returnAmt2 = Common_util.getDouble(sales3[3]);
+			int freeQ2 = Common_util.getInt(sales3[4]);
+			double discountAmt2 = Common_util.getDouble(sales3[5]);
+			double coupon2 = Common_util.getDouble(sales3[6]);
+			double receiveAmt2 = Common_util.getDouble(sales3[7]);
+			double prepaidAmt2 = Common_util.getDouble(sales3[8]);
+			int vipId = Common_util.getInt(sales3[9]);
+			int countSum2  = Common_util.getInt(sales3[10]);
+			
+			ChainVIPCard vipCard = chainVIPCardImpl.get(vipId, true);
+
+			VIPReportVO rptVo = new VIPReportVO(saleQ2, returnQ2, freeQ2, saleAmt2, returnAmt2, coupon2, receiveAmt2, discountAmt2, vipCard, prepaidAmt2,countSum2);
+			
+			reports.add(rptVo);
+		}
+		
+		//2. 准备excel 报表
+		try {
+		    ChainVIPConsumptionRptTemplate rptTemplate = new ChainVIPConsumptionRptTemplate(reports, excelPath, startDate, endDate);
+			HSSFWorkbook wb = rptTemplate.process();
+			
+			ByteArrayInputStream byteArrayInputStream = ExcelUtil.convertExcelToInputStream(wb);
+			
+			response.setReturnValue(byteArrayInputStream);
+			response.setReturnCode(Response.SUCCESS);
+		} catch (IOException e){
+			e.printStackTrace();
+			response.setFail(e.getMessage());
+		}
+		return response;
+	}
+
+	
 	/**
 	 * 准备 report repository 数据
 	 * @param formBean

@@ -28,6 +28,7 @@ public class HeadQReportFormBean {
 	private DummyOrder order = new DummyOrder();
 	private HeadQCust cust = new HeadQCust();
 	private int parentId;
+	private int expenseTypeParentId;
 	
     //查找品牌
     private Brand brand = new Brand();
@@ -36,7 +37,14 @@ public class HeadQReportFormBean {
     private Pager pager = new Pager();
     
     
+    
 	
+	public int getExpenseTypeParentId() {
+		return expenseTypeParentId;
+	}
+	public void setExpenseTypeParentId(int expenseTypeParentId) {
+		this.expenseTypeParentId = expenseTypeParentId;
+	}
 	public Date getSearchStartTime() {
 		return searchStartTime;
 	}

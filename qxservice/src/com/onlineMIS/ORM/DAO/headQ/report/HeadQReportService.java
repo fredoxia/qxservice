@@ -5,6 +5,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.sql.Date;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -39,6 +40,8 @@ import com.onlineMIS.ORM.DAO.headQ.supplier.finance.FinanceSupplierService;
 import com.onlineMIS.ORM.DAO.headQ.supplier.purchase.PurchaseOrderProductDaoImpl;
 import com.onlineMIS.ORM.DAO.headQ.supplier.purchase.SupplierPurchaseService;
 import com.onlineMIS.ORM.DAO.headQ.supplier.supplierMgmt.HeadQSupplierDaoImpl;
+import com.onlineMIS.ORM.DAO.shared.expense.ExpenseDaoImpl;
+import com.onlineMIS.ORM.DAO.shared.expense.ExpenseTypeDaoImpl;
 import com.onlineMIS.ORM.entity.chainS.user.ChainStore;
 import com.onlineMIS.ORM.entity.chainS.user.ChainUserInfor;
 import com.onlineMIS.ORM.entity.headQ.barcodeGentor.Brand;
@@ -58,6 +61,7 @@ import com.onlineMIS.ORM.entity.headQ.report.HeadQCustAcctFlowReportItem;
 import com.onlineMIS.ORM.entity.headQ.report.HeadQCustAcctFlowReportTemplate;
 import com.onlineMIS.ORM.entity.headQ.report.HeadQCustAcctFlowTemplate;
 import com.onlineMIS.ORM.entity.headQ.report.HeadQCustInforTemplate;
+import com.onlineMIS.ORM.entity.headQ.report.HeadQExpenseRptElesVO;
 import com.onlineMIS.ORM.entity.headQ.report.HeadQPurchaseStatisticReportItem;
 import com.onlineMIS.ORM.entity.headQ.report.HeadQPurchaseStatisticReportItemVO;
 import com.onlineMIS.ORM.entity.headQ.report.HeadQPurchaseStatisticsReportTemplate;
@@ -71,12 +75,15 @@ import com.onlineMIS.ORM.entity.headQ.supplier.finance.SupplierAcctFlowReportIte
 import com.onlineMIS.ORM.entity.headQ.supplier.purchase.PurchaseOrder;
 import com.onlineMIS.ORM.entity.headQ.supplier.supplierMgmt.HeadQSupplier;
 import com.onlineMIS.ORM.entity.headQ.user.UserInfor;
+import com.onlineMIS.ORM.entity.shared.expense.Expense;
+import com.onlineMIS.ORM.entity.shared.expense.ExpenseType;
 import com.onlineMIS.action.headQ.report.HeadQReportFormBean;
 import com.onlineMIS.action.headQ.report.HeadQReportUIBean;
 import com.onlineMIS.common.Common_util;
 import com.onlineMIS.common.ExcelUtil;
 import com.onlineMIS.filter.SystemParm;
 import com.onlineMIS.sorter.ChainStatisticReportItemVOSorter;
+import com.onlineMIS.sorter.HeadQExpenseReportSort;
 import com.onlineMIS.sorter.HeadQStatisticReportItemSorter;
 import com.onlineMIS.sorter.HeadQStatisticReportItemVOSorter;
 
@@ -125,6 +132,12 @@ public class HeadQReportService {
 	
 	@Autowired
 	private FinanceBillImpl financeBillImpl;
+	
+	@Autowired
+	private ExpenseDaoImpl expenseDaoImpl;
+	
+	@Autowired
+	private ExpenseTypeDaoImpl expenseTypeDaoImpl;
 	/**
 	 * 获取总部的采购报表数据
 	 * @param parentId
@@ -387,6 +400,119 @@ public class HeadQReportService {
 	    return response;
 	}
 	
+	/**
+	 * 获取hq expense rpt eles
+	 * @param parentId
+	 * @param startDate
+	 * @param endDate
+	 * @param parentExpenseId
+	 * @return
+	 */
+	public Response getHQExpenseRptEles(int parentId,Date startDate, Date endDate, int parentExpenseId ){
+		Response response = new Response();
+		List<HeadQExpenseRptElesVO> reportItems = new ArrayList<HeadQExpenseRptElesVO>();
+		
+		if (startDate == null){
+			response.setReturnValue(reportItems);
+			return response;
+		}
+		
+		List<Object> value_sale = new ArrayList<Object>();
+		value_sale.add(startDate);
+		value_sale.add(endDate);
+		value_sale.add(Expense.statusE.NORMAL.getValue());
+	
+		
+		String name = "总计";
+		
+		if (parentId == 0){
+			String hql = "SELECT feeType, sum(amount)  FROM Expense WHERE expenseDate BETWEEN ? AND ? AND status =? AND entity IS null GROUP BY feeType";
+			
+			List<Object> values = expenseDaoImpl.executeHQLSelect(hql, value_sale.toArray(), null, true);
+			
+			HeadQExpenseRptElesVO rootItem = new HeadQExpenseRptElesVO(name, 1,  HeadQSalesStatisticReportItemVO.STATE_CLOSED);
+			
+			if (values != null){
+				for (Object record : values ){
+					Object[] records = (Object[])record;
+					int feeType = Common_util.getInt(records[0]);
+					double amount = Common_util.getDouble(records[1]);
+
+					rootItem.putValue(feeType, amount);
+				}
+			}
+			
+			reportItems.add(rootItem);
+		} else if (parentExpenseId == 0){
+			String hql = "SELECT expenseType.parentId, feeType, sum(amount)  FROM Expense WHERE expenseDate BETWEEN ? AND ? AND status =? AND entity IS null  GROUP BY expenseType.parentId,feeType";
+			
+			List<Object> values = expenseDaoImpl.executeHQLSelect(hql, value_sale.toArray(), null, true);
+			
+			Map<Integer, HeadQExpenseRptElesVO> resultMap = new HashMap<Integer, HeadQExpenseRptElesVO>();
+			
+			if (values != null){
+				for (Object record : values ){
+					Object[] records = (Object[])record;
+					int expenseParentId = Common_util.getInt(records[0]);
+					int feeType = Common_util.getInt(records[1]);
+					double amount = Common_util.getDouble(records[2]);
+
+					HeadQExpenseRptElesVO rootItem = resultMap.get(expenseParentId);
+					if (rootItem == null){
+						rootItem = new HeadQExpenseRptElesVO(name, 1,  HeadQSalesStatisticReportItemVO.STATE_CLOSED);
+						ExpenseType type = expenseTypeDaoImpl.get(expenseParentId, true);
+						rootItem.setName(type.getName());
+						rootItem.setExpenseTypeParentId(expenseParentId);
+					}
+						
+					rootItem.putValue(feeType, amount);
+					
+					resultMap.put(expenseParentId, rootItem);
+				}
+			}
+			
+			for (HeadQExpenseRptElesVO rootItem : resultMap.values())
+			     reportItems.add(rootItem);
+			
+			Collections.sort(reportItems, new HeadQExpenseReportSort());
+		} else {
+			value_sale.add(parentExpenseId);
+			String hql = "SELECT expenseType.id, feeType, sum(amount)  FROM Expense WHERE expenseDate BETWEEN ? AND ? AND status =? AND entity IS null AND expenseType.parentId = ?   GROUP BY expenseType.id,feeType";
+			
+			List<Object> values = expenseDaoImpl.executeHQLSelect(hql, value_sale.toArray(), null, true);
+			
+			Map<Integer, HeadQExpenseRptElesVO> resultMap = new HashMap<Integer, HeadQExpenseRptElesVO>();
+			
+			if (values != null){
+				for (Object record : values ){
+					Object[] records = (Object[])record;
+					int expenseTypeId = Common_util.getInt(records[0]);
+					int feeType = Common_util.getInt(records[1]);
+					double amount = Common_util.getDouble(records[2]);
+
+					HeadQExpenseRptElesVO rootItem = resultMap.get(expenseTypeId);
+					if (rootItem == null){
+						rootItem = new HeadQExpenseRptElesVO(name, 1,  HeadQSalesStatisticReportItemVO.STATE_OPEN);
+						ExpenseType type = expenseTypeDaoImpl.get(expenseTypeId, true);
+						rootItem.setName(type.getName());
+						rootItem.setExpenseTypeId(expenseTypeId);
+					}
+						
+					rootItem.putValue(feeType, amount);
+					
+					resultMap.put(expenseTypeId, rootItem);
+				}
+			}
+			
+			for (HeadQExpenseRptElesVO rootItem : resultMap.values())
+			     reportItems.add(rootItem);
+			
+			Collections.sort(reportItems, new HeadQExpenseReportSort());
+		}
+		
+	    response.setReturnValue(reportItems);
+	    return response;
+	}
 	
 	/**
 	 * 获取销售统计报表的信息
@@ -1138,6 +1264,11 @@ public class HeadQReportService {
 			response.setFail(e.getMessage());
 		}
 		return response;
+	}
+
+	public void prepareHQExpenseReportUI(HeadQReportFormBean formBean) {
+		formBean.setStartDate(Common_util.getToday());
+		formBean.setEndDate(Common_util.getToday());
 	}
 	
 

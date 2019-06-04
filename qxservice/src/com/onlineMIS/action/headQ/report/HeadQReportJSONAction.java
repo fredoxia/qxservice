@@ -95,6 +95,31 @@ public class HeadQReportJSONAction extends HeadQReportAction {
 		
 		return "jsonArray";
 	}
+	
+	/**
+	 * 获取消费报表数据
+	 * @return
+	 */
+	public String getHQExpenseReptEles(){
+		loggerLocal.info(this.getClass().getName()+ ".getHQExpenseReptEles");
+		Response response = new Response();
+
+		
+		try {
+		    response = headQReportService.getHQExpenseRptEles(formBean.getParentId(), formBean.getStartDate(), formBean.getEndDate(), formBean.getExpenseTypeParentId());
+		} catch (Exception e){
+			e.printStackTrace();
+		}	
+
+		try{
+			   jsonArray = JSONArray.fromObject(response.getReturnValue());
+//			   System.out.println(jsonArray);
+			} catch (Exception e){
+				e.printStackTrace();
+			}	
+		
+		return "jsonArray";
+	}
 
 	
 	/**

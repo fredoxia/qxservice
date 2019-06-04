@@ -12,6 +12,7 @@ public class Expense implements Serializable{
 	private int id;
 	private ChainStore entity = new ChainStore();
 	private ExpenseType expenseType;
+	//1:'现金',2:'银行',3:'支付宝',4:'微信'
 	private int feeType;
 	private double amount;
 	private String comment;
@@ -87,6 +88,42 @@ public class Expense implements Serializable{
 	}
 	public void setLastUpdateTime(java.util.Date lastUpdateTime) {
 		this.lastUpdateTime = lastUpdateTime;
+	}
+	
+	//1:'现金',2:'银行',3:'支付宝',4:'微信'
+	public enum feeTypeE{
+		CASH (1, "现金"), 
+		CARD (2,"银行"),
+		ALIPAY (3,"支付宝"),
+		WECHAT (4,"微信");
+		
+		private int value;
+		private String name;
+
+		private feeTypeE(int value, String name) {
+			this.value = value;
+			this.name = name;
+		}
+
+		public int getValue() {
+			return value;
+		}
+		public String getName() {
+			return name;
+		}
+
+		public static String getName(int value ){
+			if (value == CASH.getValue())
+				return CASH.getName();
+			else if (value == CARD.getValue())
+				return CARD.getName();
+			else if (value == ALIPAY.getValue())
+				return ALIPAY.getName();
+			else if (value == WECHAT.getValue())
+				return WECHAT.getName();
+			else 
+				return "";
+		}
 	}
 	
 	public enum statusE{

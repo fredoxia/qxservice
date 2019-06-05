@@ -8,6 +8,7 @@ public class HeadQExpenseRptElesVO extends HeadQReportItemVO{
 	 * 
 	 */
 	private static final long serialVersionUID = 3839655558463048663L;
+	private String parentExpenseTypeName = "";
 	private int expenseTypeParentId = 0;
 	private int expenseTypeId = 0;
 	private double cash = 0;
@@ -28,6 +29,16 @@ public class HeadQExpenseRptElesVO extends HeadQReportItemVO{
 	}
 	
 	
+
+
+	public String getParentExpenseTypeName() {
+		return parentExpenseTypeName;
+	}
+
+	public void setParentExpenseTypeName(String parentExpenseTypeName) {
+		this.parentExpenseTypeName = parentExpenseTypeName;
+	}
+
 	public int getExpenseTypeId() {
 		return expenseTypeId;
 	}

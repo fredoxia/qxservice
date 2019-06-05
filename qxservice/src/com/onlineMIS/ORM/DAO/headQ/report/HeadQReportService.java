@@ -61,6 +61,7 @@ import com.onlineMIS.ORM.entity.headQ.report.HeadQCustAcctFlowReportItem;
 import com.onlineMIS.ORM.entity.headQ.report.HeadQCustAcctFlowReportTemplate;
 import com.onlineMIS.ORM.entity.headQ.report.HeadQCustAcctFlowTemplate;
 import com.onlineMIS.ORM.entity.headQ.report.HeadQCustInforTemplate;
+import com.onlineMIS.ORM.entity.headQ.report.HeadQExpenseReportTemplate;
 import com.onlineMIS.ORM.entity.headQ.report.HeadQExpenseRptElesVO;
 import com.onlineMIS.ORM.entity.headQ.report.HeadQPurchaseStatisticReportItem;
 import com.onlineMIS.ORM.entity.headQ.report.HeadQPurchaseStatisticReportItemVO;
@@ -1269,6 +1270,159 @@ public class HeadQReportService {
 	public void prepareHQExpenseReportUI(HeadQReportFormBean formBean) {
 		formBean.setStartDate(Common_util.getToday());
 		formBean.setEndDate(Common_util.getToday());
+	}
+	
+	/**
+	 * 
+	 * @param path
+	 * @param startDate
+	 * @param endDate
+	 * @param year_ID
+	 * @param quarter_ID
+	 * @return
+	 */
+	@Transactional
+	public Response downloadHeadQExpenseReport(String path, Date startDate, Date endDate) {
+		Response response = new Response();
+ 
+		//1.1 获取总信息
+		List<Object> value_sale = new ArrayList<Object>();
+		value_sale.add(startDate);
+		value_sale.add(endDate);
+		value_sale.add(Expense.statusE.NORMAL.getValue());
+		
+		String hql = "SELECT feeType, sum(amount)  FROM Expense WHERE expenseDate BETWEEN ? AND ? AND status =? AND entity IS null GROUP BY feeType";
+		
+		List<Object> values = expenseDaoImpl.executeHQLSelect(hql, value_sale.toArray(), null, true);
+		
+		HeadQExpenseRptElesVO totalItem = new HeadQExpenseRptElesVO("", 0,  HeadQSalesStatisticReportItemVO.STATE_CLOSED);
+		
+		if (values != null){
+			for (Object record : values ){
+				Object[] records = (Object[])record;
+				int feeType = Common_util.getInt(records[0]);
+				double amount = Common_util.getDouble(records[1]);
+
+				totalItem.putValue(feeType, amount);
+			}
+		}
+		
+		totalItem.setParentExpenseTypeName("所有费用汇总");
+		
+		//1.2 获取汇总信息
+		hql = "SELECT expenseType.parentId, feeType, sum(amount)  FROM Expense WHERE expenseDate BETWEEN ? AND ? AND status =? AND entity IS null  GROUP BY expenseType.parentId,feeType";
+		
+		values = expenseDaoImpl.executeHQLSelect(hql, value_sale.toArray(), null, true);
+		
+		Map<Integer, HeadQExpenseRptElesVO> sumMap = new HashMap<Integer, HeadQExpenseRptElesVO>();
+		
+		if (values != null){
+			for (Object record : values ){
+				Object[] records = (Object[])record;
+				int expenseParentId = Common_util.getInt(records[0]);
+				int feeType = Common_util.getInt(records[1]);
+				double amount = Common_util.getDouble(records[2]);
+
+				HeadQExpenseRptElesVO rootItem = sumMap.get(expenseParentId);
+				if (rootItem == null){
+					rootItem = new HeadQExpenseRptElesVO("", 1,  HeadQSalesStatisticReportItemVO.STATE_CLOSED);
+					ExpenseType type = expenseTypeDaoImpl.get(expenseParentId, true);
+					rootItem.setName(type.getName());
+					rootItem.setExpenseTypeParentId(expenseParentId);
+				}
+					
+				rootItem.putValue(feeType, amount);
+				sumMap.put(expenseParentId, rootItem);
+			}
+		}
+		
+		List<HeadQExpenseRptElesVO> sumItems = new ArrayList<HeadQExpenseRptElesVO>();
+		for (HeadQExpenseRptElesVO rootItem : sumMap.values())
+			sumItems.add(rootItem);
+		
+		Collections.sort(sumItems, new HeadQExpenseReportSort());
+		
+		
+		//1.3获取子目录
+
+		hql = "SELECT expenseType.parentId, expenseType.id, feeType, sum(amount)  FROM Expense WHERE expenseDate BETWEEN ? AND ? AND status =? AND entity IS null  GROUP BY expenseType.id,feeType";
+		
+		values = expenseDaoImpl.executeHQLSelect(hql, value_sale.toArray(), null, true);
+		
+		Map<Integer, HeadQExpenseRptElesVO> resultMap = new HashMap<Integer, HeadQExpenseRptElesVO>();
+		
+		if (values != null){
+			String name = "";
+			for (Object record : values ){
+				Object[] records = (Object[])record;
+				int parentExpenseTypeId = Common_util.getInt(records[0]);
+				int expenseTypeId = Common_util.getInt(records[1]);
+				int feeType = Common_util.getInt(records[2]);
+				double amount = Common_util.getDouble(records[3]);
+
+				HeadQExpenseRptElesVO rootItem = resultMap.get(expenseTypeId);
+				if (rootItem == null){
+					ExpenseType type = expenseTypeDaoImpl.get(expenseTypeId, true);
+					name = type.getName();				
+					rootItem = new HeadQExpenseRptElesVO(name, 2,  HeadQSalesStatisticReportItemVO.STATE_OPEN);
+
+					rootItem.setExpenseTypeId(expenseTypeId);
+					rootItem.setExpenseTypeParentId(parentExpenseTypeId);
+				}
+					
+				rootItem.putValue(feeType, amount);
+				
+				resultMap.put(expenseTypeId, rootItem);
+			}
+		}
+		
+		Map<Integer, List<HeadQExpenseRptElesVO>> eleMap = new HashMap<Integer, List<HeadQExpenseRptElesVO>>();
+		for (HeadQExpenseRptElesVO rootItem : resultMap.values()){
+			List<HeadQExpenseRptElesVO> eles = eleMap.get(rootItem.getExpenseTypeParentId());
+		    
+			if (eles == null)
+				eles = new ArrayList<HeadQExpenseRptElesVO>();
+			
+			eles.add(rootItem);
+			eleMap.put(rootItem.getExpenseTypeParentId(), eles);
+		}
+		
+        
+		
+		//1.2 准备报表细节
+		List<HeadQExpenseRptElesVO> reportItems = new ArrayList<HeadQExpenseRptElesVO>();
+		int parentExpenseTypeId  = 0;
+		for (HeadQExpenseRptElesVO item : sumItems){
+			parentExpenseTypeId = item.getExpenseTypeParentId();
+			
+			List<HeadQExpenseRptElesVO> eles = eleMap.get(parentExpenseTypeId);
+
+            Collections.sort(eles, new HeadQExpenseReportSort());
+            eles.get(0).setParentExpenseTypeName(expenseTypeDaoImpl.get(parentExpenseTypeId, true).getName());
+            
+            reportItems.addAll(eles);
+            
+            String name = item.getName();
+            item.setName(name + " 汇总");
+            reportItems.add(item);
+		}
+		
+		reportItems.add(totalItem);
+		
+		//2. 准备excel 报表
+		try {
+		    HeadQExpenseReportTemplate rptTemplate = new HeadQExpenseReportTemplate(reportItems, path, startDate, endDate);
+		    HSSFWorkbook wb = rptTemplate.process();
+			
+			ByteArrayInputStream byteArrayInputStream = ExcelUtil.convertExcelToInputStream(wb);
+			
+			response.setReturnValue(byteArrayInputStream);
+			response.setReturnCode(Response.SUCCESS);
+		} catch (IOException e){
+			e.printStackTrace();
+			response.setFail(e.getMessage());
+		}
+		return response;
 	}
 	
 

@@ -57,7 +57,6 @@
          <action name="expenseHeadqJSP" class="com.onlineMIS.action.shared.expense.ExpenseJSPAction">
             <result name="createExpenseHeadq">/jsp/headQ/expense/CreateExpense.jsp</result>
             <result name="searchExpenseHeadq">/jsp/headQ/expense/SearchExpense.jsp</result>
-            <result name="expenseRptHeadq">/jsp/headQ/expense/ExpenseReport.jsp</result>
             <result name="updateExpenseHeadq">/jsp/headQ/expense/UpdateExpense.jsp</result>
          </action>	
         <action name="login" class="com.onlineMIS.action.headQ.user.LoginAction">

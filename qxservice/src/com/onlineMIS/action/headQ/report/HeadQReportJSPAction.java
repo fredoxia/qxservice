@@ -264,4 +264,30 @@ public class HeadQReportJSPAction extends HeadQReportAction {
 		} else 
 			return ERROR;	
 	}
+	
+	/**
+	 * 下载 客户acct flow 成excel report
+	 * @return
+	 */
+	public String downloadExpenseExcelReport(){
+		loggerLocal.info(this.getClass().getName()+ ".downloadExpenseExcelReport");
+		HttpServletRequest request = (HttpServletRequest)ActionContext.getContext().get(ServletActionContext.HTTP_REQUEST);   
+		String contextPath= request.getRealPath("/"); 
+
+		Response response = new Response();
+		try {
+		     response = headQReportService.downloadHeadQExpenseReport(contextPath + "WEB-INF\\template\\headQ", formBean.getStartDate(), formBean.getEndDate());
+		} catch (Exception e) {
+			response.setReturnCode(Response.FAIL);
+			response.setMessage(e.getMessage());
+		}
+		 
+		if (response.getReturnCode() == Response.SUCCESS){
+		    InputStream excelStream= (InputStream)response.getReturnValue();
+		    this.setExcelStream(excelStream);
+		    this.setExcelFileName("ZongBuFeiYongBaoBiao.xls");
+		    return "report"; 
+		} else 
+			return ERROR;	
+	}
 }

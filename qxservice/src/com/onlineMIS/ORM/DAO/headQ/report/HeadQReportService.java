@@ -547,14 +547,12 @@ public class HeadQReportService {
 			whereClause = " AND p.order.cust.id = " + cust.getId();
 		}
 
-		
 		String name = "";
-	 
-		
+
 		if (parentId == 0){
 			//@2. 根节点
 			name = cust.getName();
-			String criteria = "SELECT SUM(quantity), SUM(recCost * quantity), SUM(wholeSalePrice * quantity), p.order.order_type FROM InventoryOrderProduct p WHERE p.order.order_Status = ? AND p.order.order_EndTime BETWEEN ? AND ? "+ whereClause + " GROUP BY p.order.order_type";
+			String criteria = "SELECT SUM(quantity), SUM(recCost * quantity), SUM(wholeSalePrice * quantity), SUM(p.order.totalDiscount), p.order.order_type FROM InventoryOrderProduct p WHERE p.order.order_Status = ? AND p.order.order_EndTime BETWEEN ? AND ? "+ whereClause + " GROUP BY p.order.order_type";
 			
 			List<Object> values = inventoryOrderProductDAOImpl.executeHQLSelect(criteria, value_sale.toArray(), null, true);
 			
@@ -566,9 +564,10 @@ public class HeadQReportService {
 					int quantity = Common_util.getInt(records[0]);
 					double cost = Common_util.getDouble(records[1]);
 					double wholeSale = Common_util.getDouble(records[2]);
-					int type = Common_util.getInt(records[3]);
+					double totalDiscount = Common_util.getDouble(records[3]);
+					int type = Common_util.getInt(records[4]);
 					
-					rootItem.putValue(quantity, type, wholeSale, cost);
+					rootItem.putValue(quantity, type, wholeSale, cost, totalDiscount);
 				}
 				
 				rootItem.reCalculate();
@@ -593,7 +592,7 @@ public class HeadQReportService {
 					
 					HeadQSalesStatisticReportItemVO levelFour = dataMap.get(yearIdDB);
 					if (levelFour != null){
-						levelFour.putValue(quantity, type, wholeSale, cost);
+						levelFour.putValue(quantity, type, wholeSale, cost,0);
 					} else {
 						Year year = yearDaoImpl.get(yearIdDB, true);
 						
@@ -601,7 +600,7 @@ public class HeadQReportService {
 						
 						levelFour = new HeadQSalesStatisticReportItemVO(name, parentId, custId, yearIdDB, quarterId, brandId,0, HeadQSalesStatisticReportItemVO.STATE_CLOSED);
 
-						levelFour.putValue(quantity, type, wholeSale, cost);
+						levelFour.putValue(quantity, type, wholeSale, cost,0);
 					}
 					
 					dataMap.put(yearIdDB, levelFour);
@@ -637,7 +636,7 @@ public class HeadQReportService {
 					
 					HeadQSalesStatisticReportItemVO levelFour = dataMap.get(quarterIdDB);
 					if (levelFour != null){
-						levelFour.putValue(quantity, type, wholeSale, cost);
+						levelFour.putValue(quantity, type, wholeSale, cost,0);
 					} else {
 						Year year = yearDaoImpl.get(yearId, true);
 						Quarter quarter = quarterDaoImpl.get(quarterIdDB, true);
@@ -645,7 +644,7 @@ public class HeadQReportService {
 						
 						levelFour = new HeadQSalesStatisticReportItemVO(name, parentId, custId, yearId, quarterIdDB, brandId,0,  HeadQSalesStatisticReportItemVO.STATE_CLOSED);
 
-						levelFour.putValue(quantity, type, wholeSale, cost);
+						levelFour.putValue(quantity, type, wholeSale, cost,0);
 					}
 					
 					dataMap.put(quarterIdDB, levelFour);
@@ -679,7 +678,7 @@ public class HeadQReportService {
 					
 					HeadQSalesStatisticReportItemVO levelFour = dataMap.get(brandIdDB);
 					if (levelFour != null){
-						levelFour.putValue(quantity, type, wholeSale, cost);
+						levelFour.putValue(quantity, type, wholeSale, cost,0);
 					} else {
 						Brand brand = brandDaoImpl.get(brandIdDB, true);
 
@@ -691,7 +690,7 @@ public class HeadQReportService {
 						 name += brand.getBrand_Name();
 						
 						levelFour = new HeadQSalesStatisticReportItemVO(name, parentId, custId, yearId, quarterId, brandIdDB,0, HeadQSalesStatisticReportItemVO.STATE_CLOSED);
-						levelFour.putValue(quantity, type, wholeSale, cost);
+						levelFour.putValue(quantity, type, wholeSale, cost,0);
 					}
 					
 					dataMap.put(brandIdDB, levelFour);
@@ -725,7 +724,7 @@ public class HeadQReportService {
 					
 					HeadQSalesStatisticReportItemVO levelFour = dataMap.get(pbId);
 					if (levelFour != null){
-						levelFour.putValue(quantity, type, wholeSale, cost);
+						levelFour.putValue(quantity, type, wholeSale, cost,0);
 					} else {
 						ProductBarcode pb = productBarcodeDaoImpl.get(pbId, true);
 						String barcode = pb.getBarcode();
@@ -743,7 +742,7 @@ public class HeadQReportService {
 						name = Common_util.cutProductCode(pb.getProduct().getProductCode()) + colorName + " "  + gender + sizeRange +  category.getCategory_Name();
 						
 						levelFour = new HeadQSalesStatisticReportItemVO(name, parentId, custId, yearId, quarterId, brandId, pbId, HeadQSalesStatisticReportItemVO.STATE_OPEN);
-						levelFour.putValue(quantity, type, wholeSale, cost);
+						levelFour.putValue(quantity, type, wholeSale, cost,0);
 						levelFour.setBarcode(barcode);
 					}
 					

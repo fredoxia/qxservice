@@ -9,6 +9,7 @@ import net.sf.json.JsonConfig;
 
 import com.onlineMIS.ORM.DAO.Response;
 import com.onlineMIS.ORM.entity.chainS.user.ChainUserInfor;
+import com.onlineMIS.ORM.entity.headQ.user.UserInfor;
 import com.onlineMIS.common.Common_util;
 import com.onlineMIS.common.loggerLocal;
 import com.opensymphony.xwork2.ActionContext;

@@ -12,23 +12,27 @@ public class HeadQSalesStatisticReportItem extends HeadQStatisticReportItem{
 	private static final long serialVersionUID = -4430014455314999157L;
 
 	protected int salesQ = 0;
-	protected int returnQ = 0;
-	protected int netQ = 0;
-
 	//销售额
 	protected double salesPrice = 0;
-	//退货额
-	protected double returnPrice = 0;
-	//净销售额
-	protected double netPrice =0;
-	//销售折扣
-	protected double salesDiscount = 0;
 	//销售成本
 	protected double salesCost = 0;
+	//销售利润
+	protected double salesProfit = 0;
+
+	protected int returnQ = 0;
+	//退货额
+	protected double returnPrice = 0;
 	//退货成本
 	protected double returnCost = 0;
+	//退货利润
+	protected double returnProfit = 0;
+
+	protected int netQ = 0;
+	//净销售额
+	protected double netPrice =0;
 	//净销售成本
 	protected double netCost = 0;
+	//销售利润
 	//净利润
 	protected double netProfit = 0;
 	
@@ -62,11 +66,29 @@ public class HeadQSalesStatisticReportItem extends HeadQStatisticReportItem{
 		}
 		
 		netQ = salesQ - returnQ;
+		salesProfit = salesPrice - salesCost;
+		returnProfit = returnPrice - returnCost;
 		netPrice = salesPrice - returnPrice;
 		netCost = salesCost - returnCost;
 		netProfit = netPrice - netCost;
 	}
 
+
+	public double getSalesProfit() {
+		return salesProfit;
+	}
+
+	public void setSalesProfit(double salesProfit) {
+		this.salesProfit = salesProfit;
+	}
+
+	public double getReturnProfit() {
+		return returnProfit;
+	}
+
+	public void setReturnProfit(double returnProfit) {
+		this.returnProfit = returnProfit;
+	}
 
 	public int getSalesQ() {
 		return salesQ;
@@ -116,13 +138,6 @@ public class HeadQSalesStatisticReportItem extends HeadQStatisticReportItem{
 		this.netPrice = netPrice;
 	}
 
-	public double getSalesDiscount() {
-		return salesDiscount;
-	}
-
-	public void setSalesDiscount(double salesDiscount) {
-		this.salesDiscount = salesDiscount;
-	}
 
 	public double getSalesCost() {
 		return salesCost;

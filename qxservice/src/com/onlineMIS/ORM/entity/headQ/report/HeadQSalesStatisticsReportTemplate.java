@@ -32,7 +32,7 @@ public class HeadQSalesStatisticsReportTemplate  extends ExcelTemplate{
 	private List<HeadQSalesStatisticReportItem> items = new ArrayList<HeadQSalesStatisticReportItem>();
 	private HeadQSalesStatisticReportItem totalItem = new HeadQSalesStatisticReportItem();
 
-	private int data_row = 5;
+	private int data_row = 6;
 
 	private final int BRAND_COLUMN = 0;
 	private final int PRODUCT_CODE_COLUMN = 1;
@@ -43,14 +43,21 @@ public class HeadQSalesStatisticsReportTemplate  extends ExcelTemplate{
 	private final int SIZE_COLUMN =6;
 	private final int SIZE_MIN_COLUMN =7;
 	private final int SIZE_MAX_COLUMN =8;
+	
 	private final int SALES_Q_COLUMN =9;
-	private final int RETURN_Q_COLUMN = 10;
-	private final int NET_Q_COLUMN = 11;
-	private final int SALES_AMT_COLUMN = 12;
-	private final int RETURN_AMT_COLUMN = 13;
-	private final int NET_AMT_COLUMN = 14;
-	private final int NET_COST_COLUMN = 15;
-	private final int PROFIT_COLUMN = 16;
+	private final int SALES_COST_COLUMN =10;
+	private final int SALES_AMT_COLUMN = 11;
+	private final int SALES_REVENUE_COLUMN =12;
+	
+	private final int RETURN_Q_COLUMN = 13;
+	private final int RETURN_COST_COLUMN = 14;
+	private final int RETURN_AMT_COLUMN = 15;
+	private final int RETURN_REVENUE_COLUMN = 16;
+	
+	private final int NET_Q_COLUMN = 17;
+	private final int NET_COST_COLUMN = 18;
+	private final int NET_AMT_COLUMN = 19;
+	private final int PROFIT_COLUMN = 20;
 	private String rptDesp ;
 	private Date startDate = new Date();
 	private Date endDate = new Date();
@@ -126,16 +133,23 @@ public class HeadQSalesStatisticsReportTemplate  extends ExcelTemplate{
 			
 			if (levelFourItem.getSalesQ() != 0)
 			    row.createCell(SALES_Q_COLUMN).setCellValue(levelFourItem.getSalesQ());
+			if (levelFourItem.getSalesCost() != 0)
+				   row.createCell(SALES_COST_COLUMN).setCellValue(levelFourItem.getSalesCost());
+			if (levelFourItem.getSalesPrice() != 0)
+				   row.createCell(SALES_AMT_COLUMN).setCellValue(levelFourItem.getSalesPrice());
+			if (levelFourItem.getSalesProfit() != 0)
+				   row.createCell(SALES_REVENUE_COLUMN).setCellValue(levelFourItem.getSalesProfit());
 			
 			if (levelFourItem.getReturnQ() != 0)
 			    row.createCell(RETURN_Q_COLUMN).setCellValue(levelFourItem.getReturnQ());
-			row.createCell(NET_Q_COLUMN).setCellValue(levelFourItem.getNetQ());
-			
-			if (levelFourItem.getSalesPrice() != 0)
-			   row.createCell(SALES_AMT_COLUMN).setCellValue(levelFourItem.getSalesPrice());
-			
+			if (levelFourItem.getReturnCost() != 0)
+				   row.createCell(RETURN_COST_COLUMN).setCellValue(levelFourItem.getReturnCost());
 			if (levelFourItem.getReturnPrice() != 0)
-			   row.createCell(RETURN_AMT_COLUMN).setCellValue(levelFourItem.getReturnPrice());
+				   row.createCell(RETURN_AMT_COLUMN).setCellValue(levelFourItem.getReturnPrice());
+			if (levelFourItem.getReturnProfit() != 0)
+				   row.createCell(RETURN_REVENUE_COLUMN).setCellValue(levelFourItem.getReturnProfit());
+			
+			row.createCell(NET_Q_COLUMN).setCellValue(levelFourItem.getNetQ());
 			row.createCell(NET_AMT_COLUMN).setCellValue(levelFourItem.getNetPrice());
 			row.createCell(NET_COST_COLUMN).setCellValue(levelFourItem.getNetCost());
 			row.createCell(PROFIT_COLUMN).setCellValue(levelFourItem.getNetProfit());
@@ -144,20 +158,20 @@ public class HeadQSalesStatisticsReportTemplate  extends ExcelTemplate{
 		//把总数放进去
 		Row row = sheet.createRow(data_row + totalDataRow);
 		row.createCell(BRAND_COLUMN).setCellValue("总计");
-		if (totalItem.getSalesQ() != 0)
-		    row.createCell(SALES_Q_COLUMN).setCellValue(totalItem.getSalesQ());
-		
-		if (totalItem.getReturnQ() != 0)
-		    row.createCell(RETURN_Q_COLUMN).setCellValue(totalItem.getReturnQ());
+		row.createCell(SALES_Q_COLUMN).setCellValue(totalItem.getSalesQ());
+		row.createCell(RETURN_Q_COLUMN).setCellValue(totalItem.getReturnQ());
 		row.createCell(NET_Q_COLUMN).setCellValue(totalItem.getNetQ());
 		
-		if (totalItem.getSalesPrice() != 0)
-		   row.createCell(SALES_AMT_COLUMN).setCellValue(totalItem.getSalesPrice());
-		
-		if (totalItem.getReturnPrice() != 0)
-		   row.createCell(RETURN_AMT_COLUMN).setCellValue(totalItem.getReturnPrice());
-		row.createCell(NET_AMT_COLUMN).setCellValue(totalItem.getNetPrice());
+		row.createCell(SALES_COST_COLUMN).setCellValue(totalItem.getSalesCost());
+		row.createCell(RETURN_COST_COLUMN).setCellValue(totalItem.getReturnCost());
 		row.createCell(NET_COST_COLUMN).setCellValue(totalItem.getNetCost());
+		
+		row.createCell(SALES_AMT_COLUMN).setCellValue(totalItem.getSalesPrice());
+		row.createCell(RETURN_AMT_COLUMN).setCellValue(totalItem.getReturnPrice());
+		row.createCell(NET_AMT_COLUMN).setCellValue(totalItem.getNetPrice());
+		
+		row.createCell(SALES_REVENUE_COLUMN).setCellValue(totalItem.getSalesProfit());
+		row.createCell(RETURN_REVENUE_COLUMN).setCellValue(totalItem.getReturnProfit());
 		row.createCell(PROFIT_COLUMN).setCellValue(totalItem.getNetProfit());
 	
 		return templateWorkbook;
